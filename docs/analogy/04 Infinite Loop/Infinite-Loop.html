@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Infinite Loop: A Microcosm of Discovery</title>
+    <link rel="stylesheet" href="../analogy.css">
+</head>
+<body>
+
+<h1><span class="title-main">The Infinite Loop</span>: <span class="title-sub">A Microcosm of Discovery</span></h1>
+
+<p>For the past two weeks, I have been on a journey of discovery that has been profound and extremely humbling at the same time. My journey started with a quest to understand the meaning of one simple concept embedded in an application framework created by Apple, SwiftUI. This puzzling concept was coined "Views are Values," and I never really understood the meaning fully for the past 3–4 years until I started an honest effort to decompose the concept and examine why the three words had a deeper meaning. This led me down a path of dependency on prior analogy that was stored in my memory. I asked Grok to help me decompose the three words by building a context of my prior experience with design patterns and past successes of implementation. This led to an article I published on LinkedIn, and I thought done was done. Then as I reread my article "SwiftUI's Views are Values: How a Past Cocoa Hack Finally Made It Click," I started to notice the deeper importance of analogy. This inspired a general discussion with Grok about the importance of analogy and the possible connection to generative AI. Truth be told, my inquiry wasn't some random spark of inspiration. Twenty-seven years ago I started to learn how to become a software developer in earnest, and I was deeply inspired by the book <em>Gödel, Escher, Bach: An Eternal Golden Braid</em> by Douglas Richard Hofstadter (I read it around 2002). If you don't know his name, Professor Hofstadter believes that analogy is an important component of generative AI, and many AI researchers also feel this is an important piece of the puzzle to finding mechanisms that can perform reasoning. I'm intentionally dumbing down how I describe the landscape because I would like to inspire as many readers as possible.</p>
+
+<p>Another thing worth mentioning here is my exposure to the philosophy of language to fulfill liberal arts requirements in my undergraduate engineering studies. I took one class on it back then, and honestly, I feel like that single course was as instrumental to my success as a software developer as any of the engineering, math, or science classes I took. It planted a seed about how meaning works in language — especially Gottlob Frege's distinction between sense and reference.</p>
+
+<p>Fast-forward to today, and it clicks in a new way with LLMs. At their foundation, these models are all about sense and reference. The atomic embeddings are like references — discrete pointers to micro-concepts in the latent space. But the real magic, the glue that makes everything work, is the sense: the way those references get presented, combined, and proportionally related through attention and the KV cache. It's what turns a bunch of isolated micro-ideas into coherent chains of thought. Just like Frege showed how different senses of the same reference can carry new information, the embeddings' contextual "modes" let LLMs build emergent reasoning that feels informative, sometimes even insightful. I don't pretend to be a philosopher here — I'm just noticing how that old liberal arts requirement keeps looping back into what I'm seeing now.</p>
+
+<p>Anyway, I started to formulate postulates about how analogy can be leveraged more efficiently, and this turned into a series of articles I started to organically write. I wasn't allowing imposter syndrome to hinder my writing because I felt any take on the subject was worth voicing since nobody has solved the problem of generative AI yet. My approach to the articles was grounded in intellectual humility, and I hope this truth is apparent when you read them. This article is part 4 in the series, and I now probably need to include the article that inspired the series as a prequel.</p>
+
+<p>The reason I named this article "The Infinite Loop" is because as I was trying to get a better grasp of what exactly is involved with LLM output on a granular level, I came back full circle to the fact that LLMs essentially rely on key-value observing — or at least something that feels eerily similar in spirit. I know this comment is going to ruffle a bunch of feathers because LLMs and Apple's reactive UI framework exist in two disparate domains, but isn't the most important feature of a useful analogy recognition/generation engine the ability to connect analogies across disparate domains? Successful LLMs are being built on the concept of KV cache. That's right — KEY VALUE cache!!! When Grok reminded me what KV stood for this morning, I thought it can't be that simple.</p>
+
+<p>So I asked Grok:</p>
+
+<blockquote>
+so it's similar in concept to the key value observer pattern in Apple's framework for state reactivity?
+</blockquote>
+
+<p>Grok pushed back:</p>
+
+<blockquote class="quote">
+Not really — the conceptual similarity is quite loose and superficial, mostly boiling down to both systems involving "keys" and "values" in the name and dealing with some form of state/access over time. But the underlying mechanisms, purposes, and designs are fundamentally different.
+</blockquote>
+
+<p>Grok then proceeded to talk about how KVO is event driven and LLMs operate in a different manner.</p>
+
+<p>I then asked:</p>
+
+<blockquote>
+but isn't the next token an event of "hey this changed, react to it"?
+</blockquote>
+
+<p>And Grok agreed that there is some similarity to the methodology. I'm not claiming anything groundbreaking here; I'm just providing another analogy to the discussion. KVO is similar in spirit to KV cache.</p>
+
+<p>What strikes me most now is how the chain of tokens that an LLM generates feels like a microcosm of scientific organic discourse in general. Embeddings act as atomic, micro-level concepts — tiny, discrete building blocks. A single generated token is like a micro-thesis or a small publishable unit: a fact, a connector, a tentative claim conditioned on everything before it. The KV cache keeps the growing "literature" accessible, appending each new micro-piece without recomputing the whole history from scratch. Then the chain builds: token by token, these atomic units link into longer reasoning traces that can emerge into bigger ideas, much like individual scientific papers (macro concepts/theses) chain together through citations, debates, and syntheses to form new knowledge or paradigm shifts. Both are incremental, cumulative, and emergent — no grand plan upfront, just small steps gluing proportionally into something coherent (and sometimes surprisingly novel). It's poetic that LLMs, at their core, reenact discovery at a compressed, accelerated scale.</p>
+
+<p>This full-circle moment tightens the loop but doesn't close it. If analogy is the engine of thought, and these key-value primitives keep showing up in such different places, what else might we find if we keep following the threads? The series continues — because the loop never really stops.</p>
+
+
+<div class="footnote">
+<p>¹ The title "The Infinite Loop" draws from the famous street name at Apple's old Cupertino headquarters (1 Infinite Loop), a playful nod to the programming bug where code repeats forever. It's not about the company itself — just the metaphor of endless iteration that fits the recursive nature of discovery I'm exploring here.</p>
+
+<p>² Frege's "On Sense and Reference" (1892) distinguishes "sense" (the mode of presentation or cognitive content) from "reference" (the actual object denoted). It's foundational in philosophy of language and still echoes in discussions of meaning in AI.</p>
+</div>
+
+<nav class="nav-bottom">
+  <a href="../03%20Searching%20for%20a%20Native%20Domain/Searching-for-a-Native-Domain.html">← Previous</a>
+  <a href="../analogy.html">Index</a>
+  <a href="../05%20Instrumentation/Instrumentation-KernelReductionOperator.html">Next →</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,402 @@
+
+/* === Disclosure Triangles (Easter Eggs) === */
+
+/* Hide default browser marker */
+summary::-webkit-details-marker {
+  display: none;
+}
+summary::marker {
+  content: none; /* Firefox */
+}
+
+/* Custom right/down triangle for .custom-disclosure */
+.custom-disclosure summary::before {
+  content: '▸';
+  position: absolute;
+  left: -0.1rem;               /* ← safer starting point */
+  color: #888;
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+}
+
+
+.custom-disclosure[open] summary::before {
+  content: '▾';               /* down when open */
+}
+
+
+/* Shared styles for the Analogy series — based on chapter 01 */
+
+body {
+  font-family: Georgia, serif;
+  line-height: 1.7;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: #333;
+}
+
+h1, h2, h3 {
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
+}
+
+h2 {
+  margin: 2em 0 0.6em;
+}
+
+h3 {
+  margin: 1.5em 0 0.5em;
+}
+
+p {
+  margin: 1.2em 0;
+}
+
+blockquote {
+  border-left: 4px solid #aaa;
+  padding-left: 15px;
+  margin: 20px 0;
+  font-style: italic;
+  color: #555;
+}
+
+ul, ol {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+li {
+  margin: 0.5em 0;
+}
+
+.reference {
+  font-size: 0.9em;
+  margin: 10px 0;
+}
+
+footer {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #777;
+}
+
+/* Utility classes used across chapters */
+.byline {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 2rem;
+}
+
+.teaser {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 2rem 0;
+}
+
+.references {
+  margin-top: 3rem;
+  font-size: 0.95rem;
+}
+
+.references li {
+  margin-bottom: 1rem;
+}
+
+.added {
+  background: #f8f9fa;
+  border-left: 5px solid #6c9eeb;
+  padding: 1.2em 1.8em;
+  margin: 2em 0;
+  font-size: 1.05em;
+}
+
+.added h3 {
+  margin-top: 0;
+  color: #2b579a;
+}
+
+.caveat {
+  background: #fff8e1;
+  padding: 1em 1.5em;
+  border-left: 5px solid #f0c000;
+  margin: 1.5em 0;
+}
+
+.highlight {
+  background: #fff3cd;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.quote {
+  margin: 1.5em 0;
+  padding: 1em;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border-left: 4px solid #ccc;
+  color: #444;
+  font-style: italic;
+}
+
+.footnote {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 3em;
+  border-top: 1px solid #eee;
+  padding-top: 1em;
+}
+
+.footnotes {
+  margin-top: 3em;
+  padding-top: 1em;
+  border-top: 1px solid #ddd;
+  font-size: 0.95em;
+  color: #444;
+}
+
+.footnotes ol,
+ol.footnotes {
+  padding-left: 1.5em;
+  margin: 0;
+  counter-reset: footnotes;
+  list-style: none;
+}
+
+.footnotes li,
+ol.footnotes li {
+  margin-bottom: 0.8em;
+  counter-increment: footnotes;
+}
+
+ol.footnotes li::before {
+  content: counter(footnotes) ". ";
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+
+.closing {
+  font-style: italic;
+  margin-top: 3em;
+  border-top: 1px solid #ddd;
+  padding-top: 1.5em;
+}
+
+.note {
+  background-color: #eef6ff;
+  border-left: 4px solid #0055aa;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+}
+
+.pond {
+  font-style: italic;
+  color: #0066cc;
+}
+
+/* Index article titles: main (blue) and subtitle (green) */
+.title-main {
+  color: #3b82f6;
+}
+
+.title-sub {
+  color: #4ade80;
+}
+
+/* Navigation: Previous | Index | Next at bottom */
+.nav-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 3em;
+  padding-top: 1.5em;
+  border-top: 1px solid #ddd;
+  font-size: 0.95em;
+}
+
+.nav-bottom a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.nav-bottom a:hover {
+  text-decoration: underline;
+}
+
+.nav-bottom .nav-disabled {
+  color: #999;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Dialogue/message blocks (e.g. Grok chapter) */
+.message {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: #fafafa;
+  border-left: 4px solid #ccc;
+}
+
+.message.user {
+  border-left-color: #3b82f6;
+}
+
+.message.grok {
+  border-left-color: #e11d48;
+}
+
+.message h3 {
+  margin-top: 0;
+  margin-bottom: 0.75em;
+}
+
+.summary-box {
+  background: #f8f9fa;
+  border-left: 4px solid #0066cc;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.highlight-box {
+  background: #fff8e6;
+  border-left: 4px solid #e6a800;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.path {
+  font-family: "SF Mono", Monaco, "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+.file-list {
+  font-size: 0.9em;
+  margin-left: 1rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 2rem 0;
+}
+
+/* Code and pre */
+code {
+  font-family: Consolas, "Menlo", "Courier New", monospace;
+  background: #f0f0f0;
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+
+pre {
+  background: #f8f8f8;
+  padding: 1.2em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+}
+
+sup {
+  font-size: 0.8em;
+  vertical-align: super;
+  color: #0066cc;
+}
+
+/* Footnote refs (for The-Undescribed-Domain) */
+.footnote-ref {
+  font-size: 0.8em;
+  vertical-align: super;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.footnote-ref:hover {
+  text-decoration: underline;
+}
+
+a.back-to-ref {
+  font-size: 0.8em;
+  margin-left: 5px;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a.back-to-ref:hover {
+  text-decoration: underline;
+}
+
+/* Homepage overrides — for landing-page style documents */
+body.homepage {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: #ffffff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+body.homepage .container {
+  max-width: 900px;
+  padding: 40px 20px;
+}
+
+body.homepage h1 {
+  font-size: 5rem;
+  font-weight: 800;
+  margin: 0 0 1.5rem;
+  letter-spacing: -0.05em;
+  background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  border: none;
+  text-align: center;
+}
+
+body.homepage .tagline {
+  font-size: 1.8rem;
+  font-weight: 400;
+  max-width: 800px;
+  margin: 0 auto 2rem;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+body.homepage .highlight {
+  font-weight: 600;
+  color: #ffd166;
+  background: none;
+}
+
+body.homepage footer {
+  position: absolute;
+  bottom: 20px;
+  margin-top: 0;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.homepage a {
+  color: #a1c4fd;
+  text-decoration: none;
+}
+
+body.homepage a:hover {
+  text-decoration: underline;
+}
