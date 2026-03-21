@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Consequence: What Are The Concerns That Need Addressing</title>
+    <link rel="stylesheet" href="../analogy.css">
+</head>
+<body>
+
+<h1><span class="title-main">Social Consequence</span>: <span class="title-sub">What Are The Concerns That Need Addressing</span></h1>
+
+<p><strong>Ben Um</strong> · March 2026</p>
+
+<p>The objective of this series is to evaluate modular reasoning topologies as an alternative to monolithic scaling in large language models. Modular designs separate high-variance exploration from structure-preserving refinement, use guarded feedback loops, and apply Kernel Reduction Operators for instrumentation. These properties are testable on current open models.</p>
+
+<p>Monolithic scaling imposes costs that extend beyond model architecture. The following sections outline the main societal-level consequences that require attention: electricity demand, environmental resource use, consumer hardware prices, and equity impacts.</p>
+
+<h2>Electricity Demand and Grid Capacity</h2>
+
+<p>Global data-center electricity consumption was approximately 415 TWh in 2024, equivalent to roughly 1.5% of world electricity production. Current projections estimate an increase to approximately 945 TWh by 2030, with AI workloads accounting for the majority of the growth (IEA Base Case). In the United States, data centers are projected to drive 40–50% of new electricity demand growth between 2026 and 2030.</p>
+
+<p>This rate of increase exceeds the historical growth rate of the U.S. electricity system. Connection queues for new data centers are currently measured in years in many regions. Some operators are installing on-site natural-gas generation to meet immediate needs, increasing reliance on fossil fuels in the short term.</p>
+
+<p>Distributed compute architectures, including orbital solar-powered systems, require an initial deployment phase using reusable launch vehicles. After deployment, they operate using solar power and passive radiative cooling, eliminating ongoing grid electricity consumption. The upfront propellant use for Starship launches is finite and can be amortized over the operational life of the constellation if satellite reliability and reuse targets are met.</p>
+
+<h2>Environmental and Resource Use</h2>
+
+<p>Data centers require large volumes of water for cooling and power generation. Cumulative annual water use for large-scale AI training and inference facilities is projected to reach billions of cubic meters globally. Critical minerals used in semiconductor manufacturing are subject to increased extraction demand.</p>
+
+<p>Concentrated compute facilities create localized pressure on water resources, electricity grids, and mineral supply chains. Distributed architectures spread physical infrastructure across multiple locations or orbits, reducing concentration of demand in any single geographic or resource domain.</p>
+
+<h2>Consumer Hardware Prices and Availability</h2>
+
+<p>AI training and inference clusters require high-bandwidth memory (HBM) and high-capacity server DDR5. These products provide significantly higher profit margins than commodity DDR5 and DDR4 modules used in consumer PCs, laptops, and smartphones.</p>
+
+<p>Major DRAM manufacturers allocate wafer capacity preferentially to higher-margin products under long-term contracts with hyperscale customers. This reduces available supply for commodity memory. DRAM prices increased 50–90% quarter-over-quarter in late 2025 and early 2026. Retail DDR5 module prices doubled or tripled in the same period. PC and smartphone manufacturers report higher bill-of-materials costs, with memory rising to approximately 23% of total device cost in entry-level segments.</p>
+
+<p>Smaller OEMs face supply uncertainty and frequent price changes. Projections indicate reduced availability of low-cost consumer devices through 2027–2028.</p>
+
+<h2>Monitorability and Interpretability Limitations</h2>
+
+<p>Monolithic large language models consist of a single unified neural network with billions or trillions of parameters. This structure creates significant challenges for monitorability, including real-time observation of internal computations, identification of decision pathways, and auditing of behavior.</p>
+
+<p>Mechanistic interpretability research aims to reverse-engineer these models by identifying features, circuits, and causal pathways. Progress has been made on smaller models (up to tens of billions of parameters), where techniques such as sparse autoencoders and circuit discovery have mapped specific behaviors. However, scaling these methods to frontier models remains computationally intensive and incomplete. Reconstruction errors in sparse autoencoders are high, and performance degrades significantly when activations are replaced with interpreted representations. Polysemanticity (neurons responding to multiple unrelated concepts) and superposition (multiple features compressed into the same dimension) further complicate accurate mapping.</p>
+
+<p>Post-hoc explanation methods (such as feature importance scores or attention visualization) provide limited insight into internal decision processes. They do not reliably identify causal mechanisms or emergent behaviors. In production systems, this limits the ability to:</p>
+<ul>
+    <li>Detect and diagnose the root cause of hallucinations or unsafe outputs;</li>
+    <li>Verify alignment with intended objectives during inference;</li>
+    <li>Audit models for regulatory compliance or bias mitigation;</li>
+    <li>Trace failures in multi-step reasoning or agentic workflows.</li>
+</ul>
+
+<p>Current monitoring tools (logging, tracing, and evaluation metrics) capture inputs, outputs, and high-level metrics but do not provide visibility into the model's internal state at scale. As model size increases, the computational cost of applying interpretability techniques grows nonlinearly, making comprehensive monitoring impractical for frontier systems. These limitations are documented in 2025–2026 surveys and consensus papers from organizations including Anthropic, DeepMind, and academic collaborations, which identify scalable mechanistic interpretability as an unsolved challenge.</p>
+
+<p>Modular reasoning topologies address some of these issues by separating components into independent modules with defined interfaces. This separation allows targeted monitoring and auditing of individual modules without requiring full-system reverse-engineering. Modular designs also enable curating input training data for each module to achieve specific role characteristics, which provides greater precision in role-specific behavior than is typically possible with monolithic models that must handle many different roles within a single parameter set. Such designs are testable on open-weight models today.</p>
+
+<h2>Equity and Geopolitical Considerations</h2>
+
+<p>Higher consumer hardware prices delay device upgrades and increase costs for individuals and organizations in lower-income regions. Grid capacity constraints and power-price increases disproportionately affect areas with high data-center concentration.</p>
+
+<p>Dependence on a small number of large facilities creates single points of failure for regional power reliability. Orbital architectures introduce different dependencies, including launch capacity and orbital management, which carry their own supply-chain and regulatory risks.</p>
+
+<h2>Addressing the Concerns</h2>
+
+<p>The listed consequences stem from concentrated compute demand under monolithic scaling approaches. Modular reasoning topologies reduce concentration in the software domain by separating functional components (such as high-variance exploration and structure-preserving refinement) and using guarded feedback loops. This design is testable immediately using open-weight models.</p>
+
+<p>Distributed physical compute architectures, such as orbital solar-powered systems, represent a separate long-term option for addressing concentration of physical resources (electricity grids, cooling water, land use). These require reusable launch systems like Starship for deployment. While orbital architectures could reduce ongoing terrestrial grid demand after initial launch costs, they are not currently suitable for most inference workloads due to propagation latency (typically 10–20 ms round-trip for low-Earth orbit) and other technical constraints. Current inference infrastructure remains terrestrial.</p>
+
+<p>The decision involves continuing with unification and accepting its documented costs, or pursuing modular designs that allow incremental scaling and targeted improvements. Current data and projections indicate that modular approaches in both software and physical domains warrant evaluation.</p>
+
+<nav class="nav-bottom">
+  <a href="../07%20Are%20Monoliths%20The%20Answer/are-monoliths-the-answer.html">← Previous</a>
+  <a href="../analogy.html">Index</a>
+  <span class="nav-disabled">Next →</span>
+</nav>
+
+</body>
+</html>
