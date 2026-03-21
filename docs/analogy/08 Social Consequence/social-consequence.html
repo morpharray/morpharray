@@ -19,6 +19,7 @@
 
 <p>Monolithic scaling in large language models imposes costs that extend beyond architecture and performance. The following sections outline the main societal-level consequences that require attention: electricity demand and grid capacity, environmental and resource use, consumer hardware prices and availability, monitorability and interpretability limitations, equity and geopolitical considerations, and job displacement and labor market shifts.</p>
 
+
 <h2>Electricity Demand and Grid Capacity</h2>
 
 <p>Global data-center electricity consumption was approximately 415 TWh in 2024, equivalent to roughly 1.5% of world electricity production. Current projections estimate an increase to approximately 945 TWh by 2030, with AI workloads accounting for the majority of the growth (IEA Base Case). In the United States, data centers are projected to drive 40–50% of new electricity demand growth between 2026 and 2030.</p>
@@ -76,14 +77,18 @@
     <p>At the same time, employment provides more than income; it supplies a sense of dignity, self-worth, purpose, and social contribution for many people. Involuntary job loss or the threat of obsolescence can lead to reduced self-esteem, feelings of worthlessness, loss of identity, and other psychological effects, as documented in 2025–2026 research on AI-related displacement. Any transition away from routine work must therefore address this need by creating new pathways to meaningful contribution and social recognition, rather than assuming economic productivity alone will preserve human dignity.</p>
 
 
+    
+    <h2>Addressing the Concerns</h2>
+    <p>The consequences detailed—electricity demand and grid capacity, environmental and resource use, consumer hardware prices and availability, monitorability and interpretability limitations, equity and geopolitical considerations, and job displacement and labor market shifts—are largely unavoidable implications of any meaningful improvement in AI capabilities. Greater performance increases compute demand, resource pressure, hardware competition, internal complexity, and automation of routine tasks, regardless of whether the path is monolithic scaling or modular topologies. Energy strain and job displacement are particularly direct outcomes of capability gains.</p>
 
-<h2>Addressing the Concerns</h2>
+    <p>Modular reasoning topologies can help mitigate several of these issues by reducing concentration of demand in the software domain, enabling targeted monitoring and auditing of individual modules, and allowing curated training for role-specific precision. Modular training can also be less infrastructure-intensive than current trends in monolithic scaling. By using sparse activation (as in Mixture-of-Experts designs) or training specialized modules independently with curated data, modular approaches often require lower active compute, memory, and energy per training run to achieve comparable performance. This can reduce peak power demands and overall datacenter needs compared to training equivalent dense models. These properties are testable on open-weight models today.</p>
 
-<p>The listed consequences stem from concentrated compute demand under monolithic scaling approaches. Modular reasoning topologies reduce concentration in the software domain by separating functional components (such as high-variance exploration and structure-preserving refinement) and using guarded feedback loops. This design is testable immediately using open-weight models.</p>
+    <p>Distributed physical architectures (e.g., orbital systems) offer a long-term option for addressing concentration of physical resources (electricity grids, cooling water, land use). These require reusable launch systems like Starship for deployment. While propagation latency (typically 10–20 ms round-trip for low-Earth orbit, plus overhead) makes them unsuitable for highly interactive, low-latency inference today, they are well-suited for batch inference, large-scale model serving, and non-real-time workloads where constant solar power and passive radiative cooling provide significant advantages over terrestrial systems.</p>
+    
+    <p>Any path that advances AI carries societal costs. Modular approaches warrant evaluation for their potential to reduce concentration and improve observability, but broader planning, education, retraining, and policy support are essential to manage transitions, preserve dignity and purpose in work, and distribute benefits equitably.</p>
 
-<p>Distributed physical compute architectures, such as orbital solar-powered systems, represent a separate long-term option for addressing concentration of physical resources (electricity grids, cooling water, land use). These require reusable launch systems like Starship for deployment. While orbital architectures could reduce ongoing terrestrial grid demand after initial launch costs, they are not currently suitable for most inference workloads due to propagation latency (typically 10–20 ms round-trip for low-Earth orbit) and other technical constraints. Current inference infrastructure remains terrestrial.</p>
 
-<p>The decision involves continuing with unification and accepting its documented costs, or pursuing modular designs that allow incremental scaling and targeted improvements. Current data and projections indicate that modular approaches in both software and physical domains warrant evaluation.</p>
+
 
 <nav class="nav-bottom">
   <a href="../07%20Are%20Monoliths%20The%20Answer/are-monoliths-the-answer.html">← Previous</a>
