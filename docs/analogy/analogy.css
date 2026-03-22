@@ -292,6 +292,11 @@ ol.footnotes li::before {
   font-size: 0.9em;
 }
 
+.spaghetti {
+  color: #d29922;
+  font-weight: bold;
+}
+
 .file-list {
   font-size: 0.9em;
   margin-left: 1rem;
