@@ -10,11 +10,12 @@ The project currently lives in two main forms:
    A public series of essays tracing a personal journey from deconstructing SwiftUI's "views are values" → rediscovering analogy as the analog primitive of thought → probing the latent domain of analogy emergence in frontier LLMs → experimenting with modular reasoning topologies, kernel reduction operators, declarative grammar parsing via reduction ("Spaghetti Parser"), and real-time emergent co-composition.
 
    The series is hosted at:  
-   → https://morpharray.com/analogy/analogy.html  
+   → https://morpharray.github.io/morpharray/analogy/analogy.html  
    (the first live module on the MorphArray site)
 
+
 2. **MorphArray site**  
-   → https://morpharray.com  
+   → https://morpharray.github.io/morpharray/index.html 
    The homepage describes the longer-term ambition: turning streams, arrays, matrices, or clouds of data/relations into new forms — with **Analogy** as the initial live module.
 
 ### The Article Series: From SwiftUI to the Latent Substrate of Thought
@@ -41,7 +42,7 @@ The thread includes:
 - The Ridiculous Chain: From "bindkey -v" to Multimodal Streams in Thirty Minutes
 
 All essays are accessible via the Analogy module page:  
-https://morpharray.com/analogy/analogy.html
+https://morpharray.github.io/morpharray/analogy/analogy.html  
 
 ### Current Status
 
@@ -52,8 +53,8 @@ https://morpharray.com/analogy/analogy.html
 
 ### Links
 
-- Live site & Analogy module → https://morpharray.com  
-- Article series entry point → https://morpharray.com/analogy/analogy.html  
+- Live site & Analogy module → https://morpharray.github.io/morpharray/index.html 
+- Article series entry point → https://morpharray.github.io/morpharray/analogy/analogy.html
 - X / Twitter → [@BenUm432](https://x.com/BenUm432)
 
 If any part of this resonates — especially if you've had your own sudden decompression moment from a tiny overlooked primitive — feel free to open an issue, PR, or just say hello.
