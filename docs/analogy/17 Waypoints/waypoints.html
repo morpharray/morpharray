@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waypoints: The Quiet Design Pattern That Keeps Coming Back</title>
+    <link rel="stylesheet" href="../analogy.css">
+</head>
+<body>
+
+<img src="waypoints.jpg" alt="Waypoints" style="max-width:100%; height:auto; display:block; margin:0 auto 2rem;">
+
+<h1><span class="title-main">Waypoints</span>: <span class="title-sub">The Quiet Design Pattern That Keeps Coming Back</span></h1>
+
+<p class="byline">Ben Um · March 2026</p>
+
+<p>The SwiftUI "views are values" moment felt like a brick — abstract and ungrounded. Trying to understand it led me down a long path of deconstruction using my own past experiences. Along the way, one design pattern kept quietly resurfacing across completely different domains and decades of work.</p>
+
+<p>I call it the <strong>waypoint design pattern</strong>:</p>
+
+<blockquote>
+    Use a sparse set of discrete instructions (waypoints) to guide, navigate, or enable rich, complex behavior.
+</blockquote>
+
+<h2>Early Clumsy Attempts</h2>
+
+<p>In grad school, long before I thought of myself as a software developer, my first C program that wasn't coursework was a deterministic "random" masking experiment. I used a lagged Fibonacci generator to create a byte stream and treated it as an external reference path. I then computed deltas (input_byte − mask_byte) as corrective instructions, hoping the residuals would be small and compressible. Technically this was delta encoding against a pseudorandom predictor, not true waypoint navigation. It mostly failed — random data has high entropy — but the loose instinct was already there: maybe I could use an external scaffold plus corrective signals to navigate data more efficiently.</p>
+
+<h2>Graphics and Smooth Motion</h2>
+
+<p>Years later, while building the FaceMakr avatar app, I created a custom render engine that reduced rich vector drawings to a minimal set of normalized coordinates and a small number of CoreGraphics drawing primitives — almost all of them Bézier path and line instructions. These sparse control points and path commands became the waypoints.</p>
+
+<p>The satisfying, fluid scrolling experience came from smoothly traversing those compact waypoint instructions. A handful of Bézier control points could define complex, natural-looking curves with very little data. The waypoints carried the essential shape and direction, while the rendering system filled in the smooth, analog feel through interpolation.</p>
+
+<h2>Bézier Paths and Audio Compression</h2>
+
+<p>Even earlier, while working with audio in QuickTime and later AVFoundation, I often wondered whether Bézier paths could be used to compress analog audio signals. The idea was simple in concept: approximate smooth waveforms using a sparse set of control points instead of storing every sample. At the time I assumed it was just a personal hunch.</p>
+
+<p>Years later I learned that this intuition was actually a researched and practical technique. Researchers have used quadratic and cubic Bézier curves (and related spline methods) for lossy compression of audio waveforms, motion-capture data, and other analog signals. The sparse control points act as efficient waypoints that capture the essential shape and curvature of the signal, while interpolation reconstructs a smooth approximation. It was another quiet confirmation that the waypoint pattern — using minimal discrete instructions to represent rich continuous behavior — had broader applicability than I realized.</p>
+
+<h2>The Submarine Years</h2>
+
+<p>The pattern showed up most clearly and recently in the last three years working on custom flight controllers for an autonomous mini submarine (AUV) project. Waypoint navigation was at the absolute core of the system.</p>
+
+<p>We worked with sparse sets of 3D waypoints that had to be turned into trajectories the vehicle could actually follow underwater — dealing with drag, unpredictable currents, limited actuator power, and strict energy constraints. The challenge was always the same: keep the discrete waypoint instructions as minimal as possible while still producing smooth, stable, and efficient motion. Currents acted as constant perturbations that required real-time course corrections.</p>
+
+<p>This wasn't abstract theory. It was practical engineering with real trade-offs between sparsity, smoothness, robustness, and energy use.</p>
+
+<h2>The Mental Map That Wouldn't Go Away</h2>
+
+<div class="summary-box">
+    <p><strong>The quiet mental map that has been running in the background throughout this series:</strong></p>
+    <ul>
+        <li>Waypoints = sparse, discrete, cheap instructions (control points, kernels, embeddings)</li>
+        <li>Rich behavior emerges from how the system navigates or responds between those waypoints</li>
+        <li>Perturbations (currents, new tokens, new concepts) require proportional course corrections</li>
+        <li>Success often depends on finding the right balance between sparsity and fidelity</li>
+    </ul>
+</div>
+
+<p>Once this pattern came into focus, the parallel to large language models became hard to ignore.</p>
+
+<p>Embeddings and the KV cache increasingly feel like high-dimensional waypoint instructions — compact relational positions in the latent manifold. Generation feels like navigating a trajectory guided by those waypoints, with attention mechanisms handling the real-time responses and corrections. Analogy, in this view, happens when waypoint sequences from distant domains align well enough to allow a smooth, structure-preserving glide between them.</p>
+
+<p>The Kernel Reduction Operator (KRO) helped bring this into sharper focus. By stripping descriptions down to their minimal lossless seeds, KRO repeatedly revealed sparse kernels that still enabled faithful expansion and cross-domain bridging — very much like distilling a complex path down to its essential waypoints.</p>
+
+<p>Interestingly, some recent work in generative modeling (such as Waypoint Diffusion Transformers) uses intermediate semantic waypoints as anchors to help guide and disentangle complex generation trajectories. This resonates with how I've been thinking about using KRO-reduced kernels as sparse relational anchors to instrument cleaner cross-domain analogical mappings in the latent substrate.</p>
+
+<h2>A Few Final Thoughts</h2>
+
+<p>I'm very aware that this framing might simply reflect my own particular background more than any deep truth about latent space. After all, I'm an engineer who once built Fibonacci masks that taught me hard lessons about entropy, shipped a cartoon avatar app, and spent years trying to keep miniature submarines from misbehaving underwater.</p>
+
+<p>Still, the waypoint pattern has shown up too consistently across too many domains — and KRO kept bringing me back to it — for me to ignore it completely. So I'm putting the idea out there, with all its limitations.</p>
+
+<p>If this waypoint design pattern resonates with you, or helps spark better ways to think about analogy in the latent substrate, I'd love to hear your thoughts. If it doesn't land, that's perfectly fine too — the exploration itself has already been valuable.</p>
+
+<p class="byline"><strong>Mental Stack + DJ</strong> series</p>
+
+<nav class="nav-bottom">
+  <a href="../16%20Linear%20Algebra/linear-algebra.html">← Previous</a>
+  <a href="../analogy.html">Index</a>
+  <span class="nav-disabled">Next →</span>
+</nav>
+
+</body>
+</html>
