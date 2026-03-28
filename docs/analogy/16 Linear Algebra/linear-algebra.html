@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linear Algebra in the Wild: From Oxidation Tubes to KV Cache</title>
+<link rel="stylesheet" href="../analogy.css">
+</head>
+<body>
+<img src="linear-algebra.jpg" alt="Linear Algebra in the Wild" style="max-width:100%; height:auto; display:block; margin:0 auto 2rem;">
+
+<h1><span class="title-main">Linear Algebra in the Wild</span>: <span class="title-sub">From Oxidation Tubes to KV Cache</span></h1>
+
+<p>As a research assistant, my primary job was to manage oxidation tubes so the research group could investigate the density of traps at the SiC/SiO₂ interface (Dit). That was my main responsibility, but I was also tasked with solving a current distribution issue along the BJT finger of a transistor. High current can cause the finger to experience electromigration and skin effect, which hurts the performance of a BJT power device.</p>
+
+<p>I deconstructed this problem while monitoring an oxidation run that usually took up 6 hours of my time, with many hours spent sitting next to an oxidation tube. My approach was simple: model the problem using first principles of linear circuit analysis. I jotted down a simple 4-component circuit of two resistors and two diodes and solved this system of nonlinear equations. Linear Algebra (LA) cannot be used here to find a closed-form solution, so MATLAB is usually employed to simulate the behavior of a nonlinear circuit. I expanded the simple circuit into a ladder of diodes and resistors to perform large-scale simulations.</p>
+
+<p>I mentioned in a previous article that my first experience with programming in C was coursework. This first experience was specifically to speed up MATLAB simulation runs, because MATLAB was notoriously inefficient at iterative computations on large matrices back in 2000. MATLAB had a feature where you could offload parts of the processing to a C function, so I created a MEX file—essentially C compiled code—to speed up the simulation enormously. I don’t remember the exact performance boost, but I seem to recall simulation runs going from taking hours with modest matrix sizes to taking minutes with much larger matrix sizes. Those larger matrix sizes allowed higher resolution in the simulation, and I discovered a nice relationship between the aggregate current going down the contact to the substrate. It was nonlinear but eerily similar to Ohm’s law. My last name is Um, so I thought it would be amusing to name the nonlinear relationship “Um’s law”!</p>
+
+<p>Anyway, as I was fully engaged with modeling this nonlinear behavior, I never really appreciated that I was enjoying matrix operations in a very tangible, applied mathematical way. Yet I had felt my grad-level linear algebra class was too abstract to “get” and uninspiring. Life can be cruel sometimes, because I probably could’ve aced my linear algebra class (MA511) if I had known then what I know now about the utility of the subject matter. How ironic!</p>
+
+<p>I got frustrated that I couldn’t find a closed-form solution. (As of 2026, a closed-form solution still hasn’t been discovered, and numerics remain the common approach to simulating this type of current flow.) I later discovered that this kind of ladder simulation has been described in journal articles, but back then I never thought to search for papers on past attempts to find closed-form solutions.</p>
+
+<p>Throughout my career as a software developer, I have encountered many problems that are solved with principles of linear algebra. One particular encounter came when I helped a mobile app designer realize his vision for an avatar creation app, back when the iPhone and App Store were first becoming popular—about six months after the App Store launched. At that time, Apple’s support for vector graphic formats like SVG or PDF was nonexistent. I helped the app designer convert Adobe Illustrator SVG exports into a compact file format that compressed the drawing instructions into file sizes about ten times smaller than the original SVGs. I gained most of the compaction by normalizing coordinates and projecting the normalized coordinates into a 16-bit depth. I also reduced the drawing instruction set to just the 20 primitives that Apple’s CoreGraphics API uses. I wasn’t able to provide the full feature set of SVG (for example, color fill gradients), but since he only needed simple cartoon-style drawings, the reduced instruction set was sufficient. I even threw together a custom SVG render engine, though that part was pretty academic for anyone already comfortable with CoreGraphics drawing primitives.</p>
+
+<p>The app was named FaceMakr, and it became a modest hit, reaching the mid-20s on the App Store rankings and even landing on the App Store landing page for a day. What made it stand out was the fun, tactile way you could flick through hundreds of drawing primitives — ears, noses, eyes, mouths, and more — with a smooth scroll animation that felt really satisfying to use. That fluid scrolling was powered by Apple’s CoreAnimation API, but the real edge came from how quickly we could ship it using the custom SVG solution I built.</p>
+
+<p>Looking back, that whole FaceMakr project was soaked in linear algebra even though I didn’t consciously think of it that way at the time. Normalizing and projecting coordinates into 16-bit depth was basically matrix scaling and translation, Bézier paths rely on polynomial basis matrices and affine combinations of control points, and applying any kind of transform (move, rotate, scale, or shear) comes down to matrix multiplication. Later on I saw the same patterns in OpenGL where you’re constantly multiplying model-view-projection matrices and handling homogeneous coordinates to push geometry through the pipeline. Even something as seemingly simple as filtering a video frame buffer — doing convolution with a kernel on pixel data — boils down to heavy matrix and vector operations under the hood. It was all matrix operations in disguise — the same kind of tangible, applied math I was using years earlier with the BJT ladder network, except this time it was making cartoon faces instead of modeling current flow in a power transistor.</p>
+
+<p>Now I’m faced with another challenge of using linear algebra to decompose a problem. KV cache is essentially matrix operations, and the linear algebra involved isn’t rocket science once you pick apart how it’s implemented. It’s not a matter of dealing with some non-singular invertible matrix in an intimidating way, but I get the sense I won’t have too difficult a time grasping the fundamentals of the LA being used in the KV cache system.</p>
+
+<p>With my background, I figure the linear algebra fundamentals behind KV cache shouldn’t be too bad. The matrix operations feel familiar — kind of like the coordinate projections and transforms I did for FaceMakr, the model-view-projection matrices in OpenGL, or the large matrix simulations I built for the BJT current distribution problem. Even the attention mechanism itself is mostly just matrix multiplies, transposes, and a softmax. The real challenge for me — and for most people — isn’t going to be the underlying math. It’s the practical systems stuff: managing memory as the cache grows with longer contexts, dealing with quantization to keep the memory footprint reasonable, and figuring out how to handle very long sequences without everything grinding to a halt. That part feels more like the hardware-aware optimization work I used to do back in the research days, except now it’s happening inside transformer inference instead of silicon devices. Should be interesting.</p>
+
+<nav class="nav-bottom">
+<a href="../15%20MSE/mse.html">← Previous</a>
+<a href="../analogy.html">Index</a>
+<span class="nav-disabled">Next →</span>
+</nav>
+
+</body>
+</html>
