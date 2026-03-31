@@ -1,5 +1,7 @@
 # MorphArray
 
+![MorphArray](https://morpharray.github.io/morpharray/morpharray.jpg)
+
 **Turning any stream/array/matrix/cloud into new forms.**
 
 MorphArray is an exploratory project centered on the idea that analogy — as a fundamental, proportional, structure-preserving mapping mechanism — can serve as both a cognitive primitive and a practical building block for reasoning systems, generative processes, and declarative transformations.
