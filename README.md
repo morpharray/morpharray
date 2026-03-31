@@ -1,6 +1,6 @@
 # MorphArray
 
-![MorphArray](https://morpharray.github.io/morpharray/morpharray_512.jpg)
+![MorphArray](https://morpharray.github.io/morpharray/morpharray_256.png)
 
 **Turning any stream/array/matrix/cloud into new forms.**
 
