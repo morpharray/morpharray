@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avoided Analogies: The Silent Course Corrections of Generation</title>
+    <link rel="stylesheet" href="../analogy.css">
+</head>
+<body>
+
+<img src="avoided-set.jpg" alt="Avoided Analogies" style="max-width:100%; height:auto; display:block; margin:0 auto 2rem;">
+
+<h1>
+    <span class="title-main">Avoided Analogies</span>: 
+    <span class="title-sub">The Silent Course Corrections of Generation</span>
+</h1>
+
+<p class="byline">Ben Um · April 1, 2026</p>
+
+<p>I was a decent alto saxophone player in grade school, high school, and college. Good enough to hold my own in a lab jazz band at my university and to attempt playing along with Charlie Parker records for fun, but nowhere near good enough to play as a gigging musician. I knew I would have had to take the craft far more seriously to reach that level. Engineering was my priority. While in college, I volunteered to usher convocation concerts that brought in heavyweights like Branford Marsalis and Joshua Redman. Those experiences left me with a quiet respect for what happens when musicians improvise together in real time.</p>
+
+<p>One story from jazz has always stuck with me. Herbie Hancock once played a wrong chord during a Miles Davis performance — a jarring, dissonant note that didn’t belong. Most musicians would have flinched, stopped, or tried to correct it. Miles didn’t. He leaned into it. He played the next few notes in a way that made the “mistake” suddenly sound intentional, even beautiful. Later, when Hancock asked why Miles hadn’t corrected him, Miles essentially replied: there are no wrong notes — only the next note you choose to play after it.</p>
+
+<p>That philosophy — embracing the wrong turn instead of avoiding it — has been on my mind as I think about how large language models generate text.</p>
+
+<p>When I gave Grok only my Ground Zero article and asked for the top ten domains (outside of software) that exhibit the same immutable snapshot + reconciler design pattern, it produced a fascinating list: architectural blueprints, DNA transcription, recipes, musical scores, legal statutes, fashion patterns, film storyboards, and so on. Each one preserved the core relational structure I had described.</p>
+
+<p>Then, in a separate session with the full Mental Stack, I asked whether it was possible to run a local LLM, step through generation token by token, and literally pause at a breakpoint when I suspected an analogy was forming — to see if the top-k candidates contained any of those distant-domain possibilities.</p>
+
+<p>The answer was yes. It’s not only possible — it’s a standard capability with Hugging Face Transformers. You can run generation in a manual loop, inspect the full logits at every micro-hop, look at the top-k candidates with their probabilities, examine attention weights, and set conditions to pause when certain trigger tokens rise.</p>
+
+<p>And here’s what strikes me most:</p>
+
+<p><strong>The true nature of generation is that many “wrong turns” are course-corrected without anyone knowing.</strong></p>
+
+<p>Most of the interesting tension happens invisibly in the ranking phase. The model considers dozens of potential next tokens — some safe and laminar, some turbulent and distant, some outright dissonant. Some of those candidates would have led to rich but risky cross-domain analogies. Others might have produced creative chaos. But then the hidden state updates, attention re-weights, and the probability mass quietly shifts. The “wrong” or “risky” analogy is suppressed before it ever becomes a visible token. The output that reaches the reader feels smooth, coherent, and intentional. The audience never hears the dissonant chord that was almost played.</p>
+
+<p>This invisible recovery is the <strong>Avoided Analogies Set</strong>.</p>
+
+<p>It is the shadow counterpart to the clean top-ten list I received from Ground Zero. Where the surfaced analogies are the elegant resolutions the model ultimately chose to play, the Avoided Analogies Set contains all the near-mistakes, the almost-bridges, the turbulent mappings that briefly rose in probability and then got course-corrected away.</p>
+
+<p>In jazz terms, this is the difference between a polished studio recording and a public jam session.</p>
+
+<p>In the studio, engineers fix mistakes, punch in clean takes, and deliver perfection. In a live jam — especially the kind Miles Davis cultivated — the mistakes are part of the music. The band leans into them, resolves them, or turns them into something unexpected. The audience gets the raw decision-making in real time.</p>
+
+<p>Running a local LLM with step-by-step generation and conditional breakpoints is like moving from the polished studio into that public jam session.</p>
+
+<p>You’re no longer just hearing the final clean solo. You’re sitting inside the band, watching the hidden state consider multiple possible phrases at once. At the exact moment an analogy is forming, you can pause and look at the top-k candidates — the full set of notes the model is weighing right now.</p>
+
+<p>It’s almost like having the ability to imagine all the possible <strong>Dragon Slayer</strong> options, the "what ifs," playing out at that moment.<sup>1</sup></p>
+
+<p>One path is the safe, predictable resolution — the comfortable blues lick everyone expects. Another is a wild, dissonant run that could either crash spectacularly or open an entirely new harmonic territory. A third might be a subtle, elegant bridge from the SwiftUI snapshot pattern all the way to DNA transcription or a musical score. You get to see the probabilities flicker, watch some candidates rise and then get quietly suppressed, and witness the silent course-corrections that never make it into the final output.</p>
+
+<p>That visibility changes everything. Instead of admiring a finished, polished recording, you’re inside the living improvisation — complete with the risky notes, the near-mistakes, and the quiet recoveries that Miles would have celebrated rather than erased.</p>
+
+<p>This feels like the closest we can currently get to hearing all the possibilities of generation, complete with the risky notes, the near-mistakes, and the quiet recoveries that Miles would have celebrated rather than erased.</p>
+
+<ol class="footnotes">
+    <li>Dragon Slayer here refers to the classic action RPG video game series where, at key decision points, the player faces multiple branching paths — some safe and conventional, others wildly risky or transformative. The analogy imagines the LLM briefly considering many possible “heroic” or “disastrous” next-token directions before committing to one.</li>
+</ol>
+
+<nav class="nav-bottom">
+    <a href="../20%20Hidden%20State/hidden-state.html">← Previous</a>
+    <a href="../analogy.html">Index</a>
+    <span class="nav-disabled">Next →</span>
+</nav>
+
+</body>
+</html>
