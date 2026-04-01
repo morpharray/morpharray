@@ -1,0 +1,439 @@
+/* === Dark mode — Analogy series === */
+
+/* === Disclosure Triangles (Easter Eggs) === */
+
+/* Hide default browser marker */
+summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::marker {
+    content: none; /* Firefox */
+  }
+  
+  /* Custom right/down triangle for .custom-disclosure */
+  .custom-disclosure summary::before {
+    content: '▸';
+    position: absolute;
+    left: -0.1rem;               /* ← safer starting point */
+    color: #8b949e;
+    font-size: 1.1em;
+    transition: transform 0.2s ease;
+  }
+  
+  
+  .custom-disclosure[open] summary::before {
+    content: '▾';               /* down when open */
+  }
+  
+  .custom-disclosure {
+    color: #b1bac4 !important;
+  }
+  
+  
+  /* Shared styles for the Analogy series — based on chapter 01 */
+  
+  body {
+    font-family: Georgia, serif;
+    line-height: 1.7;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+    background: #0d1117;
+    color: #e6edf3;
+  }
+  
+  h1, h2, h3 {
+    font-family: Arial, sans-serif;
+  }
+  
+  h1 {
+    text-align: center;
+    border-bottom: 2px solid #30363d;
+    padding-bottom: 10px;
+  }
+  
+  h2 {
+    margin: 2em 0 0.6em;
+  }
+  
+  h3 {
+    margin: 1.5em 0 0.5em;
+  }
+  
+  p {
+    margin: 1.2em 0;
+  }
+  
+  blockquote {
+    border-left: 4px solid #484f58;
+    padding-left: 15px;
+    margin: 20px 0;
+    font-style: italic;
+    color: #8b949e;
+  }
+  
+  ul, ol {
+    margin: 15px 0;
+    padding-left: 25px;
+  }
+  
+  li {
+    margin: 0.5em 0;
+  }
+  
+  a {
+    color: #58a6ff;
+    text-decoration: none;
+  }
+  
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  .reference {
+    font-size: 0.9em;
+    margin: 10px 0;
+  }
+  
+  footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #8b949e;
+  }
+  
+  /* Utility classes used across chapters */
+  .byline {
+    color: #8b949e;
+    font-style: italic;
+    margin-bottom: 2rem;
+  }
+  
+  .teaser {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 2rem 0;
+  }
+  
+  .series-note {
+    font-size: 0.95rem;
+    color: #8b949e;
+    margin: 0.5rem 0 1.25rem;
+    line-height: 1.55;
+  }
+  
+  .references {
+    margin-top: 3rem;
+    font-size: 0.95rem;
+  }
+  
+  .references li {
+    margin-bottom: 1rem;
+  }
+  
+  .added {
+    background: #161b22;
+    border-left: 5px solid #58a6ff;
+    padding: 1.2em 1.8em;
+    margin: 2em 0;
+    font-size: 1.05em;
+  }
+  
+  .added h3 {
+    margin-top: 0;
+    color: #79c0ff;
+  }
+  
+  .caveat {
+    background: #2d2a1f;
+    padding: 1em 1.5em;
+    border-left: 5px solid #d29922;
+    margin: 1.5em 0;
+  }
+  
+  .highlight {
+    background: #3d3a2e;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+    color: #f0e68c;
+  }
+  
+  .quote {
+    margin: 1.5em 0;
+    padding: 1em;
+    background: #161b22;
+    border-radius: 4px;
+    border-left: 4px solid #30363d;
+    color: #b1bac4;
+    font-style: italic;
+  }
+  
+  .footnote {
+    font-size: 0.9em;
+    color: #8b949e;
+    margin-top: 3em;
+    border-top: 1px solid #21262d;
+    padding-top: 1em;
+  }
+  
+  .footnotes {
+    margin-top: 3em;
+    padding-top: 1em;
+    border-top: 1px solid #21262d;
+    font-size: 0.95em;
+    color: #b1bac4;
+  }
+  
+  .footnotes ol,
+  ol.footnotes {
+    padding-left: 1.5em;
+    margin: 0;
+    counter-reset: footnotes;
+    list-style: none;
+  }
+  
+  .footnotes li,
+  ol.footnotes li {
+    margin-bottom: 0.8em;
+    counter-increment: footnotes;
+  }
+  
+  ol.footnotes li::before {
+    content: counter(footnotes) ". ";
+    font-weight: bold;
+    margin-right: 0.5em;
+  }
+  
+  .closing {
+    font-style: italic;
+    margin-top: 3em;
+    border-top: 1px solid #21262d;
+    padding-top: 1.5em;
+  }
+  
+  .note {
+    background-color: #161b22;
+    border-left: 4px solid #58a6ff;
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+  }
+  
+  .pond {
+    font-style: italic;
+    color: #58a6ff;
+  }
+  
+  /* Index article titles: main (blue) and subtitle (green) */
+  .title-main {
+    color: #58a6ff;
+  }
+  
+  .title-sub {
+    color: #3fb950;
+  }
+  
+  /* Navigation: Previous | Index | Next at bottom */
+  .nav-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3em;
+    padding-top: 1.5em;
+    border-top: 1px solid #21262d;
+    font-size: 0.95em;
+  }
+  
+  .nav-bottom a {
+    color: #58a6ff;
+    text-decoration: none;
+  }
+  
+  .nav-bottom a:hover {
+    text-decoration: underline;
+  }
+  
+  .nav-bottom .nav-disabled {
+    color: #6e7681;
+    cursor: default;
+    pointer-events: none;
+  }
+  
+  /* Dialogue/message blocks (e.g. Grok chapter) */
+  .message {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background: #161b22;
+    border-left: 4px solid #484f58;
+  }
+  
+  .message.user {
+    border-left-color: #58a6ff;
+  }
+  
+  .message.grok {
+    border-left-color: #3fb950;
+  }
+  
+  .message h3 {
+    margin-top: 0;
+    margin-bottom: 0.75em;
+  }
+  
+  .summary-box {
+    background: #161b22;
+    border-left: 4px solid #58a6ff;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .highlight-box {
+    background: #2d2a1f;
+    border-left: 4px solid #d29922;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .path {
+    font-family: "SF Mono", Monaco, "Courier New", monospace;
+    font-size: 0.9em;
+  }
+  
+  .spaghetti {
+    color: #d29922;
+    font-weight: bold;
+  }
+  
+  .file-list {
+    font-size: 0.9em;
+    margin-left: 1rem;
+  }
+  
+  hr {
+    border: none;
+    border-top: 1px solid #21262d;
+    margin: 2rem 0;
+  }
+  
+  /* Code and pre */
+  code {
+    font-family: Consolas, "Menlo", "Courier New", monospace;
+    background: #21262d;
+    color: #e6edf3;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  
+  pre {
+    background: #161b22;
+    color: #e6edf3;
+    padding: 1.2em;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.95em;
+    line-height: 1.5;
+    border: 1px solid #21262d;
+  }
+  
+  pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+  }
+  
+  sup {
+    font-size: 0.8em;
+    vertical-align: super;
+    color: #58a6ff;
+  }
+  
+  /* Footnote refs (for The-Undescribed-Domain) */
+  .footnote-ref {
+    font-size: 0.8em;
+    vertical-align: super;
+    color: #58a6ff;
+    text-decoration: none;
+  }
+  
+  .footnote-ref:hover {
+    text-decoration: underline;
+  }
+  
+  a.back-to-ref {
+    font-size: 0.8em;
+    margin-left: 5px;
+    color: #58a6ff;
+    text-decoration: none;
+  }
+  
+  a.back-to-ref:hover {
+    text-decoration: underline;
+  }
+  
+  /* Homepage overrides — for landing-page style documents */
+  body.homepage {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  
+  body.homepage .container {
+    max-width: 900px;
+    padding: 40px 20px;
+  }
+  
+  body.homepage h1 {
+    font-size: 5rem;
+    font-weight: 800;
+    margin: 0 0 1.5rem;
+    letter-spacing: -0.05em;
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border: none;
+    text-align: center;
+  }
+  
+  body.homepage .tagline {
+    font-size: 1.8rem;
+    font-weight: 400;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    line-height: 1.5;
+    opacity: 0.95;
+  }
+  
+  body.homepage .highlight {
+    font-weight: 600;
+    color: #ffd166;
+    background: none;
+  }
+  
+  body.homepage footer {
+    position: absolute;
+    bottom: 20px;
+    margin-top: 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  body.homepage a {
+    color: #a1c4fd;
+    text-decoration: none;
+  }
+  
+  body.homepage a:hover {
+    text-decoration: underline;
+  }
+
+/* Stacks series index — related navigation */
+.index-related {
+  margin-top: 3rem;
+}

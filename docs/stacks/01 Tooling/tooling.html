@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 01: Tooling the Stack</title>
+    <link rel="stylesheet" href="../stacks.css">
+</head>
+<body>
+
+<img src="tooling.jpg" alt="Tooling the Stack" style="max-width:100%; height:auto; display:block; margin:0 auto 2rem;">
+
+<h1><span class="title-main">Chapter 01</span>: <span class="title-sub">Tooling the Stack</span></h1>
+
+<p class="byline"><strong>Inside the MorphArray Stack VS Code Extension</strong><br>Ben Um · April 2026</p>
+
+<p>Having a solid mental model is one thing. Making the workflow frictionless and reproducible is another. That's where the MorphArray Stack VS Code extension comes in.</p>
+
+<p>The extension was built specifically to support the Mental Stack methodology: treat HTML articles as the immutable source of truth, define order with simple .mastack files, and instantly produce both a clean static website and a high-quality Markdown dump ready for LLM prefill.</p>
+
+<h2>What the Extension Actually Does</h2>
+
+<h3>1. Initialize Book Workspace</h3>
+
+<p>One command sets up an entire project structure from scratch:</p>
+
+<ul>
+    <li><code>stacks/</code> folder containing your .mastack files</li>
+    <li><code>articles/</code> folder for your HTML chapters (this is sacred — never modified by the extension)</li>
+    <li><code>templates/</code> with <code>base.html</code> and <code>base.css</code> for the static site</li>
+    <li><code>defaults.json</code> for reusable metadata placeholders (author name, series title, etc.)</li>
+    <li>A sample <code>index.html</code> and <code>.mastack</code> file to get started immediately</li>
+</ul>
+
+<h3>2. Rebuild Dynamic Story</h3>
+
+<p>This is the "publish" command. It reads your chosen .mastack file, wraps each chapter in the base template, injects automatic navigation (Prev/Next links and a chapter list on the index page), and outputs a complete static site into the <code>dist/</code> folder.</p>
+
+<p>The originals in <code>articles/</code> remain untouched. You can edit any chapter freely, hit rebuild, and instantly see the updated site with proper linking.</p>
+
+<h3>3. Create Mental Stack (Full Context) — The Star Feature</h3>
+
+<p>This is the command that makes the whole methodology powerful for LLM work.</p>
+
+<p>It does the following in one click:</p>
+
+<ul>
+    <li>Reads the exact order defined in your .mastack file</li>
+    <li>Parses each HTML file, respecting optional YAML frontmatter for titles</li>
+    <li>Converts the body content cleanly to GitHub-flavored Markdown (using Turndown with GFM support — tables, code blocks, lists, etc. are preserved well)</li>
+    <li>Concatenates everything into one coherent, well-structured Markdown document</li>
+    <li>Copies the full Mental Stack dump to your clipboard, ready to paste directly into Grok, Claude, or any frontier model</li>
+</ul>
+
+<p>The resulting dump preserves headings, structure, and flow far better than raw folder dumps or loose text files, giving the model rich, ordered context without token waste.</p>
+
+<h2>A Typical Workflow</h2>
+
+<p>Here's how the loop feels in practice:</p>
+
+<ol>
+    <li>Write or edit a chapter in the <code>articles/</code> folder as normal HTML.</li>
+    <li>Run <strong>Rebuild Dynamic Story</strong> to preview the updated static site locally.</li>
+    <li>Run <strong>Create Mental Stack (Full Context)</strong> to generate a fresh dump.</li>
+    <li>Paste the dump into an LLM as prefill and continue the conversation — generate the next chapter, run KRO experiments, explore dad-joke turbulence, or prototype modular topologies.</li>
+    <li>Take the best new output, clean it up into a new HTML chapter, and repeat.</li>
+</ol>
+
+<p>The entire cycle stays tight. No manual copying of files. No broken links. No lost relational context when feeding the series to an LLM.</p>
+
+<h2>Why This Tooling Matters</h2>
+
+<p>Before building the extension, I was doing this manually — copying chapters, converting formats, maintaining order by hand. It was error-prone and broke the flow of discovery. The extension removes that friction so the real work — thinking, analogizing, reducing kernels, and iterating — can stay front and center.</p>
+
+<p>It also embodies the same philosophy as the Mental Stack itself: sparse definition (.mastack files) enabling rich output (both human site and LLM context). Just as SwiftUI views are disposable snapshots handed off for reconciliation, your HTML chapters are the immutable descriptions, and the extension is the system that reconciles them into the right form for each purpose.</p>
+
+<p>This chapter is still early tooling. Future chapters will show real examples from the Analogy Series, demonstrate macro KRO applied to full Mental Stack dumps, explore limits of the current approach, and discuss possible extensions to the workflow.</p>
+
+<nav class="nav-bottom">
+    <a href="../00%20Ground%20Zero/ground-zero.html">← Previous</a>
+    <a href="../stacks.html">Index</a>
+    <a href="../02%20Dump/dump.html">Next →</a>
+</nav>
+
+</body>
+</html>

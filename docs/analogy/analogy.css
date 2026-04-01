@@ -115,6 +115,34 @@ footer {
   margin: 2rem 0;
 }
 
+.index-related {
+  margin-top: 3rem;
+}
+
+.library-books {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.5rem 0 2rem;
+}
+
+.library-books > li {
+  margin-bottom: 2.25rem;
+}
+
+.library-books > li:last-child {
+  margin-bottom: 0;
+}
+
+.library-book-title {
+  margin-bottom: 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.library-book-title a {
+  font-family: Arial, sans-serif;
+}
+
 .references {
   margin-top: 3rem;
   font-size: 0.95rem;

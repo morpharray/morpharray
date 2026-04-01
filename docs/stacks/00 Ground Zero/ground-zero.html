@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 00: Ground Zero</title>
+    <link rel="stylesheet" href="../stacks.css">
+</head>
+<body>
+    <img src="ground-zero.jpg" alt="Ground Zero" style="max-width:100%; height:auto; display:block; margin:0 auto 2rem;">
+
+    <h1><span class="title-main">Chapter 00</span>: <span class="title-sub">Ground Zero</span></h1>
+    <p class="byline"><strong>How a Single Article Exposed the Need for a Better Way</strong><br>Ben Um · April 2026</p>
+
+    <p>It started with a simple frustration.</p>
+
+    <p>I had written one honest article trying to finally understand why SwiftUI’s “views are values” felt like a brick dropped into my decades-old Cocoa/AppKit worldview. The piece helped me personally — it connected immutable plists, git diff reconciliation, and batch audio queues into a coherent mental model.</p>
+
+    <p>But as soon as I wanted to build on it, the original article became a problem. Its relational depth and the cross-domain glue that made the insight possible were locked away in a single static post. I found myself copying pieces manually, losing order, and struggling to give an LLM the full context it needed to continue the thread effectively.</p>
+
+    <p>That isolation revealed a deeper issue with how we usually write and think in public. One article is fine. A growing series quickly turns into scattered files. Feeding those files raw to an LLM often results in lost structure, broken context, and weaker responses. The deeper the series gets, the harder it becomes to maintain momentum.</p>
+
+    <h2>The Mental Stack Solution</h2>
+
+    <p>The answer I landed on is what I now call a <strong>Mental Stack</strong>: an ordered, accretive collection of HTML articles treated as the immutable source of truth, combined with a lightweight workflow that produces two valuable outputs without ever mutating the originals:</p>
+
+    <ul>
+        <li>A clean, linked static “book” site with human-readable navigation</li>
+        <li>A consolidated GitHub-flavored Markdown bundle — the Mental Stack Dump — optimized for pasting as rich context into frontier LLMs</li>
+    </ul>
+
+    <p>This is not just better file organization. It is a practical method for turning scattered writing into a reusable, high-fidelity context that supports sustained thinking and discovery.</p>
+
+    <blockquote>
+        The Mental Stack functions as HyperCard for thought in the age of LLMs: interconnected “cards” (articles) that can be instantly aggregated into a living, high-fidelity context while remaining individually editable and version-controlled.
+    </blockquote>
+
+    <h2>How the Workflow Actually Works</h2>
+
+    <p>Creating new articles is straightforward and stays close to normal writing:</p>
+
+    <ol>
+        <li><strong>Create the chapter file</strong> — Add a new HTML file inside the <code>articles/</code> folder (for example, <code>articles/chapter-04-macro-kro.html</code>). You can start from scratch or ask an LLM to generate a near-publishable HTML document with proper semantic structure.</li>
+        <li><strong>Write the chapter</strong> — Include a top-level <code>&lt;h1&gt;</code> heading. The site builder uses the first <code>&lt;h1&gt;</code> string found in the body as the chapter title for navigation and the static site.</li>
+        <li><strong>Add it to the stack</strong> — Open your <code>.mastack</code> file and add the new chapter’s path in the desired reading order.</li>
+        <li><strong>Rebuild and dump</strong> — Run “Rebuild Dynamic Story” to update the static site with proper titles and navigation, then run “Create Mental Stack (Full Context)” to generate a fresh Markdown dump for LLM use.</li>
+    </ol>
+
+    <p>One particularly powerful feature is that you can create multiple different <code>.mastack</code> files to define different subsets or orderings of your articles (for example: <code>main.mastack</code>, <code>core-only.mastack</code>, <code>analogy-deep-dive.mastack</code>, or <code>draft.mastack</code>). This is especially useful for generating focused Mental Stack dumps for LLM prefill — you can quickly create a reduced or specialized version of the series without duplicating any article files.</p>
+
+    <p>This simple cycle keeps everything clean: your <code>articles/</code> folder contains the honest source of truth, the static site is for readers, and the Markdown dump is for continuing the conversation with LLMs.</p>
+
+    <h2>Core Principles</h2>
+
+    <h3>1. HTML as the Source of Truth</h3>
+    <p>The builder never touches files inside the <code>articles/</code> folder. This separation keeps your authoring experience free and expressive while guaranteeing that both the rendered site and every Mental Stack dump always reflect the latest honest version of your thinking.</p>
+
+    <h3>2. Explicit Ordering with .mastack Files</h3>
+    <p>A simple plain-text file (for example <code>stacks/mental-stack.mastack</code>) defines the exact sequence:</p>
+    <pre><code>index.html
+chapter-00-ground-zero.html
+chapter-01-mental-stack-hypercard.html
+chapter-02-tooling-the-stack.html
+# comments are supported
+chapter-03-dump-in-action.html</code></pre>
+    <p>The first line is the landing/index page. All following lines are chapters in both reading order and navigation order.</p>
+
+    <h3>3. Dual Reconciliation</h3>
+    <p>The VS Code extension (MorphArray Stack) produces two outputs from the same source without ever altering your original files:</p>
+    <ul>
+        <li><strong>Rebuild Dynamic Story</strong> → Generates a clean static site in <code>dist/</code> with automatic navigation.</li>
+        <li><strong>Create Mental Stack (Full Context)</strong> → Converts the listed HTML files into one coherent Markdown bundle ready for LLM prefill.</li>
+    </ul>
+
+    <h2>Why This Matters</h2>
+
+    <p>A well-maintained Mental Stack turns an article series from isolated snapshots into a rich, ordered body of work. When you feed the full ordered Markdown dump to an LLM, the model receives preserved structure, headings, and logical flow — making it much easier to build upon previous ideas with better coherence.</p>
+
+    <p>It also helps maintain intellectual honesty: by keeping the source chapters as clean, individually inspectable HTML files, you reduce the risk that smooth narrative conceals weaker thinking. The stack itself becomes easier to review and refine over time.</p>
+
+    <p>In short, the Mental Stack methodology provides a practical engineering approach for turning a growing article series into a reusable, high-quality context that supports sustained thinking and writing.</p>
+
+    <p>This is still early, but the foundation feels solid. What began as frustration with a single article has grown into a reusable method for thinking and writing at scale.</p>
+
+    <nav class="nav-bottom">
+        <span class="nav-disabled">← Previous</span>
+        <a href="../stacks.html">Index</a>
+        <a href="../01%20Tooling/tooling.html">Next →</a>
+    </nav>
+</body>
+</html>
