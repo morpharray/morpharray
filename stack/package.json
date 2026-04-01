@@ -1,0 +1,63 @@
+{
+  "name": "morpharray-stack",
+  "displayName": "MorphArray Stack",
+  "description": "VS Code extension to manage a Mental Stack for LLM context creation",
+  "publisher": "morpharray",
+  "version": "0.0.1",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:morpharray.rebuildDynamicStory",
+    "onCommand:morpharray.createMentalStackFullContext",
+    "onCommand:morpharray.initializeBookWorkspace"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "morpharray.rebuildDynamicStory",
+        "title": "Rebuild Dynamic Story",
+        "category": "MorphArray"
+      },
+      {
+        "command": "morpharray.createMentalStackFullContext",
+        "title": "Create Mental Stack (Full Context)",
+        "category": "MorphArray"
+      },
+      {
+        "command": "morpharray.initializeBookWorkspace",
+        "title": "Initialize Book Workspace",
+        "category": "MorphArray"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "gray-matter": "^4.0.3",
+    "turndown": "^7.2.2",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^20.x",
+    "@types/turndown": "^5.0.6",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.21.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.58.0"
+  }
+}

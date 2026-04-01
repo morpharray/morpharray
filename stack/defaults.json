@@ -1,0 +1,6 @@
+{
+    "author": "Your Name",
+    "year": "{{Current Year}}",
+    "siteTitle": "My Book",
+    "bylineFormat": "{{Author}} • {{Year}}"
+  }

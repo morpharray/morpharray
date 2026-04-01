@@ -1,0 +1,126 @@
+<h1>History and Challenges of Turndown: Converting HTML to Markdown</h1>
+
+<p>Turndown is one of the most popular JavaScript libraries for converting HTML into clean Markdown. While it is lightweight and highly configurable, it also highlights some of the classic challenges developers face when building HTML-to-Markdown converters.</p>
+
+<h2>Origins of Turndown</h2>
+
+<p>Turndown began as a project called <strong>to-markdown</strong>, created by Dom Christie. It was later renamed and moved to the <a href="https://github.com/mixmark-io/turndown">mixmark-io</a> organization on GitHub, where it continues to be actively maintained.</p>
+
+<p>Its main appeal lies in its simplicity, speed, and extensibility through plugins.</p>
+
+<h2>Common Conversion Challenges</h2>
+
+<p>Many HTML elements convert smoothly, but others require extra configuration. One of the most frequent pain points is table handling.</p>
+
+<h2>Table Support in Turndown</h2>
+
+<p>By default, plain Turndown does not convert HTML tables into Markdown tables. It simply extracts the text content, which often results in flattened, hard-to-read output.</p>
+
+<p>Here is a comparison of Turndown versions and their capabilities:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Version</th>
+            <th>Release Period</th>
+            <th>Major Improvement</th>
+            <th>Table Support</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>to-markdown (early)</td>
+            <td>2015–2016</td>
+            <td>Basic HTML to Markdown</td>
+            <td>None (flattens tables)</td>
+        </tr>
+        <tr>
+            <td>Turndown 5.x / 6.x</td>
+            <td>2018–2022</td>
+            <td>Plugin architecture</td>
+            <td>Requires GFM plugin</td>
+        </tr>
+        <tr>
+            <td>Turndown 7.x</td>
+            <td>2023–present</td>
+            <td>Better stability and maintenance</td>
+            <td>Requires GFM plugin</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Detailed Table with Inline Formatting</h2>
+
+<p>This table tests how well inline elements (bold, italic, code) are preserved inside table cells:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Element</th>
+            <th>Markdown Syntax</th>
+            <th>Example</th>
+            <th>Supported by GFM Plugin?</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><strong>Bold text</strong></td>
+            <td><code>**bold**</code></td>
+            <td><strong>Important feature</strong></td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td><em>Italic text</em></td>
+            <td><code>_italic_</code></td>
+            <td><em>Emphasis added</em></td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td><code>Inline code</code></td>
+            <td><code>`code`</code></td>
+            <td><code>turndownService</code></td>
+            <td>Yes</td>
+        </tr>
+        <tr>
+            <td><del>Strikethrough</del></td>
+            <td><code>~~strike~~</code></td>
+            <td><del>Old behavior</del></td>
+            <td>Yes (with full GFM)</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Other Elements to Test</h2>
+
+<blockquote>
+    <p>The true quality of an HTML-to-Markdown converter shows itself when dealing with mixed content — tables combined with formatting, nested lists, and code blocks.</p>
+</blockquote>
+
+<ul>
+    <li>Main conversion goals
+        <ul>
+            <li>Preserve semantic structure</li>
+            <li>Maintain readability in Markdown</li>
+            <li>Handle inline formatting correctly</li>
+        </ul>
+    </li>
+    <li>Advanced features worth testing
+        <ul>
+            <li>Tables with complex content</li>
+            <li>Nested lists</li>
+            <li>Code blocks with language specification</li>
+        </ul>
+    </li>
+</ul>
+
+<pre><code class="language-javascript">const turndownService = new TurndownService({
+    headingStyle: 'atx',
+    codeBlockStyle: 'fenced'
+});
+
+turndownService.use(turndownPluginGfm.tables);
+
+const markdown = turndownService.turndown(htmlContent);
+</code></pre>
+
+<p>This article serves as a balanced test case for the MorphArray Stack extension. It contains realistic content while including enough variety to reveal any remaining weaknesses in the conversion process.</p>

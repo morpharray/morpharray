@@ -1,0 +1,42 @@
+---
+title: Topic2: Article1
+date: 2026-03-30
+summary: First article in Topic2 series. This tests cross-topic article handling and variety in content structure within the MorphArray Stack extension.
+slug: topic2-article1
+---
+
+<h1>Topic2: Article1</h1>
+
+<p>This is the first article under Topic2. It serves as a test case to ensure the extension correctly processes articles from different topics and maintains proper ordering when rebuilding the full stack.</p>
+
+<h2>Key Concepts Being Tested</h2>
+
+<p>In this article we are verifying:</p>
+
+<ul>
+    <li>Proper handling of multiple .mastack files</li>
+    <li>Frontmatter parsing across different articles</li>
+    <li>Clean separation between topics</li>
+    <li>Consistent output when rebuilding the entire site</li>
+</ul>
+
+<h2>Code Example</h2>
+
+<pre><code class="language-typescript">interface MentalStackArticle {
+    title: string;
+    date: string;
+    summary: string;
+    content: string;
+}
+
+function rebuildDynamicStory(articles: MentalStackArticle[]): void {
+    console.log(`Rebuilding ${articles.length} articles...`);
+}</code></pre>
+
+<blockquote>
+    "The best Mental Stacks are built incrementally, one honest article at a time."
+</blockquote>
+
+<p>This article is intentionally different in tone and structure from Topic1 to better test the robustness of the HTML cleaning and templating process.</p>
+
+<p>End of Topic2 Article1.</p>

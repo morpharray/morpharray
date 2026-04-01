@@ -1,0 +1,98 @@
+<h1>The Basics of Using Turndown</h1>
+
+<p>Turndown is a simple yet powerful JavaScript library that converts HTML into Markdown. It is especially popular in browser extensions, note-taking tools, and AI-powered workflows because it is lightweight and highly customizable.</p>
+
+<h2>Installation</h2>
+
+<p>You can install Turndown using npm or include it directly via CDN.</p>
+
+<pre><code class="language-bash">npm install turndown
+</code></pre>
+
+<h2>Basic Usage</h2>
+
+<p>Here’s the simplest way to use Turndown:</p>
+
+<pre><code class="language-javascript">import TurndownService from 'turndown';
+
+const turndownService = new TurndownService();
+
+const html = '&lt;h1&gt;Hello World&lt;/h1&gt;&lt;p&gt;This is a test.&lt;/p&gt;';
+
+const markdown = turndownService.turndown(html);
+
+console.log(markdown);
+</code></pre>
+
+<h2>Common Configuration Options</h2>
+
+<p>Turndown allows you to customize the output with several options:</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Option</th>
+            <th>Default Value</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>headingStyle</code></td>
+            <td><code>setext</code></td>
+            <td>Use <code>atx</code> (# style) or <code>setext</code> (underlined)</td>
+        </tr>
+        <tr>
+            <td><code>codeBlockStyle</code></td>
+            <td><code>indented</code></td>
+            <td>Use <code>fenced</code> for triple backticks</td>
+        </tr>
+        <tr>
+            <td><code>bulletListMarker</code></td>
+            <td><code>*</code></td>
+            <td>Choose between <code>*</code>, <code>-</code>, or <code>+</code></td>
+        </tr>
+        <tr>
+            <td><code>strongDelimiter</code></td>
+            <td><code>**</code></td>
+            <td>Use <code>**</code> or <code>__</code> for bold text</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Enabling Table Support (Most Important Step)</h2>
+
+<p>By default, Turndown does <strong>not</strong> convert HTML tables to Markdown tables. You must add the GFM plugin:</p>
+
+<pre><code class="language-javascript">import TurndownService from 'turndown';
+import * as turndownPluginGfm from 'turndown-plugin-gfm';
+
+const turndownService = new TurndownService({
+    headingStyle: 'atx',
+    codeBlockStyle: 'fenced',
+    bulletListMarker: '-'
+});
+
+// Enable GitHub Flavored Markdown features (including tables)
+turndownService.use(turndownPluginGfm.gfm);
+
+// Or enable only tables:
+turndownService.use(turndownPluginGfm.tables);
+</code></pre>
+
+<h2>Quick Reference: Most Used Options</h2>
+
+<ul>
+    <li><strong>headingStyle: 'atx'</strong> → Produces clean # ## ### headings</li>
+    <li><strong>codeBlockStyle: 'fenced'</strong> → Uses ``` for code blocks</li>
+    <li><strong>bulletListMarker: '-'</strong> → Uses hyphens for bullet lists</li>
+    <li><strong>strongDelimiter: '**'</strong> → Uses ** for bold text</li>
+</ul>
+
+<blockquote>
+    <p>Pro tip: Always test your converter with real content that includes tables, nested lists, and inline formatting before releasing it to users.</p>
+</blockquote>
+
+<p>Once you have Turndown configured with the GFM plugin, it becomes a reliable tool for turning HTML articles into clean, readable Markdown — exactly what tools like the MorphArray Stack extension need.</p>
+
+<p>End of Basics of Turndown tutorial.</p>

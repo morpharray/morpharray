@@ -1,0 +1,38 @@
+---
+type: index
+title: {{Book Title}}
+summary: {{Short description of the book}}
+---
+
+<h1>{{Book Title}}</h1>
+
+<p class="byline">Your Name • {{Year}}</p>
+
+<p>{{Book summary or introduction paragraph.}}</p>
+
+<h2>Chapters</h2>
+
+<!-- 
+    The MorphArray site builder will automatically replace 
+    the content inside this div with the real chapter list 
+    based on the order in your .mastack file.
+-->
+<div class="chapter-list">
+    <!-- Chapters will be dynamically inserted here -->
+</div>
+
+<div class="added">
+    <h3>About This Book</h3>
+    <p>This book is generated using the MorphArray Stack extension. 
+       Each chapter is written as clean HTML and automatically built into a static website.</p>
+</div>
+
+<blockquote>
+    <p>{{Optional quote or tagline for the book}}</p>
+</blockquote>
+
+<nav class="nav-bottom">
+    <span class="nav-disabled">← Previous</span>
+    <a href="index.html">Index</a>
+    <span class="nav-disabled">Next →</span>
+</nav>

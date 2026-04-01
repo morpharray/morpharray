@@ -62,3 +62,9 @@ https://morpharray.github.io/morpharray/analogy/analogy.html
 If any part of this resonates — especially if you've had your own sudden decompression moment from a tiny overlooked primitive — feel free to open an issue, PR, or just say hello.
 
 The loop is infinite. Let's see what else emerges.
+
+**Recent Update**
+
+I've added a companion **VS Code extension** (`stack/`) to make the **Mental Stack** workflow much easier.
+
+It lets you build a Mental Stack and **copy a clean, concatenated prefill directly to your clipboard**, perfect for starting fresh LLM chats with purposeful context.

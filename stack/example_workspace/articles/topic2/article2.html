@@ -1,0 +1,43 @@
+---
+title: Topic2: Article2
+date: 2026-03-30
+summary: Second article in Topic2. This file tests more complex content structures, including nested elements and varied formatting, to ensure the MorphArray Stack extension handles real-world article diversity.
+slug: topic2-article2
+---
+
+<h1>Topic2: Article2</h1>
+
+<p>This is the second article in the Topic2 series. It contains more varied HTML structures to help test the robustness of the rebuild pipeline, HTML cleaning, and templating system.</p>
+
+<h2>Advanced Formatting Test</h2>
+
+<p>The extension should correctly preserve the following elements:</p>
+
+<h3>Subsection Heading</h3>
+<p>Text with <strong>bold</strong>, <em>italic</em>, and <strong><em>bold italic</em></strong> formatting.</p>
+
+<p>Here's a definition list:</p>
+
+<dl>
+    <dt>Mental Stack</dt>
+    <dd>A structured collection of articles used as rich context for LLMs.</dd>
+    <dt>Rebuild Command</dt>
+    <dd>The core function that transforms raw .mastack files into a polished static site.</dd>
+</dl>
+
+<h3>Code Block with Multiple Languages</h3>
+
+<pre><code class="language-python">class MorphArrayStack:
+    def __init__(self):
+        self.articles = []
+    
+    def rebuild(self):
+        print("Rebuilding Mental Stack...")</code></pre>
+
+<pre><code class="language-css">body {
+    font-family: system-ui, sans-serif;
+    line-height: 1.7;
+    color: #333;
+}</code></pre>
+
+<p>End of Topic2 Article2. This concludes the basic test set for multi-topic article handling.</p>
