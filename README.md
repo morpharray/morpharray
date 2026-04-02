@@ -8,16 +8,20 @@ MorphArray is an exploratory project centered on the idea that analogy — as a 
 
 The project currently lives in two main forms:
 
-1. **Conceptual / writing thread**  
-   A public series of essays tracing a personal journey from deconstructing SwiftUI's "views are values" → rediscovering analogy as the analog primitive of thought → probing the latent domain of analogy emergence in frontier LLMs → experimenting with modular reasoning topologies, kernel reduction operators, declarative grammar parsing via reduction ("Spaghetti Parser"), and real-time emergent co-composition.
 
-   The series is hosted at:  
-   → https://morpharray.github.io/morpharray/analogy/analogy.html  
-   (the first live module on the MorphArray site)
+1. **Conceptual / writing thread**  
+
+   A public series of essays tracing a personal journey from deconstructing SwiftUI's "views are values" → rediscovering analogy as the analog primitive of thought → probing the latent domain of analogy emergence in frontier LLMs → experimenting with modular reasoning topologies, kernel reduction operators, declarative grammar parsing via reduction ("Spaghetti Parser"), and real-time emergent co-composition.The full article series is hosted at:
+
+   → https://morpharray.github.io/morpharray/analogy/analogy.html
+   (this is the main index page for the active Analogy Series)
+
+   Note: The MorphArray site also has a main library / project homepage at https://morpharray.github.io/morpharray/ which contains broader project information.
 
 
 2. **MorphArray site**  
-   → https://morpharray.github.io/morpharray/index.html 
+
+   → https://morpharray.github.io/morpharray/morpharray_library.html 
    The homepage describes the longer-term ambition: turning streams, arrays, matrices, or clouds of data/relations into new forms — with **Analogy** as the initial live module.
 
 ### The Article Series: From SwiftUI to the Latent Substrate of Thought
