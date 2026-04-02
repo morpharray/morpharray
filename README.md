@@ -16,12 +16,12 @@ The project currently lives in two main forms:
    → https://morpharray.github.io/morpharray/analogy/analogy.html
    (this is the main index page for the active Analogy Series)
 
-   Note: The MorphArray site also has a main library / project homepage at https://morpharray.github.io/morpharray/ which contains broader project information.
+   Note: The MorphArray site also has a main library / project homepage at https://morpharray.github.io/morpharray/morpharray_library.html which contains broader project information.
 
 
 2. **MorphArray site**  
 
-   → https://morpharray.github.io/morpharray/morpharray_library.html 
+   → https://morpharray.github.io/morpharray/index.html 
    The homepage describes the longer-term ambition: turning streams, arrays, matrices, or clouds of data/relations into new forms — with **Analogy** as the initial live module.
 
 ### The Article Series: From SwiftUI to the Latent Substrate of Thought
