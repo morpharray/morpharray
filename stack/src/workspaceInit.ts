@@ -93,40 +93,56 @@ function chapterStubContent(): string {
 `;
 }
 
-/** Ensure `.gitignore` contains `pasteboard_test.txt` (append if file exists, create if not). */
-async function ensureGitignoreIgnoresPasteboardTest(
+function gitignoreIgnoresPasteboardLine(line: string, fileName: string): boolean {
+	const t = line.trim();
+	return t === fileName || t === `/${fileName}` || t.endsWith(`/${fileName}`);
+}
+
+function gitignoreIgnoresDistLine(line: string): boolean {
+	const t = line.trim();
+	return (
+		t === 'dist' ||
+		t === 'dist/' ||
+		t === '/dist' ||
+		t === '/dist/' ||
+		t === '**/dist' ||
+		t === '**/dist/'
+	);
+}
+
+/** Ensure `.gitignore` contains MorphArray rules: `pasteboard_test.txt` and `dist/` (append or create). */
+async function ensureMorphArrayGitignore(
 	workspaceRoot: vscode.Uri,
 	created: string[],
 	skipped: string[],
 ): Promise<void> {
 	const uri = vscode.Uri.joinPath(workspaceRoot, '.gitignore');
-	const line = PASTEBOARD_TEST_FILE;
+	const lines = (await fileExists(uri))
+		? utf8Decoder.decode(await vscode.workspace.fs.readFile(uri)).split(/\r?\n/)
+		: [];
 
-	if (await fileExists(uri)) {
-		const raw = await vscode.workspace.fs.readFile(uri);
-		const text = utf8Decoder.decode(raw);
-		const lines = text.split(/\r?\n/);
-		const hasRule = lines.some(
-			(l) => {
-				const t = l.trim();
-				return t === line || t === `/${line}` || t.endsWith(`/${line}`);
-			},
-		);
-		if (hasRule) {
-			skipped.push('.gitignore (already ignores pasteboard_test.txt)');
-			return;
-		}
-		const sep = text.length > 0 && !text.endsWith('\n') ? '\n' : '';
-		const block = `# MorphArray: local pasteboard scratch file\n${line}\n`;
-		await vscode.workspace.fs.writeFile(uri, encoder.encode(`${text}${sep}${block}`));
-		created.push('.gitignore');
+	const hasPasteboard = lines.some((l) => gitignoreIgnoresPasteboardLine(l, PASTEBOARD_TEST_FILE));
+	const hasDist = lines.some(gitignoreIgnoresDistLine);
+
+	if (hasPasteboard && hasDist) {
+		skipped.push('.gitignore (MorphArray rules already present)');
 		return;
 	}
 
-	await writeUtf8File(
-		workspaceRoot,
-		'.gitignore',
-		`# MorphArray: local pasteboard scratch file\n${line}\n`,
+	const blocks: string[] = [];
+	if (!hasPasteboard) {
+		blocks.push(`# MorphArray: local pasteboard scratch file\n${PASTEBOARD_TEST_FILE}`);
+	}
+	if (!hasDist) {
+		blocks.push('# MorphArray: Rebuild Dynamic Story output\ndist/');
+	}
+
+	const text = lines.join('\n');
+	const sep = text.length > 0 && !text.endsWith('\n') ? '\n' : '';
+	const suffix = blocks.join('\n\n') + '\n';
+	await vscode.workspace.fs.writeFile(
+		uri,
+		encoder.encode(text.length > 0 ? `${text}${sep}${suffix}` : suffix),
 	);
 	created.push('.gitignore');
 }
@@ -221,12 +237,12 @@ export async function initializeBookWorkspace(context: vscode.ExtensionContext):
 		skipped,
 	);
 
-	await ensureGitignoreIgnoresPasteboardTest(workspaceRoot, created, skipped);
+	await ensureMorphArrayGitignore(workspaceRoot, created, skipped);
 	await ensurePasteboardTestFile(workspaceRoot, created, skipped);
 
 	if (created.length === 0) {
 		void vscode.window.showInformationMessage(
-			'MorphArray: Book scaffold skipped — everything already exists (including .gitignore rule and pasteboard file).',
+			'MorphArray: Book scaffold skipped — everything already exists (including .gitignore rules and pasteboard file).',
 		);
 		return;
 	}
