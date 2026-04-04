@@ -3,3 +3,6 @@ pasteboard_test.txt
 
 # MorphArray: Rebuild Dynamic Story output
 dist/
+# Track this book’s built site on Pages (other workspaces may still use dist/ elsewhere)
+!dist/
+!dist/**

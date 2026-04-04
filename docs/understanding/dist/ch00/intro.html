@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ground Zero</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="intro.jpg" alt="Ground Zero" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Ground Zero</span>
+        
+    </h1>
+
+    Ben Um • April 4, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+    <p>In my earlier series on analogy, I began with a very practical problem: I had used SwiftUI for years but never truly felt I understood why “views are values” mattered so much. The official explanations always felt abstract and ungrounded.</p>
+
+    <p>Drawing on my background as a longtime Cocoa, AVFoundation, and systems developer, I broke the concept down by connecting it to familiar ideas I already trusted:</p>
+
+    <ul>
+        <li>Immutable snapshots and reconciliation (like git diff comparing two states and only patching what changed)</li>
+        <li>Fire-and-forget immutable data passing (like the plist notifications I used in batch audio processing tools)</li>
+        <li>Disposable descriptions handed off to a system that figures out how to render them efficiently (similar to how declarative UI frameworks work)</li>
+    </ul>
+
+    <p>From there, the series widened into a broader exploration of how ideas from one domain can be mapped onto another in a structure-preserving way, how coherence can remain smooth or suddenly become turbulent, and how minimal “seeds” of ideas can expand into rich, meaningful connections.</p>
+
+    <p>A consistent theme throughout was the tension between surface-level fluency (smooth, plausible output) and deeper mechanical reliability (whether the system is actually doing something robust and consistent under the hood). The series deliberately tried to avoid using high-level terms such as “understanding,” “cognition,” “comprehension,” “analytical,” and “logical.” Instead, it stayed grounded in concrete engineering concepts like snapshots, reconciliation, deconstruction, probing, and modular systems.</p>
+
+    <p>The series has a “fork in the road” chapter that provides a link to this series. The fork article simply states:</p>
+
+    <blockquote>
+        I'm stepping away from the Analogy series for a short detour. Fresh ideas have already started pulling in a new direction, and I want to follow that thread while the current stack continues to settle and quietly resonate in the background. I'm leaving a marker here as a clear branch point.
+    </blockquote>
+
+
+    <p>This is that new direction. I am now starting a new article series on the topic of "Understanding" in LLMs. I want to explore it rigorously, mechanically, and pragmatically.</p>
+
+
+    <p>The goal is to investigate what "understanding" actually means mechanically inside current large language models. I want to examine the substrate, the limitations, and what a better substrate for genuine mechanical understanding might look like.</p>
+
+    <h2>Core Tension</h2>
+<p>Surface-level statistical coherence (what current LLMs excel at: fluent next-token prediction, strong pattern matching, and distributional mimicry) vs. Deeper mechanical understanding (verifiable causal modeling, robust generalization, consistent counterfactual reasoning, and compositional manipulation of internal representations).</p>
+
+<h2>Major Directions the Series Could Explore</h2>
+
+<ol>
+    <li>
+        <strong>Mechanistic Interpretability: What LLMs Actually Compute</strong>
+        <ul>
+            <li>Examine features, circuits, superposition, and sparse autoencoders as the building blocks of "understanding."</li>
+            <li>How much of what looks like understanding is actually shallow, entangled features vs. reusable algorithmic circuits?</li>
+            <li>Fruitful angle: Use activation patching and feature steering to test whether models have stable internal representations or just sophisticated pattern completion.</li>
+            <li>Paradox: Superposition allows far more concepts than dimensions, but makes clean "understanding" inherently lossy and context-dependent.</li>
+        </ul>
+        <p><strong>Possible chapter titles:</strong></p>
+        <ul>
+            <li>"Features vs. Circuits: What Is Actually Being Represented?"</li>
+            <li>"Superposition and the Fragmentation of Understanding"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>Philosophy of Language Applied to Transformer Mechanics</strong>
+        <ul>
+            <li>Map Frege’s sense/reference, Wittgenstein’s language games, Quine’s indeterminacy, and Austin’s speech acts onto internal activations and output behavior.</li>
+            <li>Do LLMs achieve fluent "language games" (distributional use) but fail at stable reference or truth-conditional evaluation?</li>
+            <li>Open question: Can a purely predictive system ever resolve Quinean indeterminacy without additional grounding mechanisms?</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Sense and Reference Inside the Residual Stream"</li>
+            <li>"Language as Use: What LLMs Actually Learn"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>Cognitive Science Perspectives</strong>
+        <ul>
+            <li>Compare LLMs to schema theory, mental models, levels of processing, and causal vs. statistical reasoning.</li>
+            <li>Do transformers build stable, composable schemas, or only transient activations that look schema-like under prompting?</li>
+            <li>Paradox: In-context learning sometimes mimics mental model construction, yet systematic generalization often fails.</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Schemas and Mental Models in Transformer Activations"</li>
+            <li>"Statistical Pattern Matching vs. Causal Reasoning"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>AI Safety and Alignment Views on True vs. Illusory Understanding</strong>
+        <ul>
+            <li>Explore deceptive alignment, illusory coherence in evaluations, and the gap between fluent output and reliable world models.</li>
+            <li>If a model can appear to understand during oversight but behave differently off-distribution, how much "understanding" is real?</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Deceptive Alignment and the Illusion of Understanding"</li>
+            <li>"Safety Evaluations: Probing Beyond Surface Fluency"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>The "Does It Understand?" Debate – Mechanical Audit</strong>
+        <ul>
+            <li>Ground the critiques (Marcus, Mitchell, LeCun, Chomsky) and counter-evidence in observable failure modes and scaling behaviors.</li>
+            <li>Focus on specific mechanical weaknesses: reversal curse, hallucinations under distribution shift, poor compositionality.</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Behavioral Tests vs. Mechanistic Probes"</li>
+            <li>"Scaling Laws and the Limits of Statistical Approximation"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>Information Theory and Compression Perspectives</strong>
+        <ul>
+            <li>View understanding through compression, information bottleneck, and hierarchical representation learning.</li>
+            <li>Is "understanding" mostly better compression of the training distribution, or does it require preserving causal/structural information beyond what prediction optimizes for?</li>
+            <li>Paradox: Better compression often correlates with better performance, yet may discard the very structure needed for robust understanding.</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Understanding as Compression: What Gets Lost?"</li>
+            <li>"The Information Bottleneck in Transformer Training"</li>
+        </ul>
+    </li>
+
+    <li>
+        <strong>Engineering and Systems Requirements for Robust Understanding</strong>
+        <ul>
+            <li>What substrate limitations prevent deeper mechanical understanding (weak binding, no native persistent world models, lack of verifiable causality)?</li>
+            <li>Lessons from symbolic AI, GOFAI, connectionism, and hybrid systems.</li>
+            <li>Speculative but grounded: What would a better substrate need (explicit memory structures, causal graphs, programmable modules, etc.)?</li>
+        </ul>
+        <p><strong>Chapter ideas:</strong></p>
+        <ul>
+            <li>"Substrate Limitations: What Attention and Weights Cannot Easily Do"</li>
+            <li>"Historical Lessons and Future Substrate Requirements"</li>
+        </ul>
+    </li>
+</ol>
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <span class="nav-disabled">← Previous</span>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>MorphArray Analogy Series • April 4, 2026</p>
+    </footer>
+
+</body>
+</html>
