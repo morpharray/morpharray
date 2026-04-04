@@ -1,7 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
 import * as cheerio from 'cheerio';
-import { getWorkspaceRoot, parseArticleMatter, parseStackDefinitionLines } from './utils.js';
+import {
+	applyTemplatePlaceholders,
+	buildPlaceholderContextFromArticleAndStack,
+	formatChapterOrdinalLabel,
+	getWorkspaceRoot,
+	parseArticleMatter,
+	parseStackDefinitionForSiteBuild,
+} from './utils.js';
 import { TextDecoder } from 'node:util';
 
 const utf8Decoder = new TextDecoder('utf8');
@@ -33,6 +40,19 @@ function relativeArticleHref(fromArticleRel: string, toArticleRel: string): stri
 		.join('/');
 }
 
+/** `base.css` lives next to the built index (module root = `dirname(indexTemplateRel)` under `dist/`). */
+function baseCssHref(articleRel: string, indexTemplateRel: string): string {
+	const articleDir =
+		path.posix.dirname(articleRel.replace(/\\/g, '/').trim()) || '.';
+	const moduleDir =
+		path.posix.dirname(indexTemplateRel.replace(/\\/g, '/').trim()) || '.';
+	const rel = path.posix.relative(articleDir, moduleDir);
+	if (!rel || rel === '.') {
+		return 'base.css';
+	}
+	return path.posix.join(rel, 'base.css').replace(/\\/g, '/');
+}
+
 async function loadDefaults(workspaceRoot: vscode.Uri): Promise<Record<string, string>> {
 	try {
 		const defaultsUri = vscode.Uri.joinPath(workspaceRoot, 'defaults.json');
@@ -45,23 +65,6 @@ async function loadDefaults(workspaceRoot: vscode.Uri): Promise<Record<string, s
 			bylineFormat: '{{author}} • {{year}}',
 		};
 	}
-}
-
-function applyPlaceholders(html: string, defaults: Record<string, string>): string {
-	const year = new Date().getFullYear().toString();
-	const author = defaults['author'] ?? '';
-	const siteTitle = defaults['siteTitle'] ?? '';
-	const byline = author ? `${author} • ${year}` : year;
-
-	return html
-		.replace(/\{\{Year\}\}/gi, year)
-		.replace(/\{\{year\}\}/g, year)
-		.replace(/\{\{Author\}\}/gi, author)
-		.replace(/\{\{author\}\}/g, author)
-		.replace(/\{\{Byline\}\}/gi, byline)
-		.replace(/\{\{byline\}\}/g, byline)
-		.replace(/\{\{siteTitle\}\}/gi, siteTitle)
-		.replace(/\{\{SiteTitle\}\}/gi, siteTitle);
 }
 
 async function copySiteCss(
@@ -119,11 +122,45 @@ async function loadChapterWrapperTemplate(
 	return undefined;
 }
 
-function cleanArticleBodyHtml(html: string): string {
+function normalizeHeadingText(text: string): string {
+	return text.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Article fragment or full document → inner HTML for `{{content}}`. Strips wrapper `html`/`head`/`body`
+ * when present; optionally removes the first `h1` if it duplicates `titleForDedup` (template already has `{{main_title}}`).
+ */
+function cleanArticleBodyHtml(html: string, titleForDedup?: string): string {
 	const $ = cheerio.load(html);
 	$('style, script').remove();
 	$('*').removeAttr('style');
-	return $.html();
+
+	const target = titleForDedup ? normalizeHeadingText(titleForDedup) : '';
+
+	const bodySel = $('body');
+	if (bodySel.length > 0) {
+		const body = bodySel.first();
+		if (target) {
+			const firstH1 = body.find('h1').first();
+			if (firstH1.length && normalizeHeadingText(firstH1.text()) === target) {
+				firstH1.remove();
+			}
+		}
+		return body.html() ?? '';
+	}
+
+	const root = $.root();
+	if (target) {
+		const firstH1 = root.find('h1').first();
+		if (firstH1.length && normalizeHeadingText(firstH1.text()) === target) {
+			firstH1.remove();
+		}
+	}
+	return root
+		.children()
+		.toArray()
+		.map((el) => $.html(el))
+		.join('');
 }
 
 function resolveTitle(parsed: ReturnType<typeof parseArticleMatter>, relPath: string): string {
@@ -139,11 +176,13 @@ function resolveTitle(parsed: ReturnType<typeof parseArticleMatter>, relPath: st
 }
 
 /** Build `<li><a href="...">...</a></li>` rows for the index page (analogy-style chapter list). */
-function buildChapterListItems(chapters: Array<{ title: string; href: string }>): string {
+function buildChapterListItems(
+	chapters: Array<{ title: string; href: string; listLabel: string }>,
+): string {
 	return chapters
 		.map(
 			(ch) =>
-				`    <li><a href="${escapeHtml(ch.href)}">${escapeHtml(ch.title)}</a></li>`,
+				`    <li><a href="${escapeHtml(ch.href)}">${escapeHtml(ch.listLabel)}</a></li>`,
 		)
 		.join('\n');
 }
@@ -169,13 +208,61 @@ async function writeTextUnderDist(distRoot: vscode.Uri, articleRel: string, html
 	await vscode.workspace.fs.writeFile(outUri, new TextEncoder().encode(html));
 }
 
+/** `articles/foo/ch.html` → `articles/foo/ch.jpg` for hero image lookup. */
+function companionHeroJpgRel(articleHtmlRel: string): string | undefined {
+	const n = articleHtmlRel.replace(/\\/g, '/').trim();
+	if (!n.toLowerCase().endsWith('.html')) {
+		return undefined;
+	}
+	return `${n.slice(0, -'.html'.length)}.jpg`;
+}
+
+/** If `articles/<path>.jpg` exists, copy to `dist/` and return the filename for same-directory `img src`. */
+async function copyHeroJpgToDistIfPresent(
+	workspaceRoot: vscode.Uri,
+	distRoot: vscode.Uri,
+	articleHtmlRel: string,
+): Promise<string | undefined> {
+	const jpgRel = companionHeroJpgRel(articleHtmlRel);
+	if (!jpgRel) {
+		return undefined;
+	}
+	const segs = pathSegments(jpgRel);
+	if (segs.length === 0) {
+		return undefined;
+	}
+	const src = vscode.Uri.joinPath(workspaceRoot, 'articles', ...segs);
+	let bytes: Uint8Array;
+	try {
+		bytes = await vscode.workspace.fs.readFile(src);
+	} catch {
+		return undefined;
+	}
+	const outUri = vscode.Uri.joinPath(distRoot, ...segs);
+	const parentSegments = segs.slice(0, -1);
+	if (parentSegments.length > 0) {
+		await mkdirIgnoreError(vscode.Uri.joinPath(distRoot, ...parentSegments));
+	}
+	await vscode.workspace.fs.writeFile(outUri, bytes);
+	return segs[segs.length - 1];
+}
+
 /**
  * Static site generation: read-only `articles/`, output under `dist/`.
  *
  * **Stack file format** (`stacks/*.mastack`):
- * - **First line**: index / landing template (HTML under `articles/`), same shape as `analogy.html`
+ * - Optional: `# CHAPTER_START_INDEX=0` (non-negative integer). Default is `1`. Affects **index** chapter-list
+ *   labels only (`1. Title`, …); built chapter pages use the article title without a numeric prefix.
+ * - Optional: `# AUTHOR_NAME="Your Name"` — source of truth for `{{Author}}` / `{{Byline}}` on this build (overrides
+ *   `defaults.json` when present; quotes optional).
+ * - Optional: `# LIBRARY_PATH="../../morpharray_library.html"` — href from the **built** index page to the library;
+ *   Rebuild appends a bottom link on the index only.
+ * - **First path line**: index / landing template (HTML under `articles/`), same shape as `analogy.html`
  *   (body with a `.chapter-list` container to fill).
- * - **Following lines**: chapter HTML paths under `articles/`, in display order.
+ * - **Following path lines**: chapter HTML paths under `articles/`, in display order. Optional trailing
+ *   `# pub=YYYY-MM-DD, other_key=value` (comma-separated `key=value`, keys become `{{key}}`; `pub` sets `{{date}}`).
+ * - **Hero image**: If `articles/.../name.jpg` exists beside `articles/.../name.html`, it is copied to `dist/` and
+ *   emitted in `{{image}}` / `{{Image}}` in the chapter template (same-relative-path pairing).
  *
  * Output mirrors article paths under `dist/` (e.g. `articles/turndown/index.html` → `dist/turndown/index.html`).
  * Shared stylesheet: `base.css` copied next to the module (e.g. `dist/turndown/base.css`).
@@ -187,7 +274,7 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 		return;
 	}
 
-	const defaults = await loadDefaults(workspaceRoot);
+	const defaultsFromFile = await loadDefaults(workspaceRoot);
 
 	const stacksDir = vscode.Uri.joinPath(workspaceRoot, 'stacks');
 	let stackFileNames: string[] = [];
@@ -225,14 +312,20 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 		return;
 	}
 
-	const relativePaths = parseStackDefinitionLines(stackContent);
-	if (relativePaths.length === 0) {
+	const { entries: stackEntries, chapterStartIndex, authorName: authorFromStack, libraryPath } =
+		parseStackDefinitionForSiteBuild(stackContent);
+	const defaults =
+		authorFromStack !== undefined
+			? { ...defaultsFromFile, author: authorFromStack }
+			: defaultsFromFile;
+	if (stackEntries.length === 0) {
 		void vscode.window.showErrorMessage('MorphArray: Stack file has no paths.');
 		return;
 	}
 
-	const indexTemplateRel = relativePaths[0].trim();
-	const chapterRels = relativePaths.slice(1).map((p) => p.trim()).filter(Boolean);
+	const indexEntry = stackEntries[0];
+	const indexTemplateRel = indexEntry.path.trim();
+	const chapterEntries = stackEntries.slice(1).filter((e) => e.path.trim().length > 0);
 
 	const indexText = await readWorkspaceText(workspaceRoot, indexTemplateRel);
 	if (!indexText) {
@@ -261,9 +354,12 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 		title: string;
 		href: string;
 		cleanHtml: string;
+		articleData: Record<string, unknown>;
+		stackAttributes: Record<string, string>;
 	}> = [];
 
-	for (const rel of chapterRels) {
+	for (const chEntry of chapterEntries) {
+		const rel = chEntry.path.trim();
 		const raw = await readWorkspaceText(workspaceRoot, rel);
 		if (!raw) {
 			void vscode.window.showWarningMessage(`MorphArray: Skipping missing article: ${rel}`);
@@ -278,18 +374,37 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 		}
 		const title = resolveTitle(parsed, rel);
 		const href = relativeArticleHref(indexTemplateRel, rel);
-		const cleanHtml = cleanArticleBodyHtml(parsed.content);
-		chapterMeta.push({ rel, title, href, cleanHtml });
+		const cleanHtml = cleanArticleBodyHtml(parsed.content, title);
+		chapterMeta.push({
+			rel,
+			title,
+			href,
+			cleanHtml,
+			articleData: parsed.data,
+			stackAttributes: chEntry.attributes,
+		});
 	}
 
 	const indexParsed = parseArticleMatter(indexText);
 	const indexTitle = resolveTitle(indexParsed, indexTemplateRel);
-
-	const chapterListHtml = buildChapterListItems(
-		chapterMeta.map((c) => ({ title: c.title, href: c.href })),
+	const indexPlaceholders = buildPlaceholderContextFromArticleAndStack(
+		defaults,
+		indexParsed.data,
+		indexEntry.attributes,
 	);
 
-	let indexFragment = applyPlaceholders(indexParsed.content, defaults);
+	const chapterListHtml = buildChapterListItems(
+		chapterMeta.map((c, i) => {
+			const ord = formatChapterOrdinalLabel(chapterStartIndex, i);
+			return {
+				title: c.title,
+				href: c.href,
+				listLabel: `${ord}. ${c.title}`,
+			};
+		}),
+	);
+
+	let indexFragment = applyTemplatePlaceholders(indexParsed.content, indexPlaceholders);
 	const $index = cheerio.load(indexFragment);
 	const listHost = $index('.chapter-list').first();
 	if (listHost.length > 0) {
@@ -299,7 +414,12 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 	}
 
 	let indexInner = $index('body').length > 0 ? ($index('body').html() ?? '') : '';
-	indexInner = applyPlaceholders(indexInner, defaults);
+	indexInner = applyTemplatePlaceholders(indexInner, indexPlaceholders);
+
+	if (libraryPath !== undefined && libraryPath.trim() !== '') {
+		const libHref = libraryPath.trim();
+		indexInner += `\n<p class="nav-to-library"><a href="${escapeHtml(libHref)}">All books</a></p>\n`;
+	}
 
 	const indexFull = `<!DOCTYPE html>
 <html lang="en">
@@ -335,8 +455,16 @@ ${indexInner}
 
 	for (let i = 0; i < chapterMeta.length; i++) {
 		const ch = chapterMeta[i];
+		const headingTitle = ch.title;
+		const docTitle = ch.title;
 		const prevRel = i > 0 ? chapterMeta[i - 1].rel : null;
 		const nextRel = i < chapterMeta.length - 1 ? chapterMeta[i + 1].rel : null;
+
+		const pageCtx = buildPlaceholderContextFromArticleAndStack(
+			defaults,
+			ch.articleData,
+			ch.stackAttributes,
+		);
 
 		const prevLink = prevRel
 			? `<a href="${escapeHtml(relativeArticleHref(ch.rel, prevRel))}">← Previous</a>`
@@ -346,22 +474,32 @@ ${indexInner}
 			: `<span class="nav-disabled">Next →</span>`;
 		const indexLink = `<a href="${escapeHtml(relativeArticleHref(ch.rel, indexTemplateRel))}">Index</a>`;
 
+		const heroFileName = await copyHeroJpgToDistIfPresent(workspaceRoot, distDir, ch.rel);
+		const imageHtml = heroFileName
+			? `<figure class="hero-image"><img src="${encodeURIComponent(
+					heroFileName,
+				)}" alt="${escapeHtml(headingTitle)}" loading="lazy" decoding="async"></figure>\n`
+			: '';
+
 		let page = wrapper
-			.replace(/\{\{title\}\}/gi, escapeHtml(ch.title))
-			.replace(/\{\{main_title\}\}/gi, escapeHtml(ch.title))
+			.replace(/\{\{title\}\}/gi, escapeHtml(docTitle))
+			.replace(/\{\{main_title\}\}/gi, escapeHtml(headingTitle))
 			.replace(/\{\{subtitle\}\}/gi, '')
 			.replace(/\{\{content\}\}/gi, ch.cleanHtml)
-			.replace(/\{\{byline\}\}/gi, applyPlaceholders('{{Byline}}', defaults))
-			.replace(/\{\{Byline\}\}/gi, applyPlaceholders('{{Byline}}', defaults))
-			.replace(/\{\{image\}\}/gi, '')
-			.replace(/\{\{Image\}\}/gi, '')
+			.replace(/\{\{byline\}\}/gi, applyTemplatePlaceholders('{{Byline}}', pageCtx))
+			.replace(/\{\{Byline\}\}/gi, applyTemplatePlaceholders('{{Byline}}', pageCtx))
+			.replace(/\{\{image\}\}/gi, imageHtml)
+			.replace(/\{\{Image\}\}/gi, imageHtml)
 			.replace(/\{\{prev_link\}\}/gi, prevLink)
 			.replace(/\{\{next_link\}\}/gi, nextLink)
 			.replace(/\{\{index_link\}\}/gi, indexLink);
 
-		page = applyPlaceholders(page, defaults);
-		page = page.replace(/href=(["'])\.\.\/base\.css\1/gi, 'href=$1base.css$1');
-		page = page.replace(/href=(["'])css\/base\.css\1/gi, 'href=$1base.css$1');
+		page = applyTemplatePlaceholders(page, pageCtx);
+		const baseHref = baseCssHref(ch.rel, indexTemplateRel);
+		page = page.replace(
+			/href=(["'])(?:\.\/|\.\.\/)*(?:css\/)?base\.css\1/gi,
+			`href=$1${baseHref}$1`,
+		);
 
 		await writeTextUnderDist(distDir, ch.rel, page);
 	}

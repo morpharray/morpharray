@@ -1,17 +1,19 @@
 import * as vscode from 'vscode';
 import * as path from 'node:path';
-import * as cheerio from 'cheerio';
 import TurndownService from 'turndown';
 import * as turndownPluginGfm from 'turndown-plugin-gfm';
 import type { ArticleSectionFormatOptions } from './types.js';
 import {
 	articleUriFromRelative,
 	decodeBuffer,
+	formatChapterOrdinalLabel,
 	formatFrontmatterValue,
+	formatStackDateForDisplay,
 	getWorkspaceRoot,
 	listStackDefinitionFiles,
 	parseArticleMatter,
-	parseStackDefinitionLines,
+	parseStackDefinitionForSiteBuild,
+	prepareArticleHtmlFragmentForTurndown,
 } from './utils.js';
 
 /**
@@ -47,6 +49,12 @@ function createTurndownForStacks(): TurndownService {
 		strongDelimiter: '**',
 	});
 	turndownService.use(turndownPluginGfm.gfm);
+	// `<hr>` → thematic break. Prefer `* * *` over `---`: many tools treat `---` as YAML frontmatter fences
+	// and truncate or mis-parse Markdown that follows.
+	turndownService.addRule('horizontalRuleMorpharray', {
+		filter: ['hr'],
+		replacement: () => '\n\n* * *\n\n',
+	});
 	return turndownService;
 }
 
@@ -103,25 +111,36 @@ export async function createMentalStackFullContext(): Promise<void> {
 		return;
 	}
 
-	const relativePaths = parseStackDefinitionLines(decodeBuffer(stackFileRaw));
+	const { entries: stackEntries, chapterStartIndex } = parseStackDefinitionForSiteBuild(
+		decodeBuffer(stackFileRaw),
+	);
 
-	if (relativePaths.length === 0) {
+	if (stackEntries.length === 0) {
 		void vscode.window.showErrorMessage(`MorphArray: Stack file "${selectedName}" has no article paths.`);
 		return;
 	}
 
+	const chapterCount = Math.max(0, stackEntries.length - 1);
 	const turndownService = createTurndownForStacks();
 
 	let output = `MORPHARRAY MENTAL STACK (FULL CONTEXT)\n\n`;
 	output += `Stack file: stacks/${selectedName}\n`;
 	output += `Workspace: ${vscode.workspace.workspaceFolders?.[0]?.name || 'Untitled'}\n`;
 	output += `Generated: ${new Date().toISOString()}\n`;
-	output += `Articles: ${relativePaths.length}\n\n`;
+	output += `Stack paths: ${stackEntries.length}`;
+	if (chapterCount > 0) {
+		output += ` (1 index + ${chapterCount} chapter${chapterCount === 1 ? '' : 's'})`;
+	}
+	output += `\n`;
+	output += `CHAPTER_START_INDEX: ${chapterStartIndex} (same as Rebuild Dynamic Story)\n\n`;
 	output += `${'='.repeat(80)}\n\n`;
 
-	for (let i = 0; i < relativePaths.length; i++) {
-		const relativePath = relativePaths[i].trim();
+	for (let i = 0; i < stackEntries.length; i++) {
+		const relativePath = stackEntries[i].path.trim();
+		const stackAttrs = stackEntries[i].attributes;
 		const articleUri = articleUriFromRelative(workspaceRoot, relativePath);
+		const isIndexLine = i === 0;
+		const chapterOrdinal = !isIndexLine && chapterCount > 0 ? i - 1 : null;
 
 		let fileBytes: Uint8Array;
 		try {
@@ -142,19 +161,26 @@ export async function createMentalStackFullContext(): Promise<void> {
 		}
 
 		const title = formatFrontmatterValue(parsed.data['title']) || relativePath;
-		const date = formatFrontmatterValue(parsed.data['date']) || '';
+		let date = formatFrontmatterValue(parsed.data['date']) || '';
+		if (stackAttrs['pub'] !== undefined && stackAttrs['pub'] !== '') {
+			date = stackAttrs['pub'];
+		} else if (stackAttrs['date']) {
+			date = stackAttrs['date'];
+		}
 		const summary = formatFrontmatterValue(parsed.data['summary']) || '';
 
-		const $ = cheerio.load(parsed.content);
-		$('style, script').remove();
-		$('*').removeAttr('style');
-
-		const cleanHtml = $.html();
+		const cleanHtml = prepareArticleHtmlFragmentForTurndown(parsed.content);
 		const markdownContent = turndownService.turndown(cleanHtml);
 
-		output += `ARTICLE ${i + 1} of ${relativePaths.length} | ${relativePath}\n`;
+		const sectionLabel =
+			chapterOrdinal === null
+				? `INDEX | ${i + 1} of ${stackEntries.length}`
+				: `CHAPTER ${formatChapterOrdinalLabel(chapterStartIndex, chapterOrdinal)} | ${i + 1} of ${
+						stackEntries.length
+					}`;
+		output += `${sectionLabel} | ${relativePath}\n`;
 		output += `Title: ${title}\n`;
-		output += `Date: ${date}\n`;
+		output += `Date: ${date ? formatStackDateForDisplay(date) : ''}\n`;
 		output += `Summary: ${summary}\n\n`;
 		output += `${markdownContent.trim()}\n\n`;
 		output += `${'-'.repeat(80)}\n\n`;
