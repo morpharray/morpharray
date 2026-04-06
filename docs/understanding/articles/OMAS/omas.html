@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Micro-CMAS Inside Every Token</title>
+    <style>
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            max-width: 820px; 
+            margin: 40px auto; 
+            line-height: 1.65; 
+            color: #333; 
+        }
+        h1, h2, h3 { color: #1a1a1a; }
+        .highlight { background: #fff3cd; padding: 2px 6px; border-radius: 4px; }
+        .section { margin-bottom: 42px; }
+        ul { padding-left: 22px; }
+        footer { margin-top: 70px; text-align: center; color: #666; font-size: 0.92em; }
+        .metaphor { font-style: italic; color: #444; }
+    </style>
+</head>
+<body>
+
+<h1>The Micro-CMAS Inside Every Token</h1>
+<p><strong>How Large Language Models Run an Emergent Coordinated Multi-Agent System During Generation</strong></p>
+
+<p>by Ben Um (inspired conversation with Grok)</p>
+
+<div class="section">
+    <h2>1. The Core Insight</h2>
+    <p>During autoregressive generation, a transformer is not merely "predicting the next token." It is continuously running a dense, implicit <strong>micro Coordinated Multi-Agent System (micro-CMAS)</strong> at every single token step.</p>
+    
+    <p>This micro-CMAS is the hidden counterpart to the explicit coordinated multi-agent systems we build with frameworks like LangGraph, CrewAI, or AutoGen.</p>
+</div>
+
+<div class="section">
+    <h2>2. Components of the Micro-CMAS</h2>
+    
+    <h3>The Supervisor / Orchestrator</h3>
+    <p>The current <strong>residual stream</strong> (hidden state) at each generation step acts as the central supervisor. It encodes the current "mode" or intent and projects it into queries (Q).</p>
+
+    <h3>Specialist Sub-Agents</h3>
+    <ul>
+        <li><strong>Attention heads & emergent circuits</strong>: Parallel sub-agents with specialized roles (induction heads for pattern matching, copy-suppression heads, task-vector maintainers, replacement routers, etc.).</li>
+        <li>Multi-layer hierarchy: Lower layers handle low-level pattern detection; higher layers compose behaviors.</li>
+    </ul>
+
+    <h3>The Mission Plan</h3>
+    <p class="metaphor">The <strong>KV cache</strong> serves as the living <strong>Mission Plan</strong> — a shared, continuously updated record of the entire operation.</p>
+    <p>It contains the full history of instructions, role separations, constraints, partial computations, and contextualized token representations. Every sub-agent can consult any part of the Mission Plan at any time, but the supervisor decides which sections are relevant for the current token via content-based attention.</p>
+
+    <h3>Routing & State Transitions</h3>
+    <p>Attention (Q·K similarity + softmax) performs soft, continuous state transitions across the Mission Plan. No explicit <code>if</code> statements — just vector geometry routing the system from "search mode" → "replace mode" → "output payload mode" at token granularity.</p>
+</div>
+
+<div class="section">
+    <h2>3. Micro-CMAS vs. Macro-CMAS</h2>
+    
+    <p><strong>Micro-CMAS</strong> (inside one model during generation):</p>
+    <ul>
+        <li>Emergent, continuous, high-dimensional</li>
+        <li>Extremely efficient (one forward pass)</li>
+        <li>Maintains a dynamic Mission Plan and coordinates sub-agents automatically</li>
+    </ul>
+
+    <p><strong>Macro-CMAS</strong> (explicit coordinated systems):</p>
+    <ul>
+        <li>Engineered, discrete, observable</li>
+        <li>A supervisor LLM + specialist agents + explicit shared state (often a vector store or message history)</li>
+        <li>The same fundamental pattern, just <em>unfolded</em> outside the transformer for reliability, debugging, and scale</li>
+    </ul>
+
+    <p>The transformer has already invented hierarchical stateful coordination — complete with its own internal Mission Plan — in vector space. Modern agent frameworks are simply externalizing and making that pattern controllable.</p>
+</div>
+
+<div class="section">
+    <h2>4. Concrete Example: Search-and-Replace</h2>
+    <p>When instructed to perform search-and-replace:</p>
+    <ul>
+        <li>The Mission Plan holds the original instructions, the input text, and the replacement rule in contextualized form.</li>
+        <li>One sub-agent attends to the instruction section of the Mission Plan (task vector).</li>
+        <li>Another detects the search term via induction heads.</li>
+        <li>Copy-suppression prevents treating output as new instructions.</li>
+        <li>The supervisor smoothly transitions the system into replacement mode by consulting the appropriate parts of the Mission Plan.</li>
+    </ul>
+    <p>All of this happens token-by-token without any explicit control flags.</p>
+</div>
+
+<div class="section">
+    <h2>5. Implications</h2>
+    <ul>
+        <li>Single-model prompting feels powerful because a full micro-CMAS — complete with its own dynamic Mission Plan — is already running inside it.</li>
+        <li>We still need macro-CMAS frameworks when we want determinism, debugging, tool integration, or multi-model collaboration.</li>
+        <li>Understanding generation as micro-CMAS unifies mechanistic interpretability with agent engineering.</li>
+    </ul>
+</div>
+
+<footer>
+    <p>This is a rough draft exploring the unification of transformer generation dynamics with coordinated multi-agent systems.</p>
+    <p>The "Mission Plan" metaphor highlights how the KV cache actively carries the full context and intent of the operation.</p>
+    <p>Feedback and extensions welcome.</p>
+</footer>
+
+</body>
+</html>

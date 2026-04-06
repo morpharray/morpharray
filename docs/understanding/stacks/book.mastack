@@ -1,5 +1,7 @@
 # CHAPTER_START_INDEX=0
 # AUTHOR_NAME="Ben Um"
 # LIBRARY_PATH=../../morpharray_library.html
+# ARTICLE_SERIES="Understanding Series"
 index.html
 ch00/intro.html # pub=2026-04-04
+understanding/understanding.html # pub=2026-04-06

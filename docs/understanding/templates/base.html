@@ -13,14 +13,7 @@
     <!-- Optional hero image (only include if image exists) -->
     {{image}}
 
-    <h1>
-        <span class="title-main">{{main_title}}</span>
-        {{subtitle}}
-    </h1>
-
-    {{byline}}
-
-    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <!-- Main article content (title + byline injected from the article's own <h1>) -->
     <div class="article-content">
         {{content}}
     </div>
@@ -33,7 +26,7 @@
     </nav>
 
     <footer>
-        <p>MorphArray Analogy Series • {{date}}</p>
+        <p>{{ArticleSeries}} • {{PublishDate}}</p>
     </footer>
 
 </body>
