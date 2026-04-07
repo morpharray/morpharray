@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How LLMs Generate Text: Understanding Inference</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.7; max-width: 720px; margin: 40px auto; padding: 0 20px; }
+        h1, h2, h3 { color: #1a1a1a; }
+        code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        pre { background: #f8f8f8; padding: 16px; border-radius: 8px; overflow-x: auto; }
+        .highlight { background: #fff8e1; padding: 12px; border-left: 4px solid #f4a261; }
+    </style>
+</head>
+<body>
+
+    <h1>How LLMs Generate Text:<br>Understanding the Inference Process</h1>
+    <p><strong>Ben Um • April 2026</strong></p>
+
+    <p>Large language models don’t “think” in one magical step. They generate text through a very specific, repeatable mechanical process called <strong>inference</strong>. This process has two main phases: <strong>Prefill</strong> and <strong>Decode</strong>.</p>
+
+    <h2>1. Prefill Phase – Building the Context</h2>
+    <p>When you send a prompt, the model first processes the entire prompt <strong>in parallel</strong>. This is called the <strong>prefill</strong> phase.</p>
+    
+    <p>During prefill, the model:</p>
+    <ul>
+        <li>Converts every token in your prompt into embeddings</li>
+        <li>Runs them through all transformer layers</li>
+        <li>Computes and stores <strong>Key (K)</strong> and <strong>Value (V)</strong> vectors for every token in every layer</li>
+    </ul>
+
+    <div class="highlight">
+        <strong>The result is the KV Cache</strong> — a large, passive collection of stored tensors that acts like a rich “instruction matrix” containing the model’s understanding of your prompt (instructions, context, facts, tone, constraints, etc.).
+    </div>
+
+    <p>At the end of prefill, the model also produces a <strong>final hidden state</strong> for the last token in the prompt. This is the model’s internal summary of everything it has seen so far.</p>
+
+    <h2>2. Decode Phase – Generating One Token at a Time</h2>
+    <p>Once prefill is complete, the model switches to <strong>autoregressive generation</strong> — it generates tokens one by one.</p>
+
+    <h3>Inside Each Decode Step:</h3>
+    <ol>
+        <li><strong>Take the current hidden state</strong> (on the first step, this comes from prefill; afterward, it comes from the previous step).</li>
+        
+        <li><strong>Process the newest token</strong><br>
+            The model computes a new Query (Q), Key (K), and Value (V) for this token.<br>
+            It appends the new K and V to the KV cache.</li>
+        
+        <li><strong>Read from the KV Cache</strong><br>
+            The new Query performs attention over the <strong>entire KV cache</strong> using two matrix operations:<br>
+            <code>scores = Q_new × K_cache^T / √d_head</code><br>
+            <code>attention_output = softmax(scores) × V_cache</code><br>
+            This is how the model “consults” all the stored understanding from the prompt and previous tokens.</li>
+        
+        <li><strong>Update the hidden state</strong><br>
+            The attention output flows through the feed-forward network (MLP) and other layers. After all layers, the model produces a new <strong>final hidden state</strong> (size = <code>d_model</code>, typically 4,000–12,000 dimensions).</li>
+        
+        <li><strong>Project to Vocabulary (The Critical Step)</strong><br>
+            The final hidden state is passed through a simple linear layer called the <strong>language model head</strong>:</li>
+    </ol>
+
+    <pre><code>logits = final_hidden_state × W_unembed^T</code></pre>
+
+    <p>This single matrix multiplication produces a vector called <strong>logits</strong>, which has length <strong>vocab_size</strong>.</p>
+
+    <div class="highlight">
+        <strong>vocab_size</strong> is usually 32,000 to 128,000+.<br>
+        This means the model outputs <strong>one score for every possible token</strong> it knows — creating a massive list of candidates for the next word.
+    </div>
+
+    <h3>6. Choose the Next Token</h3>
+    <p>The logits are converted into probabilities (using softmax, often with temperature or top-p sampling). One token is then selected and fed back into the model as the next input. The process repeats.</p>
+
+    <h2>Summary: The Full Picture</h2>
+    <ul>
+        <li><strong>Prefill</strong>: Heavy parallel processing → builds the passive KV cache (instruction matrix) + initial hidden state.</li>
+        <li><strong>Decode</strong>: Repeated loop:
+            <ul>
+                <li>Read from the KV cache via attention</li>
+                <li>Update the hidden state</li>
+                <li>Project from <code>d_model</code> to <code>vocab_size</code> → logits</li>
+                <li>Sample the next token</li>
+            </ul>
+        </li>
+    </ul>
+
+    <p>The KV cache is <strong>passive</strong> — it stores contextual information but does no computation itself. All the active work happens in the attention reads and transformer layers. The final projection to <code>vocab_size</code> is what turns the model’s rich internal representation into actual fluent text choices.</p>
+
+    <p>This mechanical process — not magic — is what allows today’s LLMs to produce coherent, context-aware output. Surface-level understanding emerges from the sophisticated interaction between the stored KV cache and the active computation at each step.</p>
+
+    <hr>
+    <p style="font-size: 0.9em; color: #666;">
+        This article is a companion to the main series on Understanding in LLMs.<br>
+        It focuses on the actual mechanics of inference without anthropomorphism or over-simplification.
+    </p>
+
+</body>
+</html>
