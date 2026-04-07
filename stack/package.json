@@ -4,6 +4,11 @@
   "description": "VS Code extension to manage a Mental Stack for LLM context creation",
   "publisher": "morpharray",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/morpharray/morpharray.git",
+    "directory": "stack"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"

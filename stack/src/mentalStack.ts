@@ -58,6 +58,15 @@ function createTurndownForStacks(): TurndownService {
 	return turndownService;
 }
 
+/** Removes branding token from clipboard payload (any case, whole word). */
+function stripMorpharrayWordFromStackText(text: string): string {
+	return text
+		.replace(/\bmorpharray\b/gi, '')
+		.replace(/[ \t]{2,}/g, ' ')
+		.replace(/[ \t]+(?=\n)/g, '')
+		.replace(/\n{3,}/g, '\n\n');
+}
+
 /**
  * Creates a Markdown Mental Stack from a `.mastack` definition and copies it to the clipboard.
  */
@@ -123,7 +132,7 @@ export async function createMentalStackFullContext(): Promise<void> {
 	const chapterCount = Math.max(0, stackEntries.length - 1);
 	const turndownService = createTurndownForStacks();
 
-	let output = `MORPHARRAY MENTAL STACK (FULL CONTEXT)\n\n`;
+	let output = `MENTAL STACK (FULL CONTEXT)\n\n`;
 	output += `Stack file: stacks/${selectedName}\n`;
 	output += `Workspace: ${vscode.workspace.workspaceFolders?.[0]?.name || 'Untitled'}\n`;
 	output += `Generated: ${new Date().toISOString()}\n`;
@@ -187,7 +196,7 @@ export async function createMentalStackFullContext(): Promise<void> {
 	}
 
 	try {
-		await vscode.env.clipboard.writeText(output.trim());
+		await vscode.env.clipboard.writeText(stripMorpharrayWordFromStackText(output).trim());
 		void vscode.window.showInformationMessage(`Mental Stack (${selectedName}) copied to clipboard!`);
 	} catch {
 		void vscode.window.showErrorMessage('MorphArray: Could not copy to the clipboard.');

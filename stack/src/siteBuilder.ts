@@ -163,6 +163,93 @@ function cleanArticleBodyHtml(html: string, titleForDedup?: string): string {
 		.join('');
 }
 
+/**
+ * Ensures the built chapter has a visible `<h1>` after placeholders run. Handles empty `<span class="title-main">`,
+ * leftover `{{main_title}}`, templates with no heading (fallback wrapper used to omit it), or `$` in titles breaking
+ * earlier string replaces.
+ */
+function ensureChapterBodyHasTitleH1(html: string, plainTitle: string): string {
+	const $ = cheerio.load(html);
+	const body = $('body');
+	if (!body.length) {
+		return html;
+	}
+
+	const titleMain = body.find('h1 .title-main').first();
+	if (titleMain.length) {
+		const raw = titleMain.text();
+		const t = normalizeHeadingText(raw);
+		if (!t || /\{\{/.test(raw)) {
+			titleMain.text(plainTitle);
+		}
+		return $.html();
+	}
+
+	const h1 = body.find('h1').first();
+	if (h1.length) {
+		const raw = h1.text();
+		const t = normalizeHeadingText(raw);
+		if (!t || /\{\{/.test(raw)) {
+			h1.text(plainTitle);
+		}
+		return $.html();
+	}
+
+	const ac = body.find('.article-content').first();
+	const newH1 = $('<h1></h1>');
+	const span = $('<span class="title-main"></span>');
+	span.text(plainTitle);
+	newH1.append(span);
+	if (ac.length) {
+		ac.before(newH1);
+	} else {
+		body.prepend(newH1);
+	}
+	return $.html();
+}
+
+/** True if the chapter wrapper asks for a `{{byline}}` / `{{Byline}}` token (substitution handled in template). */
+function wrapperDeclaresBylinePlaceholder(wrapper: string): boolean {
+	return /\{\{\s*[Bb]yline\s*\}\}/.test(wrapper);
+}
+
+/**
+ * Books whose `base.html` omits `{{byline}}` rely on bylines inside each article. Full-document chapters often have
+ * no `<p class="byline">`. Insert the same `{{Byline}}` text (author • formatted date) as the first thing inside
+ * `.article-content` when missing, matching fragment-style chapters that carry byline in the body.
+ */
+function ensureChapterBylineParagraphIfMissing(
+	html: string,
+	bylinePlainText: string,
+	wrapperDeclaresByline: boolean,
+): string {
+	const text = bylinePlainText.trim();
+	if (wrapperDeclaresByline || !text) {
+		return html;
+	}
+	const $ = cheerio.load(html);
+	const body = $('body');
+	if (!body.length) {
+		return html;
+	}
+	if (body.find('p.byline').length > 0) {
+		return html;
+	}
+	const p = $('<p class="byline"></p>');
+	p.text(text);
+	const ac = body.find('.article-content').first();
+	if (ac.length) {
+		ac.prepend(p);
+		return $.html();
+	}
+	const h1 = body.find('h1').first();
+	if (h1.length) {
+		h1.after(p);
+		return $.html();
+	}
+	return html;
+}
+
 function resolveTitle(parsed: ReturnType<typeof parseArticleMatter>, relPath: string): string {
 	let title = parsed.data['title'] !== undefined ? String(parsed.data['title']) : '';
 	if (!title.trim()) {
@@ -312,8 +399,13 @@ export async function rebuildDynamicStory(context: vscode.ExtensionContext): Pro
 		return;
 	}
 
-	const { entries: stackEntries, chapterStartIndex, authorName: authorFromStack, libraryPath } =
-		parseStackDefinitionForSiteBuild(stackContent);
+	const {
+		entries: stackEntries,
+		chapterStartIndex,
+		authorName: authorFromStack,
+		libraryPath,
+		articleSeries: articleSeriesFromStack,
+	} = parseStackDefinitionForSiteBuild(stackContent);
 	const defaults =
 		authorFromStack !== undefined
 			? { ...defaultsFromFile, author: authorFromStack }
@@ -447,11 +539,15 @@ ${indexInner}
   <link rel="stylesheet" href="base.css">
 </head>
 <body>
+  {{image}}
+  <h1><span class="title-main">{{main_title}}</span></h1>
+  {{byline}}
   <div class="article-content">{{content}}</div>
   <nav class="nav-bottom">{{prev_link}} {{index_link}} {{next_link}}</nav>
 </body>
 </html>`;
 	}
+	const wrapperHasBylineSlot = wrapperDeclaresBylinePlaceholder(wrapper);
 
 	for (let i = 0; i < chapterMeta.length; i++) {
 		const ch = chapterMeta[i];
@@ -465,6 +561,12 @@ ${indexInner}
 			ch.articleData,
 			ch.stackAttributes,
 		);
+		// Resolved article titles must win: stack `title=` / `main_title=` attrs and defaults can be empty,
+		// and `applyTemplatePlaceholders` matches `{{ main_title }}` (spaces) while manual replace did not.
+		pageCtx['title'] = escapeHtml(docTitle);
+		pageCtx['main_title'] = escapeHtml(headingTitle);
+		// Stack-level `# ARTICLE_SERIES="…"` → {{ArticleSeries}} (ctx keys from inline attrs are lowercased).
+		pageCtx['articleseries'] = articleSeriesFromStack ?? '';
 
 		const prevLink = prevRel
 			? `<a href="${escapeHtml(relativeArticleHref(ch.rel, prevRel))}">← Previous</a>`
@@ -481,18 +583,17 @@ ${indexInner}
 				)}" alt="${escapeHtml(headingTitle)}" loading="lazy" decoding="async"></figure>\n`
 			: '';
 
+		const bylineExpanded = applyTemplatePlaceholders('{{Byline}}', pageCtx);
 		let page = wrapper
-			.replace(/\{\{title\}\}/gi, escapeHtml(docTitle))
-			.replace(/\{\{main_title\}\}/gi, escapeHtml(headingTitle))
-			.replace(/\{\{subtitle\}\}/gi, '')
-			.replace(/\{\{content\}\}/gi, ch.cleanHtml)
-			.replace(/\{\{byline\}\}/gi, applyTemplatePlaceholders('{{Byline}}', pageCtx))
-			.replace(/\{\{Byline\}\}/gi, applyTemplatePlaceholders('{{Byline}}', pageCtx))
-			.replace(/\{\{image\}\}/gi, imageHtml)
-			.replace(/\{\{Image\}\}/gi, imageHtml)
-			.replace(/\{\{prev_link\}\}/gi, prevLink)
-			.replace(/\{\{next_link\}\}/gi, nextLink)
-			.replace(/\{\{index_link\}\}/gi, indexLink);
+			.replace(/\{\{\s*subtitle\s*\}\}/gi, () => '')
+			.replace(/\{\{\s*content\s*\}\}/gi, () => ch.cleanHtml)
+			.replace(/\{\{\s*byline\s*\}\}/gi, () => bylineExpanded)
+			.replace(/\{\{\s*Byline\s*\}\}/gi, () => bylineExpanded)
+			.replace(/\{\{\s*image\s*\}\}/gi, () => imageHtml)
+			.replace(/\{\{\s*Image\s*\}\}/gi, () => imageHtml)
+			.replace(/\{\{\s*prev_link\s*\}\}/gi, () => prevLink)
+			.replace(/\{\{\s*next_link\s*\}\}/gi, () => nextLink)
+			.replace(/\{\{\s*index_link\s*\}\}/gi, () => indexLink);
 
 		page = applyTemplatePlaceholders(page, pageCtx);
 		const baseHref = baseCssHref(ch.rel, indexTemplateRel);
@@ -500,6 +601,9 @@ ${indexInner}
 			/href=(["'])(?:\.\/|\.\.\/)*(?:css\/)?base\.css\1/gi,
 			`href=$1${baseHref}$1`,
 		);
+
+		page = ensureChapterBodyHasTitleH1(page, headingTitle);
+		page = ensureChapterBylineParagraphIfMissing(page, bylineExpanded, wrapperHasBylineSlot);
 
 		await writeTextUnderDist(distDir, ch.rel, page);
 	}

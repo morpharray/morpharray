@@ -110,6 +110,9 @@ const AUTHOR_NAME_DIRECTIVE = /^\s*#\s*AUTHOR_NAME\s*=\s*(.*)$/i;
 /** First matching line wins: relative/absolute URL from the built index page to the site library (e.g. `"../../morpharray_library.html"`). */
 const LIBRARY_PATH_DIRECTIVE = /^\s*#\s*LIBRARY_PATH\s*=\s*(.*)$/i;
 
+/** First matching line wins: `# ARTICLE_SERIES="…"` — fills `{{ArticleSeries}}` / `{{articleseries}}` on chapter pages. */
+const ARTICLE_SERIES_DIRECTIVE = /^\s*#\s*ARTICLE_SERIES\s*=\s*(.*)$/i;
+
 function parseStackDirectiveStringValue(raw: string): string {
 	let v = raw.trim();
 	if (!v) {
@@ -229,18 +232,20 @@ export function applyTemplatePlaceholders(html: string, ctx: Record<string, stri
 			: year;
 
 	let out = html
-		.replace(/\{\{Year\}\}/gi, year)
-		.replace(/\{\{year\}\}/g, year)
-		.replace(/\{\{Author\}\}/gi, author)
-		.replace(/\{\{author\}\}/g, author)
-		.replace(/\{\{Byline\}\}/gi, byline)
-		.replace(/\{\{byline\}\}/g, byline)
-		.replace(/\{\{siteTitle\}\}/gi, siteTitle)
-		.replace(/\{\{SiteTitle\}\}/gi, siteTitle)
-		.replace(/\{\{dateIso\}\}/gi, dateRaw)
-		.replace(/\{\{DateIso\}\}/gi, dateRaw)
-		.replace(/\{\{date\}\}/gi, dateDisplay)
-		.replace(/\{\{Date\}\}/gi, dateDisplay);
+		.replace(/\{\{Year\}\}/gi, () => year)
+		.replace(/\{\{year\}\}/g, () => year)
+		.replace(/\{\{Author\}\}/gi, () => author)
+		.replace(/\{\{author\}\}/g, () => author)
+		.replace(/\{\{Byline\}\}/gi, () => byline)
+		.replace(/\{\{byline\}\}/g, () => byline)
+		.replace(/\{\{siteTitle\}\}/gi, () => siteTitle)
+		.replace(/\{\{SiteTitle\}\}/gi, () => siteTitle)
+		.replace(/\{\{dateIso\}\}/gi, () => dateRaw)
+		.replace(/\{\{DateIso\}\}/gi, () => dateRaw)
+		.replace(/\{\{date\}\}/gi, () => dateDisplay)
+		.replace(/\{\{Date\}\}/gi, () => dateDisplay)
+		.replace(/\{\{PublishDate\}\}/gi, () => dateDisplay)
+		.replace(/\{\{publishdate\}\}/gi, () => dateDisplay);
 
 	for (const [key, val] of Object.entries(ctx)) {
 		if (key === 'date') {
@@ -254,7 +259,8 @@ export function applyTemplatePlaceholders(html: string, ctx: Record<string, stri
 			`\\{\\{\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\}\\}`,
 			'gi',
 		);
-		out = out.replace(re, val);
+		// Callback: `val` may contain `$` (e.g. article titles); string replacement treats `$&` specially.
+		out = out.replace(re, () => val);
 	}
 	return out;
 }
@@ -281,6 +287,7 @@ export function parseStackDefinitionLines(text: string): string[] {
  * - `# CHAPTER_START_INDEX=<n>` — non-negative integer; default `1` if omitted or invalid (index list labels only).
  * - `# AUTHOR_NAME="..."` — optional quotes; when present (even empty), overrides workspace `defaults.json` author.
  * - `# LIBRARY_PATH="..."` — optional quotes; href from the **built index** to the library page (append link at bottom of index in **Rebuild**).
+ * - `# ARTICLE_SERIES="…"` — optional quotes; series title for `{{ArticleSeries}}` on chapter templates.
  * - Path lines may end with `# k=v, k2=v2` (comma-separated). `pub=YYYY-MM-DD` fills `{{date}}` on that page.
  */
 export function parseStackDefinitionForSiteBuild(text: string): {
@@ -291,6 +298,8 @@ export function parseStackDefinitionForSiteBuild(text: string): {
 	authorName: string | undefined;
 	/** Set only if `LIBRARY_PATH` appeared; empty string allowed but appends no link. */
 	libraryPath: string | undefined;
+	/** Set only if `ARTICLE_SERIES` appeared; use for `{{ArticleSeries}}` in templates. */
+	articleSeries: string | undefined;
 } {
 	const DEFAULT_START = 1;
 	let chapterStartIndex = DEFAULT_START;
@@ -299,6 +308,8 @@ export function parseStackDefinitionForSiteBuild(text: string): {
 	let authorNameLocked = false;
 	let libraryPath: string | undefined;
 	let libraryPathLocked = false;
+	let articleSeries: string | undefined;
+	let articleSeriesLocked = false;
 	const entries: MastackPathLine[] = [];
 
 	for (const line of stripUtf8Bom(text).split(/\r?\n/)) {
@@ -322,6 +333,14 @@ export function parseStackDefinitionForSiteBuild(text: string): {
 			}
 			continue;
 		}
+		const articleSeriesMatch = trimmed.match(ARTICLE_SERIES_DIRECTIVE);
+		if (articleSeriesMatch) {
+			if (!articleSeriesLocked) {
+				articleSeries = parseStackDirectiveStringValue(articleSeriesMatch[1] ?? '');
+				articleSeriesLocked = true;
+			}
+			continue;
+		}
 		const dirMatch = trimmed.match(CHAPTER_START_INDEX_DIRECTIVE);
 		if (dirMatch) {
 			if (!chapterIndexLocked) {
@@ -338,7 +357,7 @@ export function parseStackDefinitionForSiteBuild(text: string): {
 		}
 		entries.push(splitMastackPathLine(trimmed));
 	}
-	return { entries, chapterStartIndex, authorName, libraryPath };
+	return { entries, chapterStartIndex, authorName, libraryPath, articleSeries };
 }
 
 /**

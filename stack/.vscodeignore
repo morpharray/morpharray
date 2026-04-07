@@ -1,3 +1,6 @@
+# Symlink to ../templates — vsce’s secret scan treats it as a file and fails with EISDIR; real templates ship under templates/.
+example_workspace/templates
+
 .vscode/**
 .vscode-test/**
 out/**
