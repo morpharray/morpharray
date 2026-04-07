@@ -1,11 +1,12 @@
 MorphArray Build Report
-Generated: April 6, 2026 at 5:55 AM
-Chapters:  2
+Generated: April 7, 2026 at 5:45 AM
+Chapters:  3
 Warnings:  0
 
 CHAPTERS
 --------
   ch00/intro.html  [OK]
   understanding/understanding.html  [OK]
+  slu/surface-level-understanding.html  [OK]
 
 All checks passed.
