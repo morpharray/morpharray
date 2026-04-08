@@ -2,4 +2,5 @@
 pasteboard_test.txt
 
 # MorphArray: Rebuild Dynamic Story output
-dist/
+!dist/
+!dist/**

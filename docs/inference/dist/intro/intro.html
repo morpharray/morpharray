@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How LLMs Generate Text:Understanding the Inference Process</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="intro.jpg" alt="How LLMs Generate Text:Understanding the Inference Process" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">How LLMs Generate Text:Understanding the Inference Process</span>
+        
+    </h1>
+
+    Ben Um • April 7, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+    
+    
+    <blockquote>
+        <p>Large language models generate text through a mechanical process called <strong>inference</strong>. This process is not magical — it follows a clear, repeatable sequence of steps that turns your prompt into coherent output token by token.</p>
+        
+        <p>Before we dive deeper, a few helpful definitions:</p>
+        <p>A <strong>token</strong> is the basic unit that large language models work with. It’s usually a word, part of a word, or even a single punctuation mark. For example, the sentence “Hello, how are you?” might be split into 5 or 6 tokens depending on the tokenizer.</p>
+        
+        <p><strong>Terminology Note:</strong><br>
+        In the broader literature and most inference systems, a collection of Key and Value vectors produced during inference is commonly called the <strong>“KV cache”</strong>.  
+
+        In this article, I refer to it as the <strong>“KV substrate”</strong>. I chose this term to emphasize its true importance: it is not just a temporary storage trick for speed. Instead, it is the foundational, passive medium that holds the model’s compiled understanding of the entire prompt and conversation so far — including instructions, context, facts, tone, and constraints.</p>
+    </blockquote>
+
+    <p>Large language models don’t “think” in one magical step. They generate text through a very specific, repeatable mechanical process called inference. This process has two main phases: <strong>Prefill</strong> and <strong>Decode</strong>.</p>
+
+    <h2>1. Prefill Phase – Building the Context</h2>
+    <p>When you send a prompt, the model first processes the entire prompt <strong>in parallel</strong>. This is called the prefill phase.</p>
+    
+    <p>During prefill, the model:</p>
+    <ul>
+        <li>Converts every token in your prompt into embeddings</li>
+        <li>Runs them through all transformer layers</li>
+        <li>Computes the Key (K) and Value (V) vectors for every token in every layer</li>
+    </ul>
+
+    <div class="highlight">
+        <strong>The result is the KV substrate</strong> — a large, passive collection of stored tensors consisting of all the Key and Value vectors computed so far. 
+        Think of it metaphorically as a rich <strong>contextual matrix</strong> — a frozen, holistic representation made up of the Key and Value vectors that together capture the model’s interpretation of the prompt: instructions, facts, tone, constraints, relationships between ideas, and more.
+    </div>
+
+    <p>At the end of prefill, the model also produces a final hidden state for the last token in the prompt. This serves as the model’s internal summary of everything it has seen so far.</p>
+
+    <h2>2. Decode Phase – Generating One Token at a Time</h2>
+    <p>Once prefill is complete, the model switches to autoregressive generation — producing tokens one by one.</p>
+
+    <h3>Inside each decode step:</h3>
+    <ol>
+        <li><strong>Start with the current hidden state</strong> (on the first step, this comes from prefill; afterward, it comes from the previous decode step).</li>
+        
+        <li>
+            <strong>Process the newest token</strong><br>
+            The model embeds the most recently sampled token and computes a new <strong>Query (Q)</strong>, <strong>Key (K)</strong>, and <strong>Value (V)</strong> for it.<br><br>
+            These new K and V vectors are appended to the KV substrate, becoming part of the holistic contextual representation that will influence all future tokens.
+        </li>
+        
+        <li>
+            <strong>Read from the KV Substrate</strong><br>
+            The new Query performs attention over the entire KV substrate using two matrix operations:<br><br>
+            <code>scores = Q_new × K_substrate^T / √d_head</code><br>
+            <code>attention_output = softmax(scores) × V_substrate</code><br><br>
+            This step is where the model consults the accumulated, compiled understanding stored in the KV substrate.
+        </li>
+        
+        <li>
+            <strong>Update the hidden state</strong><br>
+            The attention output flows through the feed-forward network (MLP) and other layers, producing a new final hidden state.
+        </li>
+        
+        <li>
+            <strong>Project to Vocabulary (The Critical Step)</strong><br>
+            The final hidden state is passed through the language model head:<br><br>
+            <code>logits = final_hidden_state × W_unembed^T</code><br><br>
+            This produces a vector of logits with length equal to the vocabulary size (usually 32,000 to 128,000+).
+        </li>
+        
+        <li>
+            <strong>Choose the Next Token</strong><br>
+            The logits are converted into probabilities (using softmax, often with temperature, top-p, or top-k sampling). One token is selected and fed back into the model. The loop repeats.
+        </li>
+    </ol>
+
+    <h2>Summary: The Full Picture</h2>
+    <p><strong>Prefill:</strong> Heavy parallel processing that builds the passive KV substrate (the rich contextual matrix made of Key and Value vectors) plus the initial hidden state.</p>
+    
+    <p><strong>Decode:</strong> A repeated loop that reads from the KV substrate via attention, updates the hidden state, projects to logits, and samples the next token.</p>
+
+    <p>The KV substrate itself is passive — it stores the compiled contextual information in the form of Key and Value vectors but performs no computation on its own. All the active work happens in the attention reads and transformer layers. The final projection step is what turns the model’s rich internal representation into actual fluent text choices.</p>
+
+    <p><strong>Note on optimizations:</strong> Even when modern systems apply compression, eviction, or approximation techniques (such as SnapKV or quantization), they are still operating on a form of the KV substrate — just in a more compact or lossy version. The core concept remains the same: a queryable representation of the accumulated context.</p>
+
+    <p>This mechanical process — not magic — is what allows today’s LLMs to produce coherent, context-aware output. The KV substrate is the essential medium that makes the prompt’s intent persistently available throughout generation.</p>
+
+    <p><strong>Why “KV substrate”?</strong><br>
+    Some might prefer calling this simply the “KV sequence,” which is accurate but somewhat undersells its significance. I use “KV substrate” because it better captures its role as the foundational medium on which all contextual understanding and generation depend. The term “cache” implies something optional — a mere performance trick. In truth, the exact same mathematical operations can be performed without any caching at all (though much more slowly). What is truly essential is this underlying structure: the compiled, holistic representation that carries the prompt’s intent forward.</p>
+
+    <hr>
+    <p>
+        This article is a companion to the main series on Understanding in LLMs.<br>
+        It focuses on the actual mechanics of inference without anthropomorphism or over-simplification.
+    </p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <span class="nav-disabled">← Previous</span>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>MorphArray Analogy Series • April 7, 2026</p>
+    </footer>
+
+
+</body></html>
