@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    {{image}}
+
+    <h1>
+        <span class="title-main">{{main_title}}</span>
+        {{subtitle}}
+    </h1>
+
+    {{byline}}
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        {{content}}
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        {{prev_link}}
+        {{index_link}}
+        {{next_link}}
+    </nav>
+
+    <footer>
+        <p>Fractals Series • {{date}}</p>
+    </footer>
+
+</body>
+</html>

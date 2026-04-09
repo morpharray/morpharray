@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Templates: Shaping the KV Substrate</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="prompt-template.jpg" alt="Prompt Templates: Shaping the KV Substrate" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Prompt Templates: Shaping the KV Substrate</span>
+        
+    </h1>
+
+    Ben Um • April 9, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+<p>In the previous chapters we saw how the prefill phase builds the KV substrate — the rich collection of Key and Value vectors that serves as the foundation for everything that follows during generation. The quality and structure of this KV substrate largely determines how consistent, reliable, and useful the model’s output will be.</p>
+
+<p>This raises an important question: Is there a systematic way to shape the KV substrate <em>before</em> generation even begins? The answer is yes — and that method is the use of prompt templates.</p>
+
+<h2>The Origin of Prompt Templates</h2>
+
+<p>When large language models first became widely accessible in 2020–2021, prompting was largely ad hoc. Users would write instructions and requests directly, occasionally adding a few examples. While this often produced impressive results, the outputs were highly variable. The same request could yield different formats, tones, or levels of detail depending on small changes in wording.</p>
+
+<p>Over time, it became clear that the prefill phase — during which the entire prompt is processed in parallel — is extremely sensitive to structure. The exact arrangement and wording of the input has a major impact on the resulting KV substrate. Practitioners began to treat prompts not as one-off messages, but as something that could be deliberately designed and reused.</p>
+
+<p>By late 2021 and into 2022, two important developments crystallized the value of prompt templates:</p>
+
+<ol>
+    <li>The demonstrated power of few-shot prompting, which showed that including clear input–output examples could strongly guide the model’s behavior.</li>
+    <li>The practical needs of real-world applications, where inconsistent output formats made automation difficult and unreliable.</li>
+</ol>
+
+<p>Developers started creating reusable prompt “skeletons” with placeholders for variable content. What began as simple string substitution evolved into structured templates supporting examples, constraints, and output specifications. This approach was later formalized in libraries such as LangChain and others, and the term <strong>prompt templates</strong> became standard.</p>
+
+<p>The core insight was this: instead of hoping for a good KV substrate by chance, we could design the prompt in advance to reliably produce a higher-quality substrate every time it is rendered.</p>
+
+<h2>Mechanics of a Productive Template</h2>
+
+<p>A prompt template is a static piece of text containing placeholders that are replaced with actual values at runtime. Common placeholder syntax includes <code>{{variable}}</code> (Mustache style), Jinja2 syntax, or language-specific string formatting.</p>
+
+<p>Here is a simple example of a productive template:</p>
+
+<pre><code>You are an expert analyst. Analyze the following text and return your response in valid JSON format only.
+
+Text: {{user_text}}
+
+Instructions:
+- Identify the main sentiment
+- Extract up to 4 key points
+- Rate confidence from 0.0 to 1.0
+
+Return ONLY a JSON object with the following structure:
+{
+"sentiment": "positive|negative|neutral",
+"confidence": number,
+"key_points": ["point 1", "point 2", ...],
+"summary": "one short sentence"
+}</code></pre>
+
+<p>Effective templates tend to share several mechanical properties:</p>
+
+<ul>
+    <li><strong>Clear separation of static and dynamic content</strong><br>
+    The static parts define role, instructions, constraints, and desired output structure. The dynamic parts (the placeholders) inject only the specific user content or data.</li>
+    
+    <li><strong>Explicit output directives</strong><br>
+    Strong templates nearly always include clear instructions about the expected format — for example, “Return only valid JSON” or “Use the following exact function call format.”</li>
+    
+    <li><strong>Strategic inclusion of examples</strong><br>
+    Many productive templates embed one or more well-chosen examples (one-shot or few-shot) within the static structure. These examples serve as powerful anchors that help shape the KV substrate during prefill.</li>
+    
+    <li><strong>Controlled token usage</strong><br>
+    Because the template is rendered before prefill, the total context length can be predicted and managed more effectively.</li>
+    
+    <li><strong>Reduced competing intents</strong><br>
+    By encoding formatting rules, tone, and structural requirements into the static template, there is less room for the dynamic input to create conflicting signals in the KV substrate.</li>
+</ul>
+
+<p>When a template is rendered and passed to the model, the resulting KV substrate is no longer accidental. It has been deliberately shaped by the structure of the template.</p>
+
+<h2>Implications: Creating Outputs with Discrete Intent</h2>
+
+<p>The most powerful aspect of prompt templates is their ability to define and reliably produce <strong>outputs with discrete intent</strong>.</p>
+
+<p>Without templates, the model’s output lives in a broad, continuous probability space. A well-designed template narrows this space significantly by embedding strong structural signals directly into the KV substrate during prefill. The decode phase then operates on a context that is already biased toward a specific category of response with clear, unambiguous intent.</p>
+
+<p>Well-crafted templates make it possible to create outputs that:</p>
+<ul>
+    <li>Consistently return valid, schema-compliant JSON</li>
+    <li>Always produce properly formatted function or tool calls</li>
+    <li>Generate code that follows a specific style or pattern</li>
+    <li>Deliver structured analysis with consistent sections and depth</li>
+</ul>
+
+<p>Because templates act during the prefill phase, they influence the KV substrate at the earliest possible point in the inference process. This gives them far more leverage than trying to enforce structure later during decoding.</p>
+
+<p>Templates do not eliminate the model’s reasoning ability or creativity. Instead, they constrain the <em>form</em> that the output takes. In doing so, they transform an open-ended generation process into something closer to a repeatable, well-defined output with discrete intent — precisely what most practical applications require.</p>
+
+<p>This is why prompt templates became one of the earliest and most fundamental techniques in serious LLM development. They are not just a labor-saving device; they are a practical method for deliberately shaping the KV substrate and, by extension, the entire inference process that follows.</p>
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../intent-matrix/intent-matrix.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 9, 2026</p>
+    </footer>
+
+
+</body></html>
