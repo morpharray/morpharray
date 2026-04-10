@@ -1,0 +1,95 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Improving Reasoning During Inference: Simple Chain-of-Thought (CoT)</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="cot.jpg" alt="Improving Reasoning During Inference: Simple Chain-of-Thought (CoT)" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Improving Reasoning During Inference: Simple Chain-of-Thought (CoT)</span>
+        
+    </h1>
+
+    Ben Um • April 10, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        <article>
+    
+    
+    <p>In previous chapters we looked at how the prefill phase builds the KV substrate and how the decode phase generates text one token at a time by repeatedly reading from that substrate. We also saw that the quality of the KV substrate strongly influences how coherent and useful the final output becomes.</p>
+
+    <p>Even with a well-structured prompt and rich reference material, the model sometimes produces answers that feel direct but shallow or skip important logical steps. A simple and very effective technique can help with this: <strong>Chain-of-Thought prompting</strong>, commonly called <strong>CoT</strong>.</p>
+
+    <h2>The Core Idea of Simple CoT</h2>
+    <p>The primary goal of simple Chain-of-Thought is to generate an output that contains <strong>"thinking out loud" reasoning</strong>.</p>
+    <p>Instead of asking the model to jump straight from the prompt to a final answer, you explicitly instruct it to show its reasoning process step by step as part of the generated response.</p>
+    <p>The most common way to trigger this is by adding a short instruction such as:</p>
+    <blockquote>
+        <p>“Think step by step.”</p>
+    </blockquote>
+    <p>Or a more detailed version:</p>
+    <pre><code>Compare different sorting algorithms. Think step by step about their time and space complexity, strengths, and weaknesses for various data scenarios. Then recommend the best algorithm for efficiently sorting a list of 1000 integers.</code></pre>
+
+
+    <h2>How It Changes the Decode Phase</h2>
+    <p>Without CoT, the model tends to compress its reasoning into the hidden state and move quickly toward a final conclusion. With CoT, the model is encouraged to <strong>externalize</strong> its reasoning — producing visible intermediate steps as tokens during the decode phase.</p>
+    <p>Those reasoning tokens become part of the growing KV substrate. Later tokens in the same generation can then attend to them. This often leads to:</p>
+    <ul>
+        <li>More structured and transparent reasoning</li>
+        <li>Better handling of multi-step tasks</li>
+        <li>Reduced tendency to take logical shortcuts</li>
+        <li>More consistent final answers</li>
+    </ul>
+
+    <h2>Simple CoT as Caveman Debugging</h2>
+    <p>A helpful way to think about simple Chain-of-Thought is that it functions as <strong>caveman debugging</strong> — the AI equivalent of rubber-duck debugging. Just as explaining your code line-by-line to a rubber duck (or adding <code>printf()</code> statements) forces you to slow down and spot flaws you missed when rushing, telling the model to “think step by step” externalizes its reasoning and often surfaces logical shortcuts.</p>
+
+    <p>In multi-agent orchestration, this becomes especially valuable: the visible reasoning trail turns opaque agent decisions into something you can read, audit, and debug. The orchestrator’s “thinking out loud” can reveal why it chose one routing over another, making failure diagnosis far easier.</p>
+
+    <p>However, like well-formatted <code>printf()</code> logs written by humans, the output can be deceptively smooth. The decode phase generates tokens autoregressively, so the visible steps sometimes act as a polished, post-hoc narrative rather than a faithful record of the model’s internal latent state. Much of the actual “navigation” happens in the hidden states — the high-dimensional guidance vectors in the KV substrate — which we still cannot inspect with true stack-trace granularity today.</p>
+
+    <p>As a result, CoT can occasionally produce longer, more confident-sounding reasoning that hides internal shortcuts or silent corrections. Treat the visible chain as a powerful but imperfect signal: excellent for caveman-level debugging and auditing, yet not a complete window into the underlying state machine.</p>
+
+    <h2>Simple Before-and-After Example</h2>
+    <p><strong>Without CoT:</strong></p>
+    <pre><code>Explain how to implement a quick sort algorithm in JavaScript.</code></pre>
+    <p><strong>With CoT:</strong></p>
+    <pre><code>Explain how to implement a quick sort algorithm in JavaScript. Think step by step.</code></pre>
+    <p>The CoT version typically produces a response that first walks through the reasoning process before delivering the final recommendation. This "thinking out loud" makes the output more reliable and easier to follow.</p>
+
+    <h2>When Simple CoT Is Most Useful</h2>
+    <p>Simple CoT tends to shine when:</p>
+    <ul>
+        <li>The task involves multiple logical steps (analysis → planning → implementation → verification)</li>
+        <li>You have rich reference material in the prompt (such as a large coherent codebase)</li>
+        <li>You want the reasoning to be transparent and auditable (with the important caveat that the visible trail is helpful but lossy)</li>
+    </ul>
+    <p>Keep in mind that CoT increases the number of tokens generated and therefore adds some latency and cost. It is not a guarantee of correctness — the visible reasoning is a useful but smoothed reconstruction of the decode process — but it gives the model a better opportunity to use the information already present in the KV substrate more effectively.</p>
+
+    <h2>Looking Ahead</h2>
+    <p>Simple Chain-of-Thought is one of the easiest ways to encourage more deliberate reasoning during a single inference pass. In the following chapters we will explore other techniques for shaping output structure, managing long contexts, and balancing quality versus speed during inference.</p>
+
+</article>
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../prompt-template/prompt-template.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 10, 2026</p>
+    </footer>
+
+
+</body></html>
