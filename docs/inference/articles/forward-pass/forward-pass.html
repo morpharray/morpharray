@@ -1,0 +1,67 @@
+<h1>The Two Lives of Q, K, and V: How the Same Vectors Build the Substrate and Then Read from It</h1>
+
+<p><em>In the previous chapter, we introduced the triad — Q, K, and V — and described how they collaborate during decode to reconstruct implicit sense from across the substrate. But we described only half of their lives. The same three vectors play a fundamentally different role during prefill, and understanding this difference is essential to understanding why prompts have permanent consequences.</em></p>
+
+<h2>The Same Letters, Two Different Jobs</h2>
+
+<p>Every explanation of Q, K, and V describes the same mechanism: Q asks a question, K advertises relevance, V delivers content. The dot product between Q and K produces attention weights, and those weights select a blend of V vectors. This is correct. But it leaves out something critical: <em>when</em> this mechanism fires determines what it <em>does</em>.</p>
+
+<p>During decode, the mechanism serves two purposes simultaneously. First, it is a retrieval operation: a newly generated token produces a Q vector that searches the existing substrate, matching against cached K vectors to select which cached V vectors deliver their content. Second, it is an extension operation: that same token's own K and V vectors — shaped by what Q gathered — are appended to the substrate, becoming part of the context that all future tokens will read from. The substrate grows with every generated token.</p>
+
+<p>During prefill, the mechanism is a construction operation. Every token in the prompt has its K and V vectors built and frozen into the substrate in a single pass. The critical difference is not that prefill writes and decode reads — both phases write K and V vectors into the substrate. The difference is <em>who controls what gets written</em>. During prefill, the prompt author controls the input entirely. During decode, the model controls what gets generated, and each generated token's K and V are shaped by the model's own choices. The prompt author's influence over the substrate is concentrated in prefill. After that, the model takes over.</p>
+
+<p>The linear algebra is identical in both phases. The authorship is not.</p>
+
+<h2>Prefill: Q as Builder</h2>
+
+<p>To see what this means concretely, return to the sentence from the earlier chapters.</p>
+
+<blockquote><em>"A dry log crackled and split as the campfire grew."</em></blockquote>
+
+<p>When the transformer processes this sentence during prefill, it moves through the tokens in order, computing K and V vectors at each position. At each position, the token's Q vector reaches back to attend to everything that came before it.</p>
+
+<p>When the transformer reaches "log," Q at that position attends to "A" and "dry." The attention mechanism computes how relevant those preceding tokens are to "log" and pulls information from their V vectors. This gathered information enriches the token's internal representation, which is then projected through the K and V weight matrices, producing the K and V vectors that are frozen at the "log" position.</p>
+
+<p>This is where Q's role as builder becomes visible. The K vector at "log" does not simply encode the token ID for "log." It encodes "log as preceded by 'a dry,'" and all the associations that attention extracted from those preceding tokens. Q was the mechanism that performed that extraction. Q asked the question: <em>what do the tokens before me carry that is relevant to what I am?</em> The answer to that question shaped the K and V vectors that were written at this position.</p>
+
+<p>If Q had failed to attend to "dry" — if the attention weights had distributed poorly at some layer — the K and V vectors at the "log" position would be correspondingly impoverished. They would carry less information about desiccated timber, less enrichment from the preceding context. And this impoverishment would be permanent. No future token can reach back and rewrite what was frozen here.</p>
+
+<p>This is the fundamental asymmetry. During prefill, Q has <strong>irreversible consequences</strong>. The quality of attention at each layer, at each position, permanently determines what gets written into the substrate. Every K and V vector in the cache is a record of how well Q did its job at that position during prefill.</p>
+
+<h2>Decode: Q as Reader and Extender</h2>
+
+<p>During decode, Q operates in a different context. The substrate built during prefill already exists — every K and V vector from the prompt is frozen in the cache. The model is now generating tokens one at a time, and each new token produces a Q vector that searches the entire substrate.</p>
+
+<p>Consider what happens when the model is generating a response about the campfire scene. The current token's Q vector expresses what the model needs right now — perhaps information about the physical setting, the quality of the fire, the state of the fuel. That Q vector is compared against every K vector in the cached substrate. Positions whose K vectors advertise relevant content — the position where "log" sits, the position where "crackled" sits — receive high attention weights. Their corresponding V vectors deliver content into the blend.</p>
+
+<p>This is also where implicit sense — introduced in the previous chapter — becomes mechanically visible. When the explicit sense at a position like "log" is weak because it lacked preceding context, decode Q is not limited to reading that one position. It searches the entire substrate, including downstream positions like "crackled" and "heat" whose K vectors advertise the disambiguating signal that "log" itself lacks. Their V vectors deliver that signal into the blend. The model recovers the meaning through this distributed read — assembling understanding from across the substrate that no single position contains on its own.</p>
+
+<p>Implicit sense works. But it requires decode Q to do additional reconstruction work — searching across many positions, weighting distributed signals, assembling meaning that could have been concentrated at the point where it was needed. The difference between explicit and implicit sense during decode is the difference between reading a clear answer where it lives and piecing one together from scattered evidence.</p>
+
+<p>This is the core of the authorship asymmetry. The prefill substrate is shaped entirely by the prompt author. The decode extension — every generated token's K and V vectors appended during generation — is shaped by the model. The prompt author's influence is concentrated in the foundation. The quality of that foundation determines how much reconstruction work decode must perform and how effectively the model can build on what it finds there. This is why the quality of the prompt has outsized influence: it determines the ground on which every generated token builds.</p>
+
+<h2>K and V Follow the Same Pattern</h2>
+
+<p>Q's role shift between prefill and decode is the most dramatic, but K and V undergo the same transition.</p>
+
+<p>During prefill, K and V vectors are simultaneously being written and being read. As the transformer processes the prompt, each token's K and V are frozen into the substrate — but K and V vectors at earlier positions are immediately serving their function for later tokens within the same pass. K is already advertising relevance. V is already delivering content. They are both product and active participant in the same construction operation.</p>
+
+<p>During decode, their roles narrow. The K and V vectors from the prompt are now static. They sit in the cache, frozen exactly as prefill left them. They cannot update themselves, cannot improve their advertisements or enrich their payloads based on what the model now needs. New K and V vectors are added at each decode step for generated tokens, but the prompt's K and V vectors are permanent.</p>
+
+<p>This is another way to see why prefill quality matters. The K vectors from the prompt form the core of the substrate that decode Q searches against. If those K vectors accurately advertise what each position carries — because the preceding context was strong and prefill Q gathered well — then decode Q can search effectively. If those K vectors are vague or misleading, decode Q must work harder to find what it needs, or may fail to find it at all. The same holds for V: if the V vectors carry rich, concentrated content, the blend that decode Q assembles will be correspondingly rich. If they carry impoverished content, no amount of clever querying during decode can extract what was never written there.</p>
+
+<h2>Why This Distinction Matters</h2>
+
+<p>The practical consequence of this dual role is stark: <strong>the substrate that the prompt author controls is written entirely during prefill, and once written, it cannot be revised.</strong></p>
+
+<p>When you write a prompt, you are not just providing input. You are providing the raw material for a construction process. Every token in your prompt will have its K and V vectors built by the prefill attention mechanism — Q gathering from preceding context, the internal representation accumulating, K and V being projected and frozen. The quality of what you write determines the quality of what gets built. The order of your tokens determines what context is available when each position's K and V vectors are computed.</p>
+
+<p>Once prefill is complete, the foundation is set. The model will read from it for the entire duration of generation, and every generated token will extend the substrate further. But that extension is built on top of the foundation the prompt established. The generated tokens attend to the prompt's K and V vectors, gather from them, and build their own representations on what they find there. A strong foundation produces strong extensions. A weak foundation forces the model to build on impoverished ground.</p>
+
+<p>This is why front-loading context matters — not as a prompt engineering trick, but as a mechanical necessity. Placing disambiguating context before the tokens that need it ensures that prefill Q has the right material to work with when building K and V vectors at those positions. Placing it after means the K and V vectors are already frozen in an impoverished state, and the model must rely on implicit sense — the more expensive, more distributed, less concentrated reconstruction process — to recover what was never written in the first place.</p>
+
+<p>The research community has begun to discover this asymmetry empirically, even without naming it conceptually. Recent work on KV cache compression has found that evaluating token importance using prefill-phase attention patterns produces systematically different results than evaluating importance from decode-phase patterns. The tokens that prefill Q attended to most heavily are not necessarily the tokens that decode Q will need most. This makes sense once the two phases are seen clearly: prefill Q was building the foundation, optimizing for construction. Decode Q is reading the foundation and extending the substrate, optimizing for retrieval and generation. They are doing different jobs, and the tokens they prioritize reflect those different purposes.</p>
+
+<hr>
+
+<p><em>In the next chapter, we will look inside the mechanism that makes this construction possible — the forward pass — and see how Q's gathering at each layer progressively shapes the substrate from which all generation reads.</em></p>

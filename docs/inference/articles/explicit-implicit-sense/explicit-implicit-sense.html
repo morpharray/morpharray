@@ -90,9 +90,12 @@
 
 <p>This is why the words you choose, and the order you place them in, determine not just what the model reads &mdash; but what it understands. Every token you write shapes the explicit sense of every token that follows it. And the richer that explicit sense is, the less reconstruction the model must perform to arrive at the meaning you intended.</p>
 
-<hr>
 
-<p><em>In the next chapter, we will look more closely at the mechanism behind this permanence. The Q, K, and V vectors that appear throughout these explanations do not play the same roles in both phases of inference. During prefill, they are construction tools &mdash; shaping and freezing the substrate that all future generation will read from. During decode, they become retrieval tools &mdash; searching that substrate for the signals needed to predict the next token. The same linear algebra, serving two fundamentally different purposes. Understanding this distinction is essential to understanding why the choices you make in a prompt have consequences that no amount of downstream generation can undo.</em></p>
+<p>The Q, K, and V vectors perform the same work in both prefill and decode — driving attention, refining the residual stream, and building the substrate layer by layer. What differs is what happens after: during prefill, the pipeline stops once the substrate is built. During decode, it continues through the language model head to produce logits, probabilities, and a selected token. The same forward pass, with one phase bypassing the exit and the other depending on it. This is what makes your prompt permanent — every token you force into the substrate during prefill is processed but never questioned, and everything the model generates afterward is shaped by what you chose to put in the prefill.</p>
+<p>
+    In the next chapter, we turn from how the substrate is built to what gets built into it. The previous chapters assumed a prompt written entirely by hand — every token deliberately chosen and placed. But in real-world systems, much of what enters the substrate during prefill is content the designer never wrote. Retrieved documents, fetched data, previous model output — all inserted into a prompt template at runtime and compiled into the substrate with the same permanence as everything else. The next chapter examines what happens when external content enters the substrate through a template placeholder, and why the position and structure of that entry point determines whether the result is enrichment or noise.
+    </p>
+
 
 </body>
 </html>
