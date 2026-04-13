@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sense and Reference: What the K Vector Actually Encodes</title>
+</head>
+<body>
+
+<h1>Sense and Reference: What the K Vector Actually Encodes</h1>
+
+
+<p>In the philosophy of language, a distinction exists between what an expression <em>means in context</em> and what it <em>refers to</em>. This distinction — between <strong>sense</strong> and <strong>reference</strong> — was formalized by the philosopher Gottlob Frege in 1892 and remains one of the most foundational ideas in the study of meaning.</p>
+
+<p>The <strong>reference</strong> of an expression is its fixed target — the thing it picks out regardless of context. The reference of "Venus" is the planet. The reference of "7" is the number. The reference never changes based on where or how the expression is used.</p>
+
+<p>The <strong>sense</strong> of an expression is how that reference is presented in a particular context — the specific meaning it carries given what surrounds it. "The morning star" and "the evening star" both refer to Venus, but they present Venus differently. They carry different senses. Someone can know the morning star without knowing it is the evening star, even though the reference is identical.</p>
+
+<p>This distinction offers a useful lens for understanding what happens inside the transformer during prefill.</p>
+
+<p>Every token has an ID — a fixed entry in the vocabulary table. Token ID 9246 (for example) always points to the same embedding vector, regardless of what sentence it appears in, regardless of what tokens surround it. The token ID is the reference. It never changes.</p>
+
+<p>But during prefill, that token passes through the transformer's attention layers. At each layer, it interacts with the tokens around it. The Key vector computed for that token is shaped by these interactions — by what came before it, by the full context in which it appears. By the time prefill is complete, the K vector encodes what that token <em>means here</em>, in <em>this</em> sequence, surrounded by <em>these</em> specific neighbors. The K vector is the sense. It is always context-dependent.</p>
+
+<p>The token ID tells you <em>which</em> token it is. The K vector tells you <em>what it means</em> in this particular moment. Reference is fixed. Sense is computed.</p>
+
+<h2>The Shape of the Substrate</h2>
+
+<p>Before going further, it is worth understanding where these K vectors live. The KV substrate — the structure that holds all the Key and Value vectors computed during inference — is not a flat list. It is a three-dimensional structure.</p>
+
+<p>The first dimension is <strong>length</strong> — the sequence of token positions. Each token in the prompt occupies a position, and each generated token extends this axis further. This is the dimension that grows during inference.</p>
+
+<p>The second dimension is <strong>depth</strong> — the layers of the transformer. A model with 80 layers computes a separate K vector and V vector at each layer for every token position. These are not successive drafts of the same vector. They are independent projections, each produced by that layer's own learned weight matrices, each capturing a different level of abstraction. The K vector at layer 3 for a given token is a different object than the K vector at layer 60 for that same token. Both are stored in the substrate.</p>
+
+<p>The third dimension is <strong>width</strong> — the dimensionality of the vectors themselves. Each K or V vector is a high-dimensional object, typically hundreds of dimensions, and this is where the actual information is encoded — the directions and magnitudes that represent meaning.</p>
+
+<p>When this series refers to "the K vector at a position," it is referring to the full column of K vectors at that position across all layers — the complete representation of that token's sense at every level of depth. The examples and arguments that follow hold across the entire depth of the substrate, but for clarity, they discuss K vectors as though each position holds a single representation. The underlying structure is richer.</p>
+
+<p>This depth means that sense itself is not a single computed value. It exists at multiple degrees of refinement. At each layer, the K vector is a fresh projection from a residual stream that has been through one more round of processing than the layer before it. The K vector at a shallow layer reflects a less refined representation. The K vector at a deep layer reflects a more refined one. The reference is always singular: one token ID, one fixed entry in the vocabulary. The sense is always multidimensional: computed independently at every layer, each layer contributing a more refined version of what that token means in this context. The full sense at a position is the complete column through the depth of the substrate &mdash; the entire progression from least refined to most refined.</p>
+
+<p>A note of honesty: the general pattern &mdash; shallow layers producing less refined representations and deep layers producing more refined ones &mdash; is an architectural certainty. Each successive layer has had more processing applied to the residual stream from which its K vector is projected. However, what specific facets of meaning emerge at each depth remains an open question in the field. Researchers can observe statistical tendencies but cannot yet give a definitive account of what each layer contributes. The architecture of the transformer is known. What the training process inscribed into each layer&rsquo;s weights is not.</p>
+
+<hr>
+
+<h2>Two Contexts, One Word</h2>
+
+<p>Consider two very different contexts.</p>
+
+<p>In the first, someone is sitting outdoors on a cold evening. A campfire is burning in front of them, flames working through the fuel, the kind of quiet, elemental scene that needs no explanation.</p>
+
+<p>In the second, a software engineer is debugging a production issue at midnight. They're connected to a remote server, scanning through system output, looking for the line that explains why everything broke.</p>
+
+<p>These two scenarios share almost nothing — different settings, different activities, different concerns. But there is a single English word that belongs naturally in both, and it means something entirely different in each.</p>
+
+<p><em>A dry <strong>log</strong> crackled and split as the campfire grew.</em></p>
+
+<p><em>I opened the server <strong>log</strong> and found the error immediately.</em></p>
+
+<p>In both sentences, the word appears after tokens that have already established the context. "A dry" in the context of a campfire makes it unmistakable — we are talking about a piece of timber. "The server" makes it equally clear — we are talking about a file that records system events.</p>
+
+<p>By the time you reach the word in either sentence, you already know what it means. The surrounding words resolved the sense before you arrived at it. This is so natural in human language that it feels automatic. You don't pause to decide which meaning is intended. The context has already done that work for you.</p>
+
+<p>Inside the transformer, the same thing happens mechanically. Because of causal attention — the constraint that each token can only attend to tokens that came before it — the K vector for this word is computed having already seen "a dry" alongside campfire context in the first sentence and "the server" in the second. Those preceding tokens pull the K vector in completely different directions from the very first layer. By the final layer, the two K vectors point to entirely different regions of the high-dimensional space, even though they were computed from the same token ID.</p>
+
+<p>The reference is identical. The sense is not.</p>
+
+<p>And the sense differs across the full depth of the substrate. At the shallowest layers, the K vectors for &ldquo;log&rdquo; in both sentences carry only the least refined representation &mdash; shaped by minimal processing of the preceding tokens. At the deepest layers, the K vectors carry the most refined representation &mdash; shaped by dozens of rounds of processing that have progressively extracted and concentrated the meaning of the preceding context. In the campfire sentence, that progression moves from a raw, minimally processed signal toward a deeply refined representation of desiccated timber in a combustion scene. In the server sentence, it moves toward a deeply refined representation of a digital record being accessed for diagnostic purposes. Strong preceding context enriches the entire column &mdash; every degree of refinement, from shallowest to deepest, benefits from what came before.</p>
+
+<hr>
+
+<h2>The Significance of Order</h2>
+
+<p>Now consider what happens when the same word appears earlier in the sentence — before any disambiguating context has been established.</p>
+
+<p><em>The log crackled and split in the heat.</em></p>
+
+<p><em>The log showed an error on line 42.</em></p>
+
+<p>In both sentences, the word appears near the beginning, following only "The." This provides almost no signal about which sense is intended.</p>
+
+<p>At this point in prefill, the K vector for this word is computed with minimal context. It remains close to the raw embedding — the generic, context-free starting point. It carries all possible senses latently. It could be a piece of timber, a system event file, a logarithm, a record of a ship's journey. The transformer has not yet encountered enough preceding context to resolve the ambiguity.</p>
+
+<p>This impoverishment runs through the entire depth of the substrate at that position. At every layer &mdash; from the shallowest to the deepest &mdash; the K vector is projected from a residual stream that had almost nothing to work with. The shallow layers produce a minimally refined representation with little signal. The deep layers, which in the earlier examples produced richly refined representations, have no meaningful preceding context to refine. The entire column reflects the absence. Weak preceding context does not just leave one degree of refinement unresolved. It impoverishes the full depth.</p>
+
+<p>Once computed, that K vector is frozen. No token that comes later — "crackled," "split," "heat," "error," "line 42" — reaches back to modify it. The K vector at that position is set.</p>
+
+<hr>
+
+<p>Sense is not assigned to a token. It is computed — progressively, shaped at each layer by everything that came before.</p>
+
+<p>When a token appears before any disambiguating context, its K vector reflects that absence. The sense is unresolved — the token's meaning is effectively marked as unknown at that position. The model can still work with this. How it recovers from that ambiguity — and why it matters for prompt design — is the subject of the next chapter.</p>
+
+</body>
+</html>

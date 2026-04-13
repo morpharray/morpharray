@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicit and Implicit Sense: What Is Frozen at a Position and What Must Be Reconstructed</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="explicit-implicit-sense.jpg" alt="Explicit and Implicit Sense: What Is Frozen at a Position and What Must Be Reconstructed" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Explicit and Implicit Sense: What Is Frozen at a Position and What Must Be Reconstructed</span>
+        
+    </h1>
+
+    Ben Um • April 13, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<p><em>In the previous chapter, we established that the K vector at a token’s position is not a single object but a full column of K vectors through the depth of the substrate — one K vector per layer, each representing a different degree of refinement, all shaped during prefill by every token that preceded it. We also saw that when preceding context is strong, the entire column is sharp and precise, and when preceding context is weak, the entire column remains ambiguous. This chapter gives those two conditions a name — and explains what the model does when it must recover meaning that was never frozen in a single position.</em></p>
+
+<h2>Explicit Sense</h2>
+
+<p>Every token position in the KV substrate carries an <strong>explicit sense</strong> — the frozen content of its K and V vectors, across every layer of the substrate. As established in the previous chapter, this is not a single vector but a full column through the depth of the substrate, each layer holding a different degree of refinement. Once computed, none of it changes.</p>
+
+<p>If the preceding context was strong, the explicit sense is sharp and precise.</p>
+
+<blockquote>
+  <p>In the sentence <em>“A dry log crackled and split as the campfire grew,”</em> the K vector for “log” was computed having seen “a dry” in the context of a campfire. The explicit sense at that position is clear: a piece of timber.</p>
+</blockquote>
+
+<p>If the preceding context was weak, the explicit sense is ambiguous.</p>
+
+<blockquote>
+  <p>In the sentence <em>“The log crackled and split in the heat,”</em> the K vector for “log” was computed having seen only “The.” The explicit sense at that position is unresolved — it could be timber, a system file, a logarithm, a ship’s record.</p>
+</blockquote>
+
+<p>In both cases, the explicit sense is frozen. It is whatever it is. Strong or ambiguous, sharp or vague, it does not change after the moment of computation. The K and V vectors at that position are set.</p>
+
+<h2>The Triad: K, Q, and V</h2>
+
+<p>To understand how the model recovers from ambiguity during decode (the generation phase), the full attention mechanism needs to be visible — not just the K vector, but the three vectors that work together at every layer, every time a new token reads from the substrate.</p>
+
+<dl>
+  <dt><code>K (Key)</code> — the advertisement.</dt>
+  <dd>Each position’s K vector declares what that token carries, given everything that preceded it. It is the signal that says: <em>this is what I contain, this is what I’m about.</em></dd>
+
+  <dt><code>Q (Query)</code> — the question.</dt>
+  <dd>The currently decoding token generates a Q vector that expresses what it needs. It is the signal that says: <em>I am looking for information about X.</em></dd>
+
+  <dt><code>V (Value)</code> — the payload.</dt>
+  <dd>Each position’s V vector carries the content that gets delivered when attention selects it. If K is the label on the envelope, V is the letter inside.</dd>
+</dl>
+
+<p>Here is how they collaborate. The Q vector from the current token is compared against the K vector at every position in the substrate. This comparison — a dot product — produces an attention weight for each position: how relevant is what that position advertises to what the current token needs? Positions whose K vectors closely match the Query receive high weight. Positions that don’t match receive low weight.</p>
+
+<p>But K vectors do not deliver the information. They select it. The information that actually flows forward to shape the next token prediction comes from the V vectors — blended together according to those attention weights. K determines relevance. V delivers content. Q asks the question.</p>
+
+<h2>Implicit Sense</h2>
+
+<p>With the full triad in view, the model’s handling of ambiguity becomes clear.</p>
+
+<p>When the explicit sense of “log” is ambiguous — because it appeared before any disambiguating context — the downstream tokens that followed carry their own K and V vectors. “Crackled,” “split,” and “heat” were all computed having seen “log” plus each other. Their representations carry the contextual resolution that the K vector at “log” itself lacks.</p>
+
+<p>During decode, the attention mechanism reads across the full substrate. The Q vector from the currently decoding token expresses what it needs. That Query is compared against K vectors at every position. Where it finds strong matches — positions whose K vectors advertise relevant content — the corresponding V vectors deliver their payload into the blend.</p>
+
+<p>Critically, the resolution of “log” does not need to come from the “log” position itself. The downstream tokens — “crackled,” “split,” “heat” — advertise through their K vectors that they carry information about physical combustion. When the Query is looking for the meaning of the scene, those downstream K vectors match, and their V vectors deliver the signal that resolves the ambiguity. The model assembles a working understanding of what “log” means not from the V vector at the “log” position alone, but from the collective pattern of V vectors read from across the substrate, selected by K vectors that matched the Query.</p>
+
+<p>This assembled understanding is <strong>implicit sense</strong>. It is not stored in any single position. It is not frozen in any vector. It is reconstructed dynamically, every time a Query attends to the substrate. It exists only in the blend — in the weighted sum of V vectors, selected by the Q·K matchmaking process, drawn from positions that together carry a meaning that no single position contains on its own.</p>
+
+<hr>
+
+<h2>Enrichment: When Context Does More Than Disambiguate</h2>
+
+<p>When preceding context is strong, the explicit sense at a token’s position carries more than simple disambiguation. It carries enrichment.</p>
+
+<blockquote>
+  <p><em>“I opened the server log and found the error immediately.”</em></p>
+  <p>“The server” does not merely tell the model that “log” is a system file. It establishes a technical context, a deliberate operation, a computing environment. The K vector for “log” advertises not just <em>system event file</em> but a file being accessed by someone for a purpose within a technical workflow. The V vector at that position carries correspondingly rich content — content that, when selected by a future Query, will deliver all of those associations in a single read.</p>
+</blockquote>
+
+<blockquote>
+  <p><em>“A dry log crackled and split as the campfire grew.”</em></p>
+  <p>“A dry” does not merely tell the model that “log” is timber. It tells the model this is a particular kind of timber — desiccated, ready to burn, the kind that cracks and sparks. The K vector advertises this enriched meaning. The V vector carries it. Both were shaped during prefill by the relationships between the preceding tokens, folding in associations that no single preceding token contributed on its own.</p>
+</blockquote>
+
+<p>This enrichment happens because attention during prefill does not merely disambiguate — it synthesizes. At each layer, attention takes in the relationships between all tokens processed so far and folds those relationships into the K and V vectors at each position at that layer’s degree of refinement. The result is that a single position carries meaning computed from the interactions of many tokens, at every level of depth in the substrate. The explicit sense is not just disambiguated. It is dense with associations, from the shallowest degree of refinement to the deepest.</p>
+
+<h2>Why This Matters for Prompt Design</h2>
+
+<p>The distinction between explicit and implicit sense has a direct and practical consequence: front-loading context produces strong explicit sense — concentrated, precise, encoded directly in the full column of K and V vectors at the token position that matters, at every degree of refinement. Relying on downstream context forces the model to reconstruct meaning through implicit sense — distributed across multiple positions, assembled dynamically by the Q·K·V mechanism during decode.</p>
+
+<p>Both work. But they are not equal.</p>
+
+<p>When explicit sense is strong, the model reads meaning directly from where it lives. The K vector at that position accurately advertises what the token carries. The V vector delivers rich, concentrated content. The signal is concentrated where it lives, and the Query reads it cleanly.</p>
+
+<p>When explicit sense is weak, the model must do additional work — the Query must search across many positions, weighting K vectors at downstream locations, assembling understanding from V vectors scattered across the substrate. The result is often correct, but the signal is distributed rather than concentrated. Ambiguity at a key position creates noise that the model must work around rather than build upon.</p>
+
+<p>This is why the words you choose, and the order you place them in, determine not just what the model reads — but what it understands. Every token you write shapes the explicit sense of every token that follows it. And the richer that explicit sense is, the less reconstruction the model must perform to arrive at the meaning you intended.</p>
+
+<hr>
+
+<p><em>In the next chapter, we will look more closely at the mechanism behind this permanence. The Q, K, and V vectors that appear throughout these explanations do not play the same roles in both phases of inference. During prefill, they are construction tools — shaping and freezing the substrate that all future generation will read from. During decode, they become retrieval tools — searching that substrate for the signals needed to predict the next token. The same linear algebra, serving two fundamentally different purposes. Understanding this distinction is essential to understanding why the choices you make in a prompt have consequences that no amount of downstream generation can undo.</em></p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../sense-reference/sense-reference.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 13, 2026</p>
+    </footer>
+
+
+</body></html>
