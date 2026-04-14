@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Engineering: The Art of KV Substrate Composition</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    
+
+    <h1>
+        <span class="title-main">Context Engineering: The Art of KV Substrate Composition</span>
+        
+    </h1>
+
+    Ben Um • April 14, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<p>In the previous chapters, we examined prompts written entirely by hand — every token deliberately chosen and placed by a human designer. The explicit sense at each position was shaped by the designer's decisions about word choice and order. The substrate that resulted was a direct reflection of human intent.</p>
+
+<p>In production systems — the APIs, pipelines, and automated workflows where LLMs do most of their commercial work — this almost never happens. In a chat interface, every token is yours. But the moment a system is built around a model, the prompt becomes a template, and much of what enters the substrate is content the designer never wrote. A retrieved document. A fetched API response. A chunk of text from a database. Output from a previous inference cycle. All of it enters the template, passes through prefill, and becomes part of the substrate with the same permanence as everything else.</p>
+
+<p>This is injection. Not in the security sense — though that is a related concern — but in the mechanical sense. Content that originated outside the designer's control is injected into the substrate and compiled with the same frozen finality as the designer's own instructions.</p>
+
+<h2>The Template as a Frame</h2>
+
+<p>Recall from Chapter 3 that a prompt template has two parts: the static scaffolding and the dynamic placeholders. The static parts — role assignments, instructions, constraints, output format — are written by the designer and remain identical across every use. The dynamic parts are filled at runtime with content that varies.</p>
+
+<p>When the rendered template passes through prefill, the model does not distinguish between static and dynamic content. It processes every token the same way — embedding, layer-by-layer attention, KV projection. The K and V vectors at every position are computed with the same machinery, whether the token came from the designer's carefully written instruction or from a fetched document that was pasted into a placeholder three milliseconds before prefill began.</p>
+
+<p>The substrate does not know who wrote what. It only knows what came before what.</p>
+
+<h2>Position Determines Influence</h2>
+
+<p>This is where everything from the previous chapters converges.</p>
+
+<p>The K vector at any position is shaped by every token that preceded it. The explicit sense at that position reflects the accumulated context up to that point. This means the position of the injection point within the template is not a formatting decision. It is a mechanical decision that determines how the injected content interacts with the rest of the substrate.</p>
+
+<p>Consider two template designs:</p>
+
+<p>In the first, the designer places the injected content near the top of the template, before the instructions:</p>
+
+<pre>Here is the retrieved document:
+{{document}}
+
+You are an expert analyst. Analyze the document above and return...
+</pre>
+
+<p>In the second, the designer places the injected content after the instructions:</p>
+
+<pre>You are an expert analyst. You will receive a document to analyze.
+Return your analysis in the following format...
+
+Document:
+{{document}}
+</pre>
+
+<p>These two templates produce different substrates — not because the content is different, but because the order is different.</p>
+
+<p>In the first template, the injected document is processed before the instructions. The K and V vectors for the instruction tokens are computed having already seen the document. The instructions carry explicit sense that is enriched by the document's content. But the document tokens themselves were processed with no preceding instructional context. Their K vectors reflect whatever context existed at the top of the template — which may be very little.</p>
+
+<p>In the second template, the document is processed after the instructions. The K and V vectors for the document tokens are computed having already seen the role assignment, the analytical framework, and the output format. Every token in the injected content carries explicit sense that has been shaped by the designer's intent. The document enters a substrate that already has strong instructional context established.</p>
+
+<p>The same content. Different positions. Different substrates. Different results.</p>
+
+<h2>Foreign Content Inherits the Frame</h2>
+
+<p>When the template is well designed — when the static scaffolding establishes strong context before the injection point — the injected content inherits that context. Each token in the injected document gets its K vector computed against a residual stream that already carries the designer's instructions, role definition, and constraints.</p>
+
+<p>This is enrichment through position. The designer cannot control what the injected content says. But the designer can control what context has already been established when that content enters the substrate. The frame shapes how every token in the foreign content is interpreted — what explicit sense it carries, what it advertises through its K vector, what payload its V vector delivers.</p>
+
+<p>A document about financial performance means something different when it enters a substrate that has already been primed with "You are a risk analyst looking for red flags" versus "You are a marketing writer looking for success stories." The same document. The same tokens. Different preceding context. Different K vectors. Different explicit sense at every position.</p>
+
+<h2>When Injection Introduces Noise</h2>
+
+<p>Not all injected content is helpful. A retrieved document might be irrelevant, contradictory, poorly written, or excessively long. When this content enters the substrate, it becomes frozen with the same permanence as everything else.</p>
+
+<p>Irrelevant content fills the substrate with K vectors that advertise topics the model doesn't need. During decode, the Query must search through these positions alongside the relevant ones. The irrelevant K vectors don't match well, so they receive low attention weight — but they still occupy space in the substrate and add noise to the attention computation.</p>
+
+<p>Contradictory content is more damaging. If the injected document contains claims that conflict with the designer's instructions, the substrate holds both signals. The K vectors at the instruction positions advertise one thing. The K vectors at the contradictory document positions advertise another. During decode, the Query encounters competing matches, and the blend of V vectors may produce a confused or inconsistent result.</p>
+
+<p>This is why retrieval quality matters as much as retrieval relevance. Injecting a highly relevant but factually wrong document into the substrate is worse than injecting nothing at all — because the substrate treats it with the same authority as the designer's instructions.</p>
+
+<h2>The Designer's Responsibility</h2>
+
+<p>The designer of a prompt template cannot control what content enters through the placeholders. That content is determined at runtime by whatever system — retrieval, API call, previous inference — supplies it.</p>
+
+<p>What the designer can control is:</p>
+
+<p>The position of the injection point — which determines what instructional context has already been established when the foreign content enters.</p>
+
+<p>The framing around the injection point — explicit signals like "the following is a retrieved document that may or may not be relevant" that shape how the model interprets what follows.</p>
+
+<p>The constraints after the injection point — instructions that reassert the designer's intent after the foreign content has entered, giving the decode phase strong anchoring signals to attend to.</p>
+
+<p>The size and filtering of what gets injected — shorter, higher-quality injections produce cleaner substrates than long, unfiltered dumps.</p>
+
+<p>These are not cosmetic choices. They are mechanical decisions that directly shape the KV substrate — the structure that every generated token will read from during decode.</p>
+
+<h2>Looking Ahead</h2>
+
+<p>This chapter examined what happens when content the designer didn't write enters the substrate through a template placeholder. The next chapter applies this directly to one of the most common patterns in real-world LLM systems: retrieval-augmented generation, where documents are fetched from an external source at runtime and injected into the prompt to give the model information it was never trained on.</p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../explicit-implicit-sense/explicit-implicit-sense.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 14, 2026</p>
+    </footer>
+
+
+</body></html>
