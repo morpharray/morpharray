@@ -44,7 +44,7 @@
   <dd>Each position&rsquo;s V vector carries the content that gets delivered when attention selects it. If K is the label on the envelope, V is the letter inside.</dd>
 </dl>
 
-<p>Here is how they collaborate. The Q vector from the current token is compared against the K vector at every position in the substrate. This comparison &mdash; a dot product &mdash; produces an attention weight for each position: how relevant is what that position advertises to what the current token needs? Positions whose K vectors closely match the Query receive high weight. Positions that don&rsquo;t match receive low weight.</p>
+<p>Here is how they collaborate. The Q vector from the current token is compared against the K vector at every position in the substrate. This comparison &mdash; a dot product &mdash; produces an attention weight for each position: how relevant is what that position advertises to what the current token needs? Positions whose K vectors closely match the Query receive high weight. Positions that don&rsquo;t match receive low weight<sup>1</sup>.</p>
 
 <p>But K vectors do not deliver the information. They select it. The information that actually flows forward to shape the next token prediction comes from the V vectors &mdash; blended together according to those attention weights. K determines relevance. V delivers content. Q asks the question.</p>
 
@@ -90,12 +90,15 @@
 
 <p>This is why the words you choose, and the order you place them in, determine not just what the model reads &mdash; but what it understands. Every token you write shapes the explicit sense of every token that follows it. And the richer that explicit sense is, the less reconstruction the model must perform to arrive at the meaning you intended.</p>
 
+<p>The Q, K, and V vectors perform the same work in both prefill and decode &mdash; driving attention, refining the residual stream, and building the substrate layer by layer. What differs is what happens after: during prefill, the pipeline stops once the substrate is built. During decode, it continues through the language model head to produce logits, probabilities, and a selected token. The same forward pass, with one phase bypassing the exit and the other depending on it. This is what makes your prompt permanent &mdash; every token you force into the substrate during prefill is processed but never questioned, and everything the model generates afterward is shaped by what you chose to put in the prefill.</p>
 
-<p>The Q, K, and V vectors perform the same work in both prefill and decode — driving attention, refining the residual stream, and building the substrate layer by layer. What differs is what happens after: during prefill, the pipeline stops once the substrate is built. During decode, it continues through the language model head to produce logits, probabilities, and a selected token. The same forward pass, with one phase bypassing the exit and the other depending on it. This is what makes your prompt permanent — every token you force into the substrate during prefill is processed but never questioned, and everything the model generates afterward is shaped by what you chose to put in the prefill.</p>
-<p>
-    In the next chapter, we turn from how the substrate is built to what gets built into it. The previous chapters assumed a prompt written entirely by hand — every token deliberately chosen and placed. But in real-world systems, much of what enters the substrate during prefill is content the designer never wrote. Retrieved documents, fetched data, previous model output — all inserted into a prompt template at runtime and compiled into the substrate with the same permanence as everything else. The next chapter examines what happens when external content enters the substrate through a template placeholder, and why the position and structure of that entry point determines whether the result is enrichment or noise.
-    </p>
+<p>In the next chapter, we turn from how the substrate is built to what gets built into it. The previous chapters assumed a prompt written entirely by hand &mdash; every token deliberately chosen and placed. But in real-world systems, much of what enters the substrate during prefill is content the designer never wrote. Retrieved documents, fetched data, previous model output &mdash; all inserted into a prompt template at runtime and compiled into the substrate with the same permanence as everything else. The next chapter examines what happens when external content enters the substrate through a template placeholder, and why the position and structure of that entry point determines whether the result is enrichment or noise.</p>
 
+<hr>
+
+<i>
+<p>1. This functional independence is not just a pedagogical convenience. Anthropic&rsquo;s mechanistic interpretability research has formally decomposed each attention head into two independent circuits &mdash; a QK circuit that determines which positions receive attention, and an OV circuit that determines what information flows when they do. The individual Q, K, and V vectors are intermediate products within these two circuits, but the separation between finding and delivering is architecturally real. See <em>A Mathematical Framework for Transformer Circuits</em> (Elhage et al., 2021).</p>
+</i>
 
 </body>
 </html>

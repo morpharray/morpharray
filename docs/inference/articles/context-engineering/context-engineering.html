@@ -3,98 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Context Engineering: The Art of KV Substrate Composition</title>
+<title>Context Engineering: The Mechanics of Substrate Composition</title>
 </head>
 <body>
 
-<h1>Context Engineering: The Art of KV Substrate Composition</h1>
+<h1>Context Engineering: The Mechanics of Substrate Composition</h1>
 
-<p>In the previous chapters, we examined prompts written entirely by hand — every token deliberately chosen and placed by a human designer. The explicit sense at each position was shaped by the designer's decisions about word choice and order. The substrate that resulted was a direct reflection of human intent.</p>
+<p><em>Every chapter in this series so far has assumed a prompt written entirely by hand &mdash; every token deliberately chosen and placed. The previous chapter showed that the order and quality of those tokens determines the explicit sense frozen at each position in the substrate. But in real-world systems, most of what enters the substrate during prefill was never written by the person who designed the prompt. This chapter examines what happens when a prompt is composed from multiple sources &mdash; and why the discipline of managing that composition has become the central engineering challenge in working with large language models.</em></p>
 
-<p>In production systems — the APIs, pipelines, and automated workflows where LLMs do most of their commercial work — this almost never happens. In a chat interface, every token is yours. But the moment a system is built around a model, the prompt becomes a template, and much of what enters the substrate is content the designer never wrote. A retrieved document. A fetched API response. A chunk of text from a database. Output from a previous inference cycle. All of it enters the template, passes through prefill, and becomes part of the substrate with the same permanence as everything else.</p>
+<h2>The Composed Prompt</h2>
 
-<p>This is injection. Not in the security sense — though that is a related concern — but in the mechanical sense. Content that originated outside the designer's control is injected into the substrate and compiled with the same frozen finality as the designer's own instructions.</p>
+<p>When you type a message into a chat interface, it feels like you are writing the prompt. You are not. What actually enters the model during prefill is a composed sequence &mdash; assembled from multiple sources before your message ever reaches the model.</p>
 
-<h2>The Template as a Frame</h2>
+<p>A system prompt is prepended, defining the model's role, tone, and constraints. Your message is inserted after it. If you are mid-conversation, the previous turns (the chat history) are included as well. In more complex applications, retrieved documents, tool results, fetched data, and even the output of other models may be added. All of this is assembled into a single token sequence by a prompt template &mdash; a static structure with placeholders that are filled with dynamic content at runtime. The rendered result is what enters prefill.</p>
 
-<p>Recall from Chapter 3 that a prompt template has two parts: the static scaffolding and the dynamic placeholders. The static parts — role assignments, instructions, constraints, output format — are written by the designer and remain identical across every use. The dynamic parts are filled at runtime with content that varies.</p>
+<p>The user sees a text box and a response. The substrate that produces that response was composed from many sources, each contributing tokens, each producing K and V vectors with the same permanence as everything else in the substrate. The developer controls the template &mdash; the structure and the ordering. But the dynamic content that fills it at runtime is selected by pipelines, not written by hand. Its quality is uncertain by nature.</p>
 
-<p>When the rendered template passes through prefill, the model does not distinguish between static and dynamic content. It processes every token the same way — embedding, layer-by-layer attention, KV projection. The K and V vectors at every position are computed with the same machinery, whether the token came from the designer's carefully written instruction or from a fetched document that was pasted into a placeholder three milliseconds before prefill began.</p>
+<h2>Context Engineering</h2>
 
-<p>The substrate does not know who wrote what. It only knows what came before what.</p>
+<p>The practice of deliberately designing what enters the substrate &mdash; choosing what to include, where to place it, how to structure it, and what to leave out &mdash; has a name. The field has converged on the term <strong>context engineering</strong>.</p>
 
-<h2>Position Determines Influence</h2>
+<p>Prompt engineering, the earlier discipline, focused on the craft of writing effective instructions. Context engineering expands the scope. It treats the entire composed prompt as an engineering problem: not just what the instructions say, but what sources of context surround them, how those sources are selected and filtered, where they are positioned in the sequence, and how their presence shapes the substrate that the model will read from during generation.</p>
 
-<p>This is where everything from the previous chapters converges.</p>
+<p>The core insight of context engineering is that the model's context window is a finite resource with diminishing returns. Every token that enters prefill occupies a position in the substrate. Every position produces K and V vectors that persist and compete for attention during decode. Adding more context does not always help. Context that carries strong, relevant signal enriches the substrate. Context that is irrelevant, redundant, or poorly placed dilutes it. The engineering challenge is to compose the prompt so that the substrate is as dense with useful signal as possible.</p>
 
-<p>The K vector at any position is shaped by every token that preceded it. The explicit sense at that position reflects the accumulated context up to that point. This means the position of the injection point within the template is not a formatting decision. It is a mechanical decision that determines how the injected content interacts with the rest of the substrate.</p>
+<p>This is not an abstract principle. It is a direct consequence of the mechanics described throughout this series. The quality of K vectors at each position determines what the model can find. The quality of V vectors determines what information gets delivered. The arrangement of sources within the composed prompt determines the explicit sense at every position. Context engineering is the discipline of controlling these outcomes by designing the composition.</p>
 
-<p>Consider two template designs:</p>
+<h2>Attention Span</h2>
 
-<p>In the first, the designer places the injected content near the top of the template, before the instructions:</p>
+<p>None of this is as foreign as it might sound. Teachers, authors, and speechwriters have always been context engineers &mdash; they just never called it that.</p>
 
-<pre>
-Here is the retrieved document:
-{{document}}
+<p>A good teacher does not dump an entire semester of material onto the board on the first day. They sequence it. The most foundational concept comes first, because everything that follows will be understood in the context of what was established earlier. They place the critical idea at the moment when the students are most receptive, not buried in the middle of a dense lecture where attention has already drifted. They repeat key points at deliberate intervals &mdash; not because the students forgot, but because repetition at the right moment reinforces what matters.</p>
 
-You are an expert analyst. Analyze the document above and return...
-</pre>
+<p>An author structures a chapter the same way. The opening paragraph establishes the frame. The strongest argument is placed where it will carry the most weight. Supporting details are ordered so that each one builds on the last. A skilled author knows that a reader's attention is finite, and that what you place early colors how everything after it is read.</p>
 
-<p>In the second, the designer places the injected content after the instructions:</p>
+<p>A speechwriter is perhaps the most disciplate practitioner of all. Every word in a speech competes for a listener's limited attention. The opening line sets the tone for everything that follows. The key message is placed where it will land hardest. Transitions are crafted to carry the audience from one idea to the next without losing the thread. A speech that front-loads its weakest material and buries its thesis at the end will fail &mdash; not because the content is wrong, but because the audience's attention was spent on the wrong things at the wrong time.</p>
 
-<pre>
-You are an expert analyst. You will receive a document to analyze.
-Return your analysis in the following format...
+<p>The model's attention mechanism is not human attention. It is a mathematical operation &mdash; a dot product between Queries and Keys, followed by a softmax-weighted blend of Values. But the constraint it operates under is remarkably similar: a finite budget that must be spent wisely. Every position in the substrate competes for that budget. What you place first shapes how everything after it is processed. What you bury in the middle may never be attended to when it matters. The intuitions that teachers, authors, and speechwriters have refined over centuries &mdash; about ordering, emphasis, and the cost of wasted attention &mdash; apply directly to the composition of a prompt.</p>
 
-Document:
-{{document}}
-</pre>
+<h2>The System Prompt: The Foundation of the Substrate</h2>
 
-<p>These two templates produce different substrates — not because the content is different, but because the order is different.</p>
+<p>The system prompt is the first component in nearly every composed prompt. It occupies the earliest positions in the token sequence, which means every token that follows is computed having already seen it. Its K and V vectors are shaped by nothing but themselves and the tokens within the system prompt that preceded them. In return, the system prompt shapes the explicit sense of everything that comes after.</p>
 
-<p>In the first template, the injected document is processed before the instructions. The K and V vectors for the instruction tokens are computed having already seen the document. The instructions carry explicit sense that is enriched by the document's content. But the document tokens themselves were processed with no preceding instructional context. Their K vectors reflect whatever context existed at the top of the template — which may be very little.</p>
+<p>This is not a minor positional advantage. It is the strongest possible position in the substrate. Tokens at the beginning of the sequence influence the K vectors of every subsequent token at every layer. The system prompt is the foundation on which the rest of the substrate is built.</p>
 
-<p>In the second template, the document is processed after the instructions. The K and V vectors for the document tokens are computed having already seen the role assignment, the analytical framework, and the output format. Every token in the injected content carries explicit sense that has been shaped by the designer's intent. The document enters a substrate that already has strong instructional context established.</p>
+<p>A well-designed system prompt establishes the core signals that should persist throughout generation: role, tone, constraints, output format, and behavioral boundaries. These signals become part of the explicit sense at every downstream position. When the model later encounters a user message or a retrieved document, the K and V vectors at those positions are computed in the context of the system prompt's influence. The system prompt does not merely instruct the model. It colors the substrate.</p>
 
-<p>The same content. Different positions. Different substrates. Different results.</p>
+<h2>Why Position Within the System Prompt Matters</h2>
 
-<h2>Foreign Content Inherits the Frame</h2>
+<p>Because the system prompt itself is processed sequentially during prefill, the arrangement of content within it follows the same mechanical rules that govern the rest of the substrate. Tokens that appear early in the system prompt shape the explicit sense of tokens that appear later. The internal ordering is not cosmetic.</p>
 
-<p>When the template is well designed — when the static scaffolding establishes strong context before the injection point — the injected content inherits that context. Each token in the injected document gets its K vector computed against a residual stream that already carries the designer's instructions, role definition, and constraints.</p>
+<p>Consider two versions of the same system prompt. In the first, the role definition comes first, followed by constraints, followed by output format instructions. In the second, the output format instructions come first, followed by constraints, followed by the role definition.</p>
 
-<p>This is enrichment through position. The designer cannot control what the injected content says. But the designer can control what context has already been established when that content enters the substrate. The frame shapes how every token in the foreign content is interpreted — what explicit sense it carries, what it advertises through its K vector, what payload its V vector delivers.</p>
+<p>In the first version, the role definition colors the K vectors of the constraint tokens and the format tokens. The constraints are understood in the context of the role. The format instructions are understood in the context of both the role and the constraints. Each layer builds on the one before it, and the explicit sense at each position is enriched by everything preceding it.</p>
 
-<p>A document about financial performance means something different when it enters a substrate that has already been primed with "You are a risk analyst looking for red flags" versus "You are a marketing writer looking for success stories." The same document. The same tokens. Different preceding context. Different K vectors. Different explicit sense at every position.</p>
+<p>In the second version, the format instructions are computed first, with no role context and no constraints. Their K vectors advertise output structure in isolation. The constraints that follow are computed having seen only format details, not the role they serve. The role definition arrives last, occupying the position with the richest preceding context but unable to reach back and reshape the K vectors at the earlier positions where format and constraints were already frozen.</p>
 
-<h2>When Injection Introduces Noise</h2>
+<p>The tokens are identical. The information is the same. But the substrate is different, because the explicit sense at each position was shaped by a different preceding context. The first arrangement produces a coherent substrate where each component reinforces the next. The second produces a fragmented one where early positions lack the context that would have given them precise meaning.</p>
 
-<p>Not all injected content is helpful. A retrieved document might be irrelevant, contradictory, poorly written, or excessively long. When this content enters the substrate, it becomes frozen with the same permanence as everything else.</p>
+<p>This is not conjecture. Empirical research has consistently documented that input ordering significantly affects LLM performance, with earlier content receiving disproportionate influence &mdash; a primacy effect that researchers have identified as an architectural property of the transformer, not a quirk of any individual model. The mechanical explanation is the one described throughout this series: causal attention means earlier tokens shape the K vectors of later tokens, but not the reverse.</p>
 
-<p>Irrelevant content fills the substrate with K vectors that advertise topics the model doesn't need. During decode, the Query must search through these positions alongside the relevant ones. The irrelevant K vectors don't match well, so they receive low attention weight — but they still occupy space in the substrate and add noise to the attention computation.</p>
+<p>This is why experienced practitioners treat system prompt design as an exercise in deliberate ordering, not just content selection. The choice of what to say first is a choice about what will color everything else. It is the earliest and most consequential composition decision in the entire prompt.</p>
 
-<p>Contradictory content is more damaging. If the injected document contains claims that conflict with the designer's instructions, the substrate holds both signals. The K vectors at the instruction positions advertise one thing. The K vectors at the contradictory document positions advertise another. During decode, the Query encounters competing matches, and the blend of V vectors may produce a confused or inconsistent result.</p>
+<h2>The System Prompt as Controlled Context</h2>
 
-<p>This is why retrieval quality matters as much as retrieval relevance. Injecting a highly relevant but factually wrong document into the substrate is worse than injecting nothing at all — because the substrate treats it with the same authority as the designer's instructions.</p>
+<p>There is one property of the system prompt that distinguishes it from every other source in a composed prompt: the developer controls it completely.</p>
 
-<h2>The Designer's Responsibility</h2>
+<p>The system prompt is authored &mdash; written, tested, and refined by the person who designs the application. Its tokens are known in advance. Its structure is deliberate. Every word can be chosen for the specific K and V vectors it will produce during prefill. This is the one component of the composed prompt where the developer has full control over signal quality.</p>
 
-<p>The designer of a prompt template cannot control what content enters through the placeholders. That content is determined at runtime by whatever system — retrieval, API call, previous inference — supplies it.</p>
+<p>Every other source of context that enters the substrate &mdash; conversation history, retrieved documents, tool output, user messages &mdash; is dynamic. It changes with every request. It is selected or generated by pipelines, not written by hand. The developer designs the pipeline but does not control the specific tokens it produces. The signal quality of dynamic context is uncertain by nature.</p>
 
-<p>What the designer can control is:</p>
+<p>This is why the system prompt carries an outsized responsibility. It is the one place in the composition where the developer can guarantee signal quality. The explicit sense it establishes at the earliest positions in the substrate becomes the contextual foundation that every dynamic source will be computed against. If the system prompt is precise, the dynamic content that follows inherits a strong contextual field. If the system prompt is vague or poorly ordered, the dynamic content enters a weaker field, and its own K and V vectors are correspondingly less precise.</p>
 
-<p>The position of the injection point — which determines what instructional context has already been established when the foreign content enters.</p>
-
-<p>The framing around the injection point — explicit signals like "the following is a retrieved document that may or may not be relevant" that shape how the model interprets what follows.</p>
-
-<p>The constraints after the injection point — instructions that reassert the designer's intent after the foreign content has entered, giving the decode phase strong anchoring signals to attend to.</p>
-
-<p>The size and filtering of what gets injected — shorter, higher-quality injections produce cleaner substrates than long, unfiltered dumps.</p>
-
-<p>These are not cosmetic choices. They are mechanical decisions that directly shape the KV substrate — the structure that every generated token will read from during decode.</p>
+<p>The system prompt is the foundation. Everything else is built on top of it.</p>
 
 <h2>Looking Ahead</h2>
 
-<p>This chapter examined what happens when content the designer didn't write enters the substrate through a template placeholder. The next chapter applies this directly to one of the most common patterns in real-world LLM systems: retrieval-augmented generation, where documents are fetched from an external source at runtime and injected into the prompt to give the model information it was never trained on.</p>
+<p>This chapter introduced the principle that real-world prompts are composed from multiple sources and that the substrate is shaped by all of them. The system prompt, as the one fully controlled component, establishes the contextual foundation. But the majority of tokens in a composed prompt come from sources the developer does not directly author &mdash; conversation history, retrieved documents, tool results, and other dynamic content. In the next chapter, we examine what happens when these dynamic sources enter the substrate, and why the distinction between signal and noise becomes the central concern of context engineering in practice.</p>
 
 </body>
 </html>
