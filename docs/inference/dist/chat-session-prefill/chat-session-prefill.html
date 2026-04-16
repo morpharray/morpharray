@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prefill Composition: Building a Chat Session Prefill</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="chat-session-prefill.jpg" alt="Prefill Composition: Building a Chat Session Prefill" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Prefill Composition: Building a Chat Session Prefill</span>
+        
+    </h1>
+
+    Ben Um • April 16, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<p><em>Most modern AI chat sessions never produce a response from a single API call. Behind a single user-facing turn, a typical application orchestrates multiple LLM calls — rephrasing the user's question into a search query, routing the request to the right pipeline, planning a sequence of tool calls, synthesizing intermediate results into a final answer. This chapter is not about that orchestration. It is about a single API call — specifically, the final call that produces the response the user actually sees. That final call has a prefill of its own, composed from multiple sources, and decomposing what enters that prefill is the focus of this chapter.</em></p>
+
+<h2>What a Chat Session Prompt Looks Like</h2>
+
+<p>The previous chapter introduced the concept of a system prompt. When a user types a message into a chat interface, the prompt that actually enters the model during prefill is rarely just that message. It is a composed sequence assembled from multiple sources before the model ever sees it. This composed sequence is the artifact of context engineering — the deliberately constructed input that the substrate will be built from.</p>
+
+<p>A typical composition includes a system prompt establishing role and constraints, possibly a block of retrieved content from external sources, possibly the output of one or more tool calls, the prior turns of the conversation if there are any, and the user's current message. Each of these components contributes tokens to the composed sequence. Each produces K and V vectors during prefill with the same permanence as the others. None of them is intrinsically more "real" to the model than the rest — the substrate compiles them all into a single contextual representation.</p>
+
+<p>What distinguishes these components is not how the model treats them once they enter the substrate, but where they came from and how they got there. Some are authored deliberately by the developer. Some are generated at runtime by pipelines the developer designed but does not directly control. Some are accumulated from the natural progression of the conversation. Understanding what each component is — and what makes it different from the others — is the foundation for understanding the design decisions that will be discussed in later chapters.</p>
+
+<p>The system prompt starts the prefill. Here are the components that typically complete an engineered context.</p>
+
+<h2>Retrieved Content: Runtime-Selected Material</h2>
+
+<p>Many applications insert content from external sources into the composed prompt at runtime. This is the broad pattern called retrieval-augmented generation: at the moment a request arrives, a retrieval pipeline searches a knowledge base, document store, or vector index for material relevant to the user's query and inserts the selected material into the composed sequence.</p>
+
+<p>The developer designs the retrieval pipeline — what gets indexed, how queries are formed, how many results are returned, where the results are placed in the composition. The developer does not author the specific tokens that come back. The retrieval system selects from existing content, and what gets selected depends on the user's query and the state of the indexed corpus at request time.</p>
+
+<p>From the substrate's perspective, retrieved content is just tokens entering prefill at whatever positions the template designated. The K and V vectors produced at those positions encode whatever the retrieved documents happened to say. The mechanical details of how retrieval works — chunking, embedding, similarity search, reranking — are the subject of a future chapter. For now, what matters is the category: retrieved content is dynamic material, runtime-selected, with quality the developer cannot guarantee in advance.</p>
+
+<h2>Tool Output: Runtime-Generated Material</h2>
+
+<p>Some applications include the output of external tools in the composed prompt. A tool call executes a function — querying an API, running a calculation, executing code, fetching data from a database — and the result of that execution gets inserted into the substrate.</p>
+
+<p>Tool output resembles retrieved content in that it enters the substrate at runtime from sources the developer doesn't author directly. It differs in how it is produced. Retrieved content is selected from material that already exists. Tool output is generated on demand by executing a function. A search tool might return ten documents that were already in the index. A weather tool returns a structured response generated at the moment of the call. A code execution tool returns whatever the code produces when it runs.</p>
+
+<p>The boundary between retrieved content and tool output blurs in modern systems — many retrieval pipelines are now exposed to the model as tools the model itself can call. The mechanical details of how tools are defined, called, and how their results are formatted will be the subject of a future chapter. For now, what matters is the category: tool output is dynamic material, runtime-generated, with quality the developer cannot guarantee in advance.</p>
+
+<h2>Conversation History: The Accumulated Record</h2>
+
+<p>In a multi-turn conversation, the prior exchanges between the user and the model are included in the composed prompt as the conversation history. This component is distinct from the others in an important way: it is neither authored by the developer nor selected by a pipeline. It is the literal record of what has been said, captured as it happened.</p>
+
+<p>Each prior turn was itself a composition that produced a model response. The user's message and the model's reply both become part of the conversation history that gets passed back into the next request. The history grows turn by turn, accumulating naturally as the conversation proceeds. Modern chat templates use special role tokens to mark the boundaries between turns and identify who spoke — structural markers that distinguish conversation history from the other components in the composition.</p>
+
+<p>The earlier chapter on expansion and reduction examined how conversation history grows during a session and the various mechanisms for managing it when the substrate approaches its limits. Within the prefill composition, what matters is the category: conversation history is accumulated material, neither authored nor pipeline-selected, that occupies positions between the foundation and the tail.</p>
+
+<h2>The Active User Prompt</h2>
+
+<p>The user's current message — what they have just typed and sent — is the freshest content in the composition. It is the active user prompt: the one that drives this generation, distinct from the historical user messages preserved in the conversation history that already received their responses. The active user prompt sits at the end of the composed sequence, after the system prompt, after any retrieved content or tool output, and after any prior conversation history. The chat template enforces this position — the active user prompt always comes last in the composed sequence, with the model's response generated immediately after it.</p>
+
+<p>This position is the most consequential one in the entire composition, and it deserves the same attention the previous chapter gave to the system prompt's foundation.</p>
+
+<h2>The Launchpad</h2>
+
+<p>The transition from prefill to decode happens at a specific place. When prefill completes, the model has built the full substrate and produced a final hidden state at the last position in the composed sequence. That hidden state is what gets passed through the language model head to produce the first generated token. Decode does not launch from the middle of the substrate. It launches from the end — from the position the active user prompt occupies.</p>
+
+<p>This makes the active user prompt's position the launchpad. Its tokens have just been processed in the immediate context of everything that preceded them — the system prompt's framing, the retrieved content, the tool output, the conversation history. The K and V vectors at the active user prompt's positions are computed having seen the richest preceding context the substrate ever provides. And the hidden state at the final token of the active user prompt is what shapes the first token of generation, the second, and the trajectory of everything that follows.</p>
+
+<p>The system prompt and the active user prompt are the two structural poles of the composition. The system prompt is the foundation. The active user prompt is the launchpad. Both exert outsized influence on what the model produces, but they do so in different ways — the system prompt shapes the substrate that the launchpad launches from.</p>
+
+<p>This positioning is not arbitrary. The chat template places the active user prompt at the launchpad because that input is what the model needs to respond to. The user types something, hits send, and the substrate is composed so that what they typed is exactly where decode will launch from.</p>
+
+<h2>The Composed Substrate</h2>
+
+<p>The substrate that emerges from prefill in a typical chat session has a recognizable structure. The system prompt anchors the foundation. Dynamic content — retrieved material, tool output, or both — occupies positions in the middle. Conversation history accumulates as the session progresses. The active user prompt sits at the launchpad, immediately preceding the launch of decode.</p>
+
+<p>This is what the context engineer produces for a chat session: a composed sequence assembled from multiple sources, anchored by the foundation at one pole and the launchpad at the other. The mechanics of how each component works in detail — how retrieval pipelines select documents, how tool calls are formed and processed, how the model's interpretation of dynamic content can be shaped by deliberate instruction — are the subject of the chapters that follow. This chapter has established the inventory and the geometry. The chapters ahead will examine the consequences. And later still, the series will return to composition itself to examine how the picture changes when the substrate is being built not for a human user in a chat session but for an agent in a control loop, or for one model exchanging outputs with another.</p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../context-engineering/context-engineering.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 16, 2026</p>
+    </footer>
+
+
+</body></html>
