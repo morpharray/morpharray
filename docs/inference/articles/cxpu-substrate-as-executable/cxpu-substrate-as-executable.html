@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Context Processing: The Substrate as Executable</title>
+</head>
+<body>
+
+<h1>Context Processing: The Substrate as Executable</h1>
+
+<p><em>This is the first of three chapters on Context Processing. Earlier chapters have described the substrate mechanically &mdash; how it is built during prefill, what it encodes, how attention reads from it during decode. These three chapters step back from the mechanics to ask a different kind of question: what is the substrate, architecturally? The answer reorganizes the discipline of prompt engineering around a coherent set of engineering concerns. The substrate is an executable artifact, compiled during prefill and executed during decode. The machinery that performs both roles is a single unit, not two. And the artifact is ephemeral, regenerated fresh for every inference call, which has consequences for how systems built on inference must be engineered and evaluated. This chapter establishes the executable framing. The two that follow develop its architectural and practical consequences.</em></p>
+
+<h2>The Compilation Event</h2>
+
+<p>Prefill is not preparation for inference. Prefill is inference, operating in compilation mode.</p>
+
+<p>When a composed prompt enters the model, every token is processed in parallel through every transformer layer. Each position produces a Key vector and a Value vector at each layer. These vectors are not notes the model takes while reading the prompt. They are the output of a computation that transforms the prompt's tokens into a structured representation the model can consult mechanically during generation. The computation takes source material &mdash; the tokens of the composed prompt &mdash; and produces a compiled artifact &mdash; the K and V vectors populating the substrate.</p>
+
+<p>This is what compilers do. A compiler takes source code written in a human-readable language and produces a compiled artifact written in a form the execution environment can consume directly. Once compilation is complete, the source is no longer needed. The artifact contains everything the execution environment will consult. This is the shape of what prefill does to a prompt. The prompt is the source. The substrate is the compiled artifact. Decode is the execution environment that consults the artifact to produce behavior.</p>
+
+<p>The precision of the framing matters. When a traditional compiler processes source code, it does not store the source in the compiled artifact for later reference. It transforms the source into a form optimized for execution. The variable names may disappear. The control flow gets translated into branch instructions. The comments get stripped. What remains is what the execution environment needs, in the form the execution environment needs it. Prefill does the same thing. The tokens of the prompt are not stored in the substrate. They are transformed into K and V vectors that the attention mechanism consults mechanically. The specific tokens are no longer recoverable from the substrate alone. The substrate contains their compiled representation, not the tokens themselves.</p>
+
+<h2>What Gets Compiled</h2>
+
+<p>A composed prompt contains heterogeneous source material: a system prompt, possibly retrieved content, possibly tool output, possibly conversation history, and the active user prompt. Each contributes tokens to the composition, and each contributes K and V vectors to the substrate during prefill. But the components play different roles in the compilation, and naming those roles sharpens the engineering discipline that shapes them.</p>
+
+<p>The system prompt occupies the earliest positions in the token sequence, which means its K and V vectors are computed having seen no preceding context. Everything that follows is computed in the contextual influence of the system prompt's compilation. In traditional compilation terms, the system prompt functions as the main header &mdash; the top-level declarations that every subsequent module will be compiled against. Role, tone, behavioral constraints, output format: these are not instructions the model will consult later. They are declarations that shape how the compilation processes every subsequent component.</p>
+
+<p>Retrieved content, when present, is external material inserted into the composition at runtime by a retrieval pipeline. Under the compilation framing, retrieved content is linked library code &mdash; source from external sources being folded into the compilation at build time. The compiler does not distinguish between code the developer wrote and code imported from a library. Both become part of the same compiled artifact.</p>
+
+<p>Tool output, when present, is material generated on demand by external processes. Under the compilation framing, tool output is generated code, produced dynamically and linked into the compilation at a specific point. The distinction between retrieved content and tool output maps onto the distinction between statically linked libraries and dynamically generated code. Both become part of the compiled substrate, and both influence decode identically once compilation completes.</p>
+
+<p>Conversation history, in multi-turn sessions, is accumulated material from prior compilations being carried forward. The history's tokens are compiled fresh into the current substrate during each prefill, but their content originated in prior exchanges.</p>
+
+<p>The active user prompt occupies the final positions in the composition and serves as the entry point for execution. The hidden state at the last position is what launches decode. In compilation terms, the active user prompt is the main function &mdash; the entry point that determines what the executable will actually do when it runs. The system prompt declares the environment; the other components provide libraries and state; the active user prompt invokes the execution with specific arguments.</p>
+
+<h2>The Dissolution of Code and Data</h2>
+
+<p>Traditional compiled executables maintain a strict distinction between code and data. Code is the sequence of instructions the processor executes. Data is the information those instructions operate on. The two occupy different memory regions. The architectural separation is fundamental to how traditional computation works.</p>
+
+<p>The substrate does not maintain this distinction.</p>
+
+<p>An instruction in the system prompt &mdash; "respond in a professional tone" &mdash; is compiled into K and V vectors at specific positions. A fact in a retrieved document &mdash; "the company was founded in 1987" &mdash; is compiled into K and V vectors at other positions. Both contribute to the compiled substrate. Both are consulted by the attention mechanism during decode through identical Q&middot;K&middot;V operations. The attention mechanism does not route instructions differently from data. Both are the same kind of thing, at the same level of the representational hierarchy, consulted by the same mechanism.</p>
+
+<p>This is one of the genuinely unusual architectural properties of transformer inference. A poorly chosen instruction and a poorly chosen fact can both produce the same kind of substrate dilution, because they are the same kind of compiled content. The K vector at a position in the substrate doesn't announce whether it originated from an instruction the developer wrote or a document a retrieval pipeline selected. It advertises its content, and that content influences decode regardless of its original category.</p>
+
+<p>The practical consequence is that prompt engineering must treat instruction and information with the same care. A prompt with precise instructions but vague information will produce output that reflects the vagueness, for the same reason that a prompt with clear information but vague instructions will. Both become part of the same compiled substrate. The substrate's coherence depends on the coherence of every component that compiled into it, regardless of whether any particular component was conceived by the prompter as instruction or as information.</p>
+
+<p>This also explains why the boundary between system prompts and user content matters for security. If the substrate compiled instruction and data separately, a malicious instruction embedded in retrieved content could be identified and filtered before reaching the execution environment. But the substrate does not compile them separately. A malicious instruction in retrieved content becomes K and V vectors alongside legitimate content, and the attention mechanism consults them identically. The architectural dissolution of code and data is what makes prompt injection a structural property of transformer inference rather than a bug that can be fixed in any single system.</p>
+
+<h2>Immutability and Determinism</h2>
+
+<p>Once compilation completes, the substrate is immutable. Nothing that happens during decode modifies the K and V vectors that prefill produced. Each decode step may append new K and V vectors at new positions as generated tokens are processed, but the vectors produced during prefill remain exactly as they were computed. The compilation event is a one-time transformation. The compiled artifact is frozen in place.</p>
+
+<p>This matches the behavior of traditional compiled executables. A binary does not modify itself during execution. The execution environment consults the compiled instructions repeatedly but does not rewrite them. Immutability is what allows the execution environment to trust the compiled artifact as a stable foundation for the computation.</p>
+
+<p>Every token compiled during prefill will influence decode identically at every step of generation. There is no opportunity to revise the compilation partway through. If the compiled substrate contains contradictions, those contradictions shape every token the model generates. The compiler makes its decisions once, and those decisions are carried through to the end of generation. The discipline of shaping the compilation well is the discipline of getting it right the first time, because there is no opportunity to patch it later.</p>
+
+<p>Compilation is also deterministic. Given the same input tokens and the same model weights, prefill produces the same K and V vectors every time. Decode introduces sampling variability, but the substrate that decode operates on is reproducible. This is what makes substrate engineering a discipline rather than a divination practice. The same prompt produces the same compiled substrate, and differences in output trace back to either differences in compilation inputs or differences in sampling.</p>
+
+<h2>A New Lens</h2>
+
+<p>The substrate-as-executable framing reorganizes the discipline of working with these systems around a coherent set of engineering concerns. Prompt engineering is not the craft of writing good messages. It is the discipline of engineering inputs to a compilation process whose output will be executed autonomously. Every component of the prompt is a source module that will be compiled into a unified artifact. Every choice about wording, ordering, and structure is a choice about what the compiled artifact will contain and how the execution environment will consult it.</p>
+
+<p>The lens holds whether the practitioner is working on a single prompt, a retrieval pipeline, a tool-calling system, or a multi-agent architecture. Each of these is an exercise in shaping compilations, and each can be examined for whether its compilations produce substrates that carry the intent that was meant to be carried.</p>
+
+</body>
+</html>
