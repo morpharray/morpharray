@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Context Processing: Functional Generation</title>
+</head>
+<body>
+
+<h1>Context Processing: Functional Generation</h1>
+
+<p><em>A CxPU takes composed input and produces output. Nothing carries over from one operation to the next. Each CxPU operation stands on its own, shaped entirely by whatever was assembled into its composed input at that moment. This chapter names what that kind of operation is &mdash; functional generation &mdash; develops the essential property that makes it what it is, and names what the composed input has to carry for the operation to do what the designer meant.</em></p>
+
+<h2>Functional Generation</h2>
+
+<p>A CxPU performs functional generation. The phrase names two things at once. The generation is functional because it has a function to perform &mdash; a specific job, shaped by what the composed input tells it to do. And the generation is functional in a stricter sense: the operation works only with what the composed input gives it. Nothing carries over from prior operations. Nothing is supplied from the side at runtime. Nothing is hidden. Whatever the generation will do on this call is determined by what was assembled into the composed input at the moment the call began.</p>
+
+<p>This matches how a well-behaved recipe works. A recipe takes ingredients and produces a dish. The same recipe run with different ingredients produces a different dish. Each dish carries the intent of the recipe. The recipe does not remember yesterday&rsquo;s batch. It does not know what the cook had for breakfast. It has one job, and that job is defined by what the recipe says to do with whatever ingredients happen to be in front of it.</p>
+
+<p>A CxPU works the same way, at the scale of language. The composed input says what the operation is being asked to do and provides the material it will work with. The generation produces output shaped by that input &mdash; a single string that might be a simple answer to a simple question, or a string that contains complex instructions capable of driving further operations in a larger system.</p>
+
+<h2>Human Language In, Human Language Out</h2>
+
+<p>The composed input is human language. The output is human language. Human language is the medium humans have always used to communicate intent &mdash; to tell each other what they want done, what they understand, what they mean. A CxPU operates in that same medium. It reads human language. It produces human language.</p>
+
+<p>Because the medium is shared, the output of one CxPU operation can flow directly into the composed input of another. A CxPU produces human language; another CxPU reads human language; the output of the first is ready to be written into the composition of the next without translation. This is what makes more elaborate architectures possible &mdash; agents, pipelines, multi-step reasoning systems, multi-agent orchestrations. All of them rest on CxPU outputs flowing into CxPU inputs, with human language carrying intent from one operation to the next.</p>
+
+<p>This is the foundation on which everything else in this chapter rests. The sealed composition that the next section develops is a sealed piece of human language. The intent that a later section names is intent written in the input language and the output language. The output reveals whether intent has survived processing. The craft of composition that closes the chapter is a linguistic craft.</p>
+
+<h2>The Sealed Composition</h2>
+
+<p>There is an ordinary English word for the property of being finalized, settled, no longer open to revision: <em>closure</em>. A case reaches closure when the matter is settled and no further arguments can change it. A chapter reaches closure when it is done and its story is no longer in play. A conversation reaches closure when the parties have said what they will say and move on. The word describes a specific moment &mdash; the transition from something being open to something being finished.</p>
+
+<p>The composed input of a CxPU operation reaches closure in exactly this sense. An input composition is finalized before it is passed into a CxPU operation. Nothing already in it can be revised. Whatever was committed to the input is what the operation will work with, start to finish, with no appeals and no additions.</p>
+
+<p>The natural way to picture this is as any written instruction that gets handed off to be carried out. Instructions can take many forms and span an enormous range of complexity: instructions to add 1 + 1, instructions to give the definition of a word, a recipe, a punch list, a to-do list, job instructions, an application specification, a corporate organizational structure. Every one of these is a written specification of what should be done. Every one gets handed off to something or someone that will act on what was written. And every one shares the same sealing property: at the moment of the handoff, the instruction is finalized. Whatever is written is what will be acted on. Anything the author thinks of afterward cannot reach back in.</p>
+
+<p>A CxPU operation works the same way. The composed input is the written instruction; the CxPU is what carries it out. Everything the generation needs to understand what it is being asked to do, every piece of context that will shape the output &mdash; all of it has to be written into the composed input before it is handed over. Once the operation begins, the input cannot be modified. No afterthought can be added. No external helper can step in partway through. Whatever was written is what the generation works with.</p>
+
+<h2>Durable Intent</h2>
+
+<p>The sealed composition is the vehicle. What rides in that vehicle is intent.</p>
+
+<p>Every CxPU operation exists because someone wants something. A user typing into a chat. A developer building an application. A system invoking the operation as part of a larger workflow. In every case, there is something the operation is being asked to do &mdash; a purpose, a job, a request, a direction. This is the intent the operation is meant to carry out. Without it, the operation has no reason to run.</p>
+
+<p>Intent reaches the operation the same way everything else does: through the composed input. The model&rsquo;s body of knowledge does not supply intent; it supplies capability that intent can direct. Intent comes from whoever is asking, through the composed input, or the operation has none.</p>
+
+<p>And intent has to do more than simply arrive. It has to survive. The intent that was written has to remain readable and actionable across the entire operation &mdash; not corrupted by contradictions, not drowned out by noise, not fragmented by poor arrangement, not obscured by material that competes with it for attention. Intent that makes it into the composition but falls apart during the operation is intent that failed to be <em>durable</em>.</p>
+
+<p>Durable intent is intent written clearly enough to survive the operation it will drive &mdash; specific enough to be acted on, coherent enough not to fight with itself, clear enough that the generation can follow it without having to reconstruct what was meant.</p>
+
+<p>Users also want to see intent in the output. When someone asks for a summary, they want the summary to reflect the document they asked about. When someone asks a question, they want the answer to address the question they posed. When someone specifies a tone, a format, or a constraint, they want the response to honor what they specified. The output is where the user looks to see whether their intent made it through. A response that reads as if it were produced for a different request &mdash; even if it is fluent, even if it is correct on its own terms &mdash; is a response in which the user&rsquo;s intent did not survive.</p>
+
+<p>This makes intent&rsquo;s durability a round-trip property: into the operation so the generation can be guided, and through the operation so the user recognizes their request in what comes back.</p>
+
+<p>When the intent was written durably, the sealed composition delivers exactly this round-trip. The designer composes the input, the composition is sealed, the generation runs on durable intent, and the output reflects that intent back. When the intent was not written durably, the same sealing has teeth. If the composed input was missing something essential, the generation cannot recover by consulting an external source. If the composed input contained contradictions that eroded the intent, the generation cannot be corrected mid-flight by a supervisor that noticed the problem. Whatever shape the composition had at the moment of sealing is the shape the operation will run with.</p>
+
+<h2>Why the Craft of Composition Carries Weight</h2>
+
+<p>Earlier chapters in this series taught the craft of composition. How to structure a system prompt. How to position retrieved content. How to arrange the foundation and the launchpad. How to order components within the system prompt itself. All of this was teaching the reader how to compose well.</p>
+
+<p>The sealed nature of the composition is what makes that craft carry the weight it does. Careful composition is not an optimization that produces marginally better outputs. It is the only mechanism by which the designer&rsquo;s intent reaches the operation at all, and the only mechanism by which that intent has a chance of surviving from the moment of sealing to the moment the user reads the output.</p>
+
+<p>The quality of instructions given to someone to perform a task directly shapes the quality of the result. Anything missing from the instructions will be missing from the work. Anything unclear will be resolved by guesswork, or not at all. The same applies to the composed input of a CxPU operation: the composition is complete or incomplete at the moment of sealing, and the operation will run on whatever was committed.</p>
+
+<p>This is what the series has been building toward across twelve chapters. The mechanics of prefill and decode, the role of the substrate, the distinction between explicit and implicit sense, the discipline of context engineering, the anatomy of the composed prompt, the framing of prefill as compilation and the CxPU as the unit of context processing &mdash; all of it has been describing a single architectural primitive. Functional generation is that primitive. Human language is the medium in which it operates. The sealed composition is its vehicle. Durable intent is what the vehicle has to carry. Every system built on LLM inference is built on this primitive, and every technique for working with these systems traces back to the same task: writing durable intent into a composition that will be sealed, processed exactly once, and judged by what the output reflects back.</p>
+
+<p>The craft of composition is a linguistic craft: writing durable intent in human language and committing it to the composition before it is sealed. The finality of the sealed composition is what makes that craft matter, and the human-readable output is what makes the result chainable, extensible, and auditable.</p>
+
+</body>
+</html>
