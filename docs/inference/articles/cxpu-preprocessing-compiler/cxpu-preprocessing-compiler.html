@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Context Processing: Preprocessing, Compilation, and the CxPU</title>
+</head>
+<body>
+
+<h1>Context Processing: Preprocessing, Compilation, and the CxPU</h1>
+
+<p><em>Earlier chapters described the mechanics of inference in detail &mdash; how prefill builds the KV substrate, how decode reads from it, how attention shapes meaning across every token. This chapter steps back from the mechanics and names three things the reader already understands but has not yet seen named as architectural concepts: the assembly of a composed input, the transformation of that input into the substrate, and the computational unit that performs both.</em></p>
+
+<h2>Preprocessing</h2>
+
+<p>Every inference operation begins with a composed input. That composed input did not appear on its own. It was assembled &mdash; from instructions, from user messages, from retrieved content, from tool results, from prior conversation history, from whatever sources the situation required. This assembly work is called <em>preprocessing</em>. Preprocessing is the stage that happens before the model processes anything. Its job is to put together the instructions and input material the model will operate on.</p>
+
+<p>Preprocessing can be done manually, when a person types a careful message into a chat interface and supplies all the instructions and content themselves. It can also be automated, when an application assembles the composition from templates, retrieved content, and other sources before the model ever sees it. In both cases, the work is the same: assembling the instructions and input material into a composition the model will process.</p>
+
+<p>The reader has seen preprocessing throughout this series without the name. Chapter 8 introduced the system prompt and named context engineering as the discipline of deliberately designing what enters the model. Chapter 9 detailed the anatomy of the composed prompt in a chat session &mdash; the system prompt, the dynamic content, the conversation history, the active user prompt. All of that work is preprocessing. Context engineering is the discipline of doing preprocessing well.</p>
+
+<h2>Compilation</h2>
+
+<p>Once preprocessing produces a composed input, that input enters the model. What happens next is called <em>compilation</em>. Compilation is the process of converting the composed input into the KV substrate.</p>
+
+<p>Earlier chapters described this in mechanical terms: prefill processing the composed input through every transformer layer, computing Key and Value vectors for every token, producing the substrate that decode will consult. This chapter gives that process a name. The KV substrate is the compiled form of the composed input.</p>
+
+<p>Inference compilation combines both the instructions and the input material those instructions use to generate output into a single substrate. The system prompt, the retrieved content, the conversation history, the user&rsquo;s message &mdash; all of it compiles together. The substrate holds the complete compiled form of everything the operation will work with.</p>
+
+<h2>The CxPU</h2>
+
+<p>Preprocessing assembles the composed input. Compilation converts it into the substrate. Execution generates the output. All three stages are part of a single architectural unit worth naming in its own right.</p>
+
+<p>In hardware taxonomy, computational units specialized for particular domains are named for the domain they serve: GPU for graphics, TPU for tensor operations, NPU for neural network workloads. The computational unit at the heart of LLM inference is specialized for a specific domain as well: the processing of composed context. The natural name for this unit is the Context Processing Unit, or CxPU.</p>
+
+<p>The CxPU is the unit that performs compilation and execution on a composed input. It is not a specific piece of hardware, and it is not tied to any specific model. A CxPU can be implemented on a GPU, on a TPU, on dedicated inference hardware, or on general-purpose CPUs. It can be running a transformer-based LLM or any other architecture capable of processing human language. Technically, a human can perform this role too &mdash; given the same composed input, a human can read the instructions, act on the input material, and produce valid output. The CxPU names a role, not an implementation. Whatever entity reads a composed input and produces output from it is performing the role of a CxPU, regardless of what physical hardware, specific model, or cognitive substrate happens to be doing the work.</p>
+
+<p>Naming the CxPU explicitly matters because it elevates the discussion from the mechanics of any particular model to the architectural role that model is playing. Every system built on LLM inference is built on CxPUs. A chat interface routes user input through a CxPU. A retrieval system assembles content for a CxPU. A tool-calling agent invokes a CxPU, interprets its output, and often invokes another CxPU with the results. A multi-agent orchestration system coordinates many CxPUs working together. The CxPU is the reusable primitive every one of these architectures is built on.</p>
+
+<p>With preprocessing, compilation, and the CxPU named, the next chapter can address what the CxPU&rsquo;s operation architecturally amounts to.</p>
+
+</body>
+</html>

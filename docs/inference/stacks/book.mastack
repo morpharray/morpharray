@@ -12,8 +12,7 @@ sense-reference/sense-reference.html # pub=2026-04-13
 explicit-implicit-sense/explicit-implicit-sense.html # pub=2026-04-13
 context-engineering/context-engineering.html # pub=2026-04-15
 chat-session-prefill/chat-session-prefill.html # pub=2026-04-16
-cxpu-substrate-as-executable/cxpu-substrate-as-executable.html # pub=2026-04-17
-cxpu-compiler-runtime/cxpu-compiler-runtime.html # pub=2026-04-18
+cxpu-preprocessing-compiler/cxpu-preprocessing-compiler.html # pub=2026-04-20
 cxpu-functional-generation/cxpu-functional-generation.html # pub=2026-04-20
 
 
