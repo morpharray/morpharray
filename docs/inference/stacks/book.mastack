@@ -4,7 +4,7 @@
 # ARTICLE_SERIES="Inference Series"
 index.html
 intro/intro.html # pub=2026-04-07
-intent-matrix/intent-matrix.html # pub=2026-04-08
+intent-matrix/intent-matrix.html # pub=2026-04-20
 prompt-template/prompt-template.html # pub=2026-04-09
 cot/cot.html # pub=2026-04-10
 reduction-expansion/reduction-expansion.html # pub=2026-04-11
