@@ -1,0 +1,159 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functions: Pseudocode in Practice</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="intro.jpg" alt="Functions: Pseudocode in Practice" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Functions: Pseudocode in Practice</span>
+        
+    </h1>
+
+    Ben Um • 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<p><em>The Inference Series established that a deterministic function can play the CxPU role as cleanly as an LLM can. The Crossroads chapter named static inference as a narrow form of cognition simulated, and pointed at the maturation arc by which operations move from dynamic substrate to static substrate as their intent crystallizes. This series picks up where that pointing left off. It teaches the reader to actually build static-inference CxPUs — to commission, refine, and verify functions that capture cognition in executable form.</em></p>
+
+<p><em>This opening chapter is about the authoring language. Before any function gets built, before any IDE gets opened, before any LLM gets prompted, the reader needs to understand what they will be writing. The answer is pseudocode. Not a simplified programming language. Not a translation target. Pseudocode in its own right, as a real authoring language for real software, used in the reader's own vocabulary.</em></p>
+
+<h2>The Authoring Language Is Already Yours</h2>
+
+<p>Pseudocode is older than programming languages. Every recipe is pseudocode. Every assembly instruction sheet is pseudocode. Every set of directions someone gives over the phone is pseudocode. Every emergency procedure posted on the back of a hotel room door is pseudocode. The form has existed as long as humans have given each other procedural instructions, which is essentially as long as humans have communicated at all.</p>
+
+<p>What programming languages did, starting in the 1950s, was take a small constrained subset of pseudocode and make it precise enough for machines to execute. The constraints were not improvements over human procedural language. They were concessions to what mechanical translators of that era could parse. A compiler in 1972 could not handle the flexibility of natural-language procedural description. It needed rigid syntax, fixed keywords, and predictable structure. So programming languages were designed to fit what compilers could process, and human readers had to adapt to the languages.</p>
+
+<p>This adaptation has shaped the field for seventy years. Programming has been understood as a specialized skill that requires learning a foreign vocabulary and unfamiliar syntactic conventions. Software has been built by people willing to undergo that adaptation. Everyone else has been excluded — not because they couldn't think procedurally, but because the procedural language available to machines wasn't the procedural language they already spoke.</p>
+
+<p>That separation is now ending. Large language models can parse the flexibility of natural-language procedural description and translate it into the rigid forms machines require. The translation step that compilers couldn't perform is now performable, by a different kind of translator. The constraint that forced human authors to learn programming languages no longer applies. Pseudocode in its natural form — the form humans have been using forever — is now a viable authoring language for real software.</p>
+
+<p>This series teaches you to use that authoring language deliberately. You will not be learning a new vocabulary. The vocabulary you bring is the vocabulary you will author in. What you will learn is how to give procedural structure to that vocabulary, with the precision required for the result to function as a real software specification.</p>
+
+<h2>Four Sentences That Describe the Whole Collaboration</h2>
+
+<p>Before getting into the structural craft, the relationship between you and the system you'll be working with deserves to be stated plainly. Four sentences capture it:</p>
+
+<p><strong>The implementation is the source of truth.</strong> What runs is what runs. The function executing in production is the authoritative answer to "what does this function do." Everything else — your description, the rendering you read, the verification you perform — is fitted to that source of truth.</p>
+
+<p><strong>You described it.</strong> The function exists because you specified what you wanted. The implementation is downstream of your authorship. You are the author in the sense that matters: you decided what the function would do.</p>
+
+<p><strong>The system explains the implementation in your vocabulary.</strong> You will not read the implementation in any vocabulary that is foreign to you. The explanation comes back to you in the words you used to describe what you wanted, with the analogies that fit your domain expertise. The vocabulary stays yours throughout.</p>
+
+<p><strong>Co-authorship proceeds productively.</strong> You describe, the system implements and explains, you read the explanation, you compare it to your intent, you refine if needed, the cycle continues. The function gets built through this loop, with you making the substantive decisions and the system handling the mechanical translation.</p>
+
+<p>These four sentences describe a collaboration that has not been possible before. The translation step that bridges your vocabulary and the executable form is performed by a partner that can speak both. You stay in your expertise. The implementation stays in its proper precision. The bridge gets generated dynamically, in whichever direction the collaboration needs at any given moment.</p>
+
+<p>The participation is structured around writing pseudocode that captures your intent precisely enough for the implementation to honor it. That writing is the craft this series teaches.</p>
+
+<h2>Pseudocode Has Structure</h2>
+
+<p>Pseudocode in everyday human communication is loose. When someone gives directions, they leave gaps that the listener fills in with judgment. "Turn left at the church, then keep going for a while until you see a gas station, then it's the third house on the right." The listener interprets "a while" reasonably. They handle the case where there's no church visible but they recognize the general area. They count houses correctly even if one is partially hidden. The looseness works because the listener brings cognitive flexibility to the act of following the directions.</p>
+
+<p>A function does not bring cognitive flexibility. A function does exactly what it was specified to do, no more and no less. Pseudocode that becomes a function has to handle what a human listener would handle implicitly. The looseness has to be tightened up. Edge cases have to be addressed. Ambiguity has to be resolved. The shift from informal procedural sketching to function-grade pseudocode is a shift from instruction-for-a-human to specification-for-a-mechanism.</p>
+
+<p>The structural elements of pseudocode are the same in either case. What changes is how completely they are used. The elements are familiar from everyday procedural language:</p>
+
+<ul>
+<li><strong>Sequence</strong> — do this, then this, then this. The order matters. Each step happens after the previous one and before the next one.</li>
+<li><strong>Conditional</strong> — if some condition is true, do this; otherwise, do that. The function decides which path to take based on what it observes.</li>
+<li><strong>Repetition</strong> — repeat some action until a condition is met, or for each item in a collection, or by going back to a previous step. Loops are how functions handle work that has to be done multiple times.</li>
+<li><strong>Comparison</strong> — checking whether something equals, exceeds, falls below, contains, or matches something else. Conditions are built from comparisons.</li>
+<li><strong>Assignment</strong> — taking a value and naming it for later reference. "Call the result the corrected total." This lets later steps refer to earlier work.</li>
+<li><strong>Return</strong> — declaring what the function produces. "The answer is the corrected total." Every function ends by returning its output.</li>
+</ul>
+
+<p>These six elements are sufficient to express any function this series will teach you to build. They are also elements you already use, every time you give procedural instructions. You have been using them your entire life. What this series teaches is how to use them deliberately, with the precision required for a function to honor them.</p>
+
+<h2>Vocabulary Stays Yours</h2>
+
+<p>The structural elements above are universal. They appear in every pseudocode rendering of every function. What is not universal is the vocabulary that fills the elements. The vocabulary is yours.</p>
+
+<p>A bookkeeper authoring a function for transaction categorization writes in accounting vocabulary. A musician authoring a function for chord progression analysis writes in musical vocabulary. A nurse authoring a function for medication dose calculation writes in clinical vocabulary. The pseudocode each of them produces uses the structural elements of sequence, conditional, repetition, and so on, but the words filling those elements come from the author's domain expertise.</p>
+
+<p>This is the central commitment of the authoring environment you will be working with. The system never asks you to translate your concepts into foreign vocabulary. You write in the words you use to think about your domain. The system implements the function and renders it back to you in the same words. If you used the term "ledger account," the rendering uses "ledger account." If you reached for an analogy involving sorting mail into bins, the rendering uses the bin-sorting analogy. Your vocabulary is preserved through every layer of the collaboration.</p>
+
+<p>This matters for two reasons that compound each other.</p>
+
+<p>The first is that your vocabulary is where your precision lives. You are most precise about your domain in the words your domain has developed for talking about itself. An accountant's precision about debits and credits is encoded in accounting vocabulary; the same accountant trying to describe the same logic in foreign vocabulary would be less precise, because the vocabulary they were forced to use wouldn't have the right distinctions readily available. Authoring in your own vocabulary lets you specify functions with the precision your expertise actually possesses.</p>
+
+<p>The second is that your verification depends on reading explanations in your vocabulary. When the system shows you what it implemented, you compare the explanation to your intent. The comparison is most reliable when both sides are expressed in the same conceptual frame. An explanation in accounting vocabulary, compared to an accounting intent, is something you can verify with confidence. An explanation in foreign vocabulary, compared to an accounting intent, requires you to translate before you can compare — and the translation introduces uncertainty into the verification. Keeping vocabulary consistent across authoring and verification removes that uncertainty.</p>
+
+<p>The system's commitment to your vocabulary has a name in this framework. It is called dynamic domain targeted decompilation, or DDTD. The term names a specific architectural pattern: the implementation is decompiled — rendered into a higher-level human-readable form — dynamically, on demand, targeted at the specific reader, in the vocabulary of their domain. The term "vocabulary" here is broad. It includes the conceptual vocabulary of the reader's expertise — accounting terms for an accountant, musical terms for a musician — and it includes the human language the reader naturally writes in. A French-speaking accountant will receive renderings in French accounting vocabulary. A Mandarin-speaking nurse will receive renderings in Mandarin clinical vocabulary. The system adapts to whatever language and whatever domain the reader brings, because both are properties of the reader's input rather than properties of the IDE. None of the components of this pattern is new. Decompilation has existed for decades. Domain-specific output has been studied for as long. Dynamic generation of explanations is what large language models routinely do. Targeted communication for specific audiences is older than computing. What is specific is the combination, packaged as the architectural commitment of the authoring environment you will be using.</p>
+
+<p>You do not need to know the details of how DDTD is implemented to use it. The IDE handles the rendering. What matters for your work as an author is knowing that the rendering will come back in your vocabulary, faithfully, every time you ask for it.</p>
+
+<h2>The Shift from Informal to Precise</h2>
+
+<p>Most pseudocode you have ever written or read has been informal. A recipe, a set of directions, a how-to guide — these communicate procedurally but rely on the reader to handle gaps, ambiguities, and edge cases. Function-grade pseudocode does not have that luxury. The shift from informal to precise is the central craft this series will develop, and it begins with recognizing the gaps that everyday pseudocode tolerates.</p>
+
+<p>Consider a familiar instruction: "Convert temperature from Fahrenheit to Celsius." Informally, this is enough. Anyone who knows the conversion can perform it. As function-grade pseudocode, it is missing too much. What does the function do if the input is below absolute zero? What does it return if the input is not a number at all? What about the input being unrealistically large? What precision does the output need? Should fractional values be rounded, and if so, in which direction?</p>
+
+<p>An informal description leaves all of this to interpretation. A function-grade specification answers each question. Not because answering them is interesting in itself, but because the function will produce some behavior in each of these cases, and the only way to ensure the behavior matches your intent is to specify what the behavior should be.</p>
+
+<p>The same principle applies to every function. A function for sorting items in a list needs to specify what happens when two items are equal — does their order matter? A function for matching customer names needs to specify how to handle differences in capitalization, whitespace, or spelling. A function for calculating a discount needs to specify what happens when the input is negative. Every function has edges where informal language would shrug and the implementation must commit to specific behavior.</p>
+
+<p>The craft of writing precise pseudocode is largely the craft of noticing these edges and addressing them deliberately. As you author functions in this series, you will develop a sense for where the edges live. You will learn to ask, almost reflexively, what happens at the boundaries of your specification — at the empty input, the maximum input, the unexpected input, the ambiguous input. The system will help you notice cases you missed by showing you renderings that handle situations you did not think to specify, but the discipline of anticipating edges grows with practice.</p>
+
+<p>This discipline is not foreign to you either. You already exercise it whenever the stakes are high enough to demand it. Legal language is precise pseudocode applied to obligations and remedies. Medical protocols are precise pseudocode applied to clinical procedures. Aviation checklists are precise pseudocode applied to flight operations. In every domain where errors have consequences, the procedural language tightens up to handle edges deliberately. Function-grade pseudocode applies the same discipline to procedures that will be executed mechanically, where any unhandled case becomes whatever default behavior the implementation produces.</p>
+
+<h2>The Co-Authorship Loop in Practice</h2>
+
+<p>The authoring environment you will be working with operates as a loop, and understanding the rhythm of that loop will shape how you participate in it.</p>
+
+<p>You begin by describing the function you want. The description does not need to be complete on the first pass. You write what you intend, in your own vocabulary, with the structure and precision you can produce on first effort.</p>
+
+<p>The system produces an implementation and a rendering. The implementation is in a form the runtime can execute. The rendering is in your vocabulary, walking through what the implementation does step by step. You read the rendering.</p>
+
+<p>You compare the rendering to your intent. This is the verification step, and it is the substantive participation point. If the rendering matches what you meant, the function is correct. If it does not, you have located the divergence — you can see, in your own vocabulary, where the implementation went somewhere you did not intend.</p>
+
+<p>You refine the description. You point at the part of the rendering that is wrong and describe the correction in your own words. The system updates the implementation and produces a new rendering. You read again. The cycle continues until the rendering reflects your intent throughout.</p>
+
+<p>You also have access to behavioral verification. The system produces example inputs and shows you what the function returns for each one. You inspect the input-output pairs and confirm that they match what you wanted. If a particular input produces an unexpected output, you have another concrete artifact to point at and refine. Behavioral verification catches cases where the rendering reads correctly but the function nonetheless behaves wrongly — subtle errors that pseudocode-level inspection might miss.</p>
+
+<p>If the rendering is not making sense, or if the system seems to be misinterpreting your intent in ways the refinement loop is not resolving, you can invoke the safety line. The safety line escalates the conversation to the most capable substrate available, with all the context preserved, so that the case the cheaper substrate could not handle gets handled by something that can. The safety line is always available. Its presence is what makes the rest of the system safe to rely on.</p>
+
+<p>This loop is the practical experience of the four-sentence collaboration described earlier. You describe, the system implements and explains, you verify, you refine, the cycle continues. The function gets built through your participation in the loop. The IDE handles the implementation work. The vocabulary stays yours. The function that emerges is one you can vouch for, because you specified its behavior and verified that the verification matches.</p>
+
+<h2>A Craft That Transfers</h2>
+
+<p>The craft of writing precise pseudocode in your own vocabulary is the craft of articulating procedural intent clearly enough for any system — human or machine — to execute it faithfully. The discipline transfers. Once you have developed the habit of noticing edges, completing specifications, and verifying that explanations match intent, those habits improve every procedural specification you write thereafter, whether for a function, a procedure, or another person.</p>
+
+<p>A function authored through this craft captures a specific cognitive operation in executable form. It takes input, performs the specified work, and produces output — faithfully, repeatedly, cheaply. It can be invoked by other systems as a static-inference CxPU, participating in networks of operations that carry intent through real work. The function is real software, built through authorship rather than through programming.</p>
+
+<h2>What You Already Bring</h2>
+
+<p>The skills required to participate in this series are skills you already have. You can describe procedures in your own words. You can read procedural descriptions and notice when they do not match what you intended. You can refine a description to be more precise when you see where the imprecision lives. You can think about edge cases when prompted to. You can recognize when an explanation matches your intent and when it does not.</p>
+
+<p>What you do not need to bring is any familiarity with programming languages, software development tools, or computing concepts beyond the most general. The IDE handles everything that requires those skills. The substrate you are authoring on — the implementation language, the runtime, the compilation pipeline — is the IDE's concern, not yours. You stay in the work that matches your expertise: describing what the function should do, in vocabulary you understand, with the precision your domain affords.</p>
+
+<p>The capacity for software construction has historically been gated by willingness to learn programming languages. That gate is no longer the only path. The pseudocode you write, in the vocabulary you already speak, is real software authoring. The implementation that runs in production is faithful to what you specified. You are the author.</p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <span class="nav-disabled">← Previous</span>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>MorphArray Functions Series • </p>
+    </footer>
+
+
+</body></html>
