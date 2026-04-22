@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Processing: Crossroads</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="cxpu-crossroads.jpg" alt="Context Processing: Crossroads" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Context Processing: Crossroads</span>
+        
+    </h1>
+
+    Ben Um • April 22, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<p><em>The preceding chapters established what inference is, what a CxPU is, and what functional generation on a sealed composition amounts to. The work was descriptive — naming the primitive, explaining how it operates, showing how composition craft shapes what the primitive produces. That work is complete. What remains is different in character: moving from understanding the primitive to building with it, from describing how a single CxPU operation works to designing networks of operations that carry intent through real systems. This chapter marks the turn.</em></p>
+
+<p><em>Two series will follow this one. Each addresses a distinct discipline the CxPU framework opens up. This chapter previews both, and then returns to the mechanical topics the current series deferred, now understood as what they are: the details that matter once the reader has real systems in which those details shape real outcomes.</em></p>
+
+<h2>Functions</h2>
+
+<p>The CxPU framework established that a deterministic function can play the role of inference as cleanly as an LLM can. A function honoring the CxPU interface — human-readable input in, human-readable output out, with intent flowing through the operation — is architecturally indistinguishable from an LLM honoring the same interface. The substrate differs. The role is identical.</p>
+
+<p>This is not a theoretical observation. It points at how real AI systems mature. Early in any system's life, many operations are LLM-backed because the team is still discovering what those operations should do. The LLM supplies capability that the intent has not yet been specified precisely enough to capture in code. As patterns emerge — as certain operations reveal themselves to be well-understood, specifiable, and repeatable — they become candidates for promotion. The intent has crystallized enough that a deterministic function can carry it. The LLM call is replaced by a function call. The interface is preserved. Everything downstream continues to work.</p>
+
+<p>Systems that undergo this maturation become faster, cheaper, more deterministic, and more auditable without architectural disruption. Systems that do not undergo it remain expensive and unpredictable longer than they need to. The discipline of recognizing when an operation is ready for promotion, and then constructing the function that will replace the LLM call, is a craft in its own right — substantial enough to require its own series.</p>
+
+<p>What makes this series accessible to the audience this book has been written for is that the construction itself is a composition task. A reader who has learned to write durable intent into a prompt has learned the essential skill. An LLM can produce the implementation of a function from a well-composed specification. The reader writes what the function should do, what it should accept, what it should produce, how it should behave at the edges. The LLM produces the code. The reader tests the result against the same specification. A non-programmer who understands CxPUs can commission functions this way, deploy them into intent-flow networks, and replace LLM calls with deterministic substitutes — all without crossing the boundary into writing code by hand.</p>
+
+<p>The series will treat WebAssembly as the recommended substrate. WebAssembly runs anywhere — browsers, servers, edge environments, embedded contexts — without modification. It executes in a sandbox, which matters when functions are invoked as part of networks that carry intent from sources of varying trust. It is language-agnostic on the authoring side, so the LLM producing the function can emit whatever implementation language suits the task. And it is fast and cheap to invoke, which means a system can call thousands of function CxPUs in the time a single LLM operation takes. The choice of substrate is practical, not doctrinal. Other substrates may serve the same role in other contexts. What matters is that the reader comes away able to build deterministic CxPUs that honor the interface, no matter where they run.</p>
+
+<a href="../../../functions/dist/index.html">Functions Series — Index</a>
+
+<h2>Orchestration</h2>
+
+<p>A single CxPU operation is a primitive. Primitives become useful when composed into networks. Real systems built on the CxPU framework are networks of operations — some LLM-backed, some function-backed, some human-in-the-loop — coordinated such that intent flows cleanly from one operation to the next. The discipline of designing those networks, and of governing them while they run, is orchestration.</p>
+
+<p>Orchestration is a two-part discipline, and both parts are essential.</p>
+
+<p>The first part is network design. Given a goal, how should the work be decomposed into sealed operations? Which operations should be LLM-backed and which function-backed? Where do retrieval steps belong? Where does human review enter? How does the output of one operation become the composed input of the next without intent degrading across the handoff? These are design questions, and the answers shape whether a network can carry intent through its full length or whether intent falls apart somewhere in the middle.</p>
+
+<p>The second part is observation and control. A CxPU network is built from sealed, opaque operations. Once an operation begins, the orchestrator cannot reach inside it. The only way the orchestrator can understand what the network is doing — or intervene when something goes wrong — is through the telemetry that each CxPU emits while it runs. Telemetry is the channel through which a running operation narrates its own progress to the orchestrator: proof that it is still alive, position within its lifecycle, progress toward completion, and whatever substrate-specific signal the operation has reason to share. Without a standardized telemetry protocol, a network of heterogeneous CxPUs cannot be governed generically. Every operation becomes a special case. With a standardized protocol, the orchestrator can reason about any CxPU through the same interface — terminating stuck operations, enforcing budgets, redirecting operations whose trajectory has drifted, and preserving traces that make the network debuggable after the fact.</p>
+
+<p>Roughly half of the orchestration series is devoted to observation and control, because the case for treating it that way is structural. Telemetry, progress, heartbeat, state — these are universally understood concepts with decades of precedent across systems engineering. What the series will develop is a standardized protocol that bakes these concepts into the CxPU contract itself, so that every operation in a network participates in observation and control through the same interface regardless of substrate. An LLM CxPU and a function CxPU and a human CxPU all emit telemetry in the same protocol. The orchestrator consumes it the same way in every case.</p>
+
+<p>A network that cannot be observed cannot be trusted. A network that can be observed can be understood, improved, and governed over time. Orchestration is where the CxPU framework becomes an engineering discipline rather than a descriptive vocabulary.</p>
+
+<h2>The Remaining Inference Topics</h2>
+
+<p>The current series deferred a number of topics that belong to the mechanics of inference. Tokenization — how human language is discretized into the units the model operates on. Sampling — how logits become selected tokens, and how temperature, top-p, and related controls shape the character of generation. Context window mechanics — how positional encoding, attention patterns, and long-context degradation affect what the substrate can carry. KV substrate optimizations — compression, quantization, paged attention, speculative decoding, and the other engineering techniques that make inference affordable at scale. Reasoning enhancements beyond simple chain-of-thought — extended thinking, self-consistency, and the broader family of test-time compute techniques that have reshaped the modern inference landscape.</p>
+
+<p>These are real topics. They shape the quality, cost, and character of what a CxPU produces. They deserve treatment. But they become meaningful in a specific way that the current series could not yet support. Sampling matters when you are tuning a CxPU that is producing output downstream consumers will act on. Context window mechanics matter when you are composing prompts for CxPUs that have to carry long conversations or large retrieved contexts. KV optimizations matter when you are operating CxPU networks at scales where cost and latency determine whether the system is viable. Reasoning enhancements matter when you are deciding which CxPU substrate to use for which operation in a network.</p>
+
+<p>Each of these topics lands harder — and is easier to retain — when the reader has real systems in which the decisions matter. The function series and the orchestration series provide those systems. Readers who complete both will have built deterministic CxPUs, composed them into networks alongside LLM CxPUs, and governed those networks through a standardized telemetry protocol. With that foundation in place, the mechanical topics return to the series not as abstractions but as the specific knobs and tradeoffs that shape the intent-flow quality of systems the reader is actually running.</p>
+
+<p>The topics will be addressed. The order matters.</p>
+
+<h2>Where the Framework Leads</h2>
+
+<p>Every chapter in this series has pointed at the same thesis: the mechanics of inference exist to serve the transmission and expression of intent. This is the thesis the reader should carry forward, and it is worth stating in a form that does not depend on any specific implementation.</p>
+
+<p>The work of this series, taken as a whole, has been the mechanization of an input stream. Prefill takes in composed input and turns it into an actionable form. Decode executes against that form to produce output. What the series has called the KV substrate is the specific shape this mechanization takes in transformer-based systems. The substrate is what makes the input actionable. Without it, the input stream is inert. With it, execution can proceed.</p>
+
+<p>This pattern is older and more general than any particular implementation. It is the pattern cognition follows, whether the cognition is biological or artificial. The framework decomposes it into four architectural stages:</p>
+
+<ul>
+<li><strong>Ingest</strong> — taking in the input stream.</li>
+<li><strong>Evaluate</strong> — making sense of what was taken in.</li>
+<li><strong>Stage</strong> — forming the actionable view that execution will operate on.</li>
+<li><strong>Execute</strong> — producing the output.</li>
+</ul>
+
+<p>These four stages hold across every substrate capable of carrying intent. They are conceptually distinct even when implementations fuse them. Both transformer prefill and human reading combine ingest, evaluation, and staging into a single continuous process — tokens or words come in, sense is made, and the actionable view is formed all at once. The boundary that actually appears in implementation is between staging and execution. The architectural decomposition into four stages is what the framework commits to; the fusion patterns are what specific implementations choose.</p>
+
+<p>Staging is the hinge of the pattern, and it is worth naming carefully because it is the phase where the framework's claim to describe cognition lands most directly. Staging is the formation of a clear view in which instructions and the material needed to act on them are jointly present, ready to drive execution. A cook who has read a recipe cannot begin until they have staged an understanding of which ingredients are on the counter. A person receiving a question cannot answer until they have held both the question and its relevant context in mind at once. A manager receiving a request cannot assign work until they have formed a view of what is being asked and what is available to act on it. Every deliberate human action passes through this staging phase. It is not optional. It is the cognitive act that turns received input into something that can be acted on.</p>
+
+<p>The KV substrate plays exactly this role in transformer-based LLM inference. The instructions written into the system prompt and the material the instructions will act on — the user's question, retrieved content, conversation history, tool output — are compiled into a joint form that execution can operate on. The transformer cannot generate output until that joint holding is complete. Neither can a human. The mechanization differs. The architectural requirement is identical.</p>
+
+<p>This is not metaphor. It is why the craft this series has taught carries across substrates. A well-composed input produces clean staging in whatever system receives it. An LLM's staging is clean because the composition gave the KV substrate clean material to compile. A deterministic function's staging is clean because the composition gave the function clean input to parse. A human's staging is clean because the composition gave the human clear instructions and clear indication of what to act on. The craft of composition is the craft of producing clean staging, and the cleanness of the staging determines the cleanness of everything that follows.</p>
+
+<p>Three properties of the framework are worth naming explicitly before the work turns to building. They have been present throughout the series, but their combined weight deserves to be stated in one place because the framework's generality rests on all three together.</p>
+
+<p>The first is that <strong>human language is the communication protocol</strong>. The CxPU interface is linguistic. Composed input is human language. Composed output is human language. Telemetry is human language. Every boundary between CxPUs is a linguistic composition. The framework does not commit to any specific data format, wire protocol, or infrastructure. It commits to the medium humans have always used to communicate intent, because human language is the only medium rich enough to carry intent across any substrate, auditable enough to be observed by any participant, and persistent enough to be captured for debugging and improvement. Systems could have been built on machine-specific protocols. The framework chooses human language deliberately, because the properties that make the framework valuable — substrate independence, observability, and the ability to include biological CxPUs as peers — depend on the protocol being one that any substrate can read, produce, and audit.</p>
+
+<p>The second is that <strong>CxPU composition is fractal</strong>. A CxPU operation, viewed from outside, is a single unit with an interface. Viewed from inside, it may itself be a network of CxPUs honoring the same interface. The primitive and the orchestration patterns apply at every level of zoom. A reader who learns to build individual CxPUs and to orchestrate networks of them has learned to build systems of arbitrary complexity, because complexity in CxPU architectures lives in composition at various scales, and the composition craft is the same craft everywhere it applies. An agent is a CxPU whose internal operation is a CxPU network. A multi-agent system is a CxPU network whose members are themselves agent-CxPUs. A team of humans coordinating on a task is a CxPU network. Each level can be treated as a unit from outside and as a network from inside, and the framework holds at every level.</p>
+
+<p>The third is that <strong>the substrate is implementation-independent</strong>. The current generation of LLM inference mechanizes the staging phase through transformer architectures, through attention operating over Key and Value vectors, through the KV substrate this series has named and developed at length. That implementation is what exists now. It is not what inference <em>is</em>. It is the current mechanical approach to a more fundamental role: staging an input stream into an actionable form well enough to execute against it and produce output that reflects the input's intent back. Future inference systems will mechanize staging differently. Different architectures will replace transformers. Different representations will replace attention over Key and Value vectors. The specific mechanics the reader learned earlier in this series will eventually be supplanted by better mechanics that accomplish the same role through different means. What to carry forward is the conceptual role. The substrate — whatever form it takes in a given generation of architecture — is the compiled, computationally active form of the intent the composition carried in. It is an <strong>intent substrate</strong>. The KV substrate this series developed is the specific form the intent substrate currently takes in transformer-based systems. When the architecture changes, the intent substrate will take a different form. The framework holds.</p>
+
+<p>The CxPU holds for the same reason. A CxPU is defined by its interface — composed input in, composed output out, telemetry emitted throughout — not by its internal mechanics. Any substrate capable of ingesting an input stream, staging an intent substrate, and executing against it can play the role. The framework recognizes six terms that describe CxPU operations along three axes:</p>
+
+<ul>
+<li><strong>Dynamic inference</strong> — humans and LLMs. Behavior generated at runtime from the composition.</li>
+<li><strong>Static inference</strong> — deterministic functions. A narrow form of cognition simulated.</li>
+<li><strong>Artificial inference</strong> — compute-bound cognition. The substrate is machine.</li>
+<li><strong>Biological inference</strong> — human cognition. The substrate is living tissue.</li>
+<li><strong>Local inference</strong> — static, dynamic, or hybrid systems run within the calling system's runtime.</li>
+<li><strong>Remote inference</strong> — static, dynamic, or hybrid systems accessed across a transport boundary.</li>
+</ul>
+
+<p>The current generation's LLM CxPUs happen to be artificial dynamic inference, accessed locally or remotely depending on deployment. The next generation's may be built on something entirely different. The role they play in a CxPU network remains the same, because the role is defined by the four-stage pattern, the linguistic interface, and the composable architecture — not by any specific mechanization of those commitments.</p>
+
+<p>The role of inference, across whatever architectures come and go, is to approximate cognition well enough to carry durable intent through an operation and produce output that reflects the intent back. That role is stable. The mechanics are not.</p>
+
+<p>The two series that follow build on this foundation. The function series teaches the reader to construct CxPUs beyond the LLM substrate, so that well-understood intent can crystallize into deterministic, auditable, inexpensive form. The orchestration series teaches the reader to compose CxPUs into networks that carry intent through real work, and to observe and govern those networks through a standardized protocol.</p>
+
+<p>Both series rest on the craft of composition this series has developed. Both extend that craft into architectures the reader will build. And both return, eventually, to the mechanical topics the current series set aside — now understood as what they are, tools for shaping intent-flow quality in systems the reader has already learned to design.</p>
+
+<p>The primitive is in place. The work ahead is to build with it.</p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../cxpu-role/cxpu-role.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Inference Series • April 22, 2026</p>
+    </footer>
+
+
+</body></html>

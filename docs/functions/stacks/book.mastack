@@ -1,8 +1,8 @@
 # CHAPTER_START_INDEX=1
 # AUTHOR_NAME="Ben Um"
 # LIBRARY_PATH=../../morpharray_library.html
-# ARTICLE_SERIES="Orchestration Series"
+# ARTICLE_SERIES="Functions Series"
 
 
-book/index.html
-book/chapter-01.html
+index.html
+intro/intro.html
