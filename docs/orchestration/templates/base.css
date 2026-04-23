@@ -425,4 +425,15 @@ summary::-webkit-details-marker {
   body.homepage a:hover {
     text-decoration: underline;
   }
-  
+
+  /* Hero image (automatic when articles/…/chapter.jpg exists beside chapter.html) */
+  .hero-image {
+    margin: 0 0 1.5rem;
+  }
+
+  .hero-image img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+  }

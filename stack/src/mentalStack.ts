@@ -5,6 +5,7 @@ import * as turndownPluginGfm from 'turndown-plugin-gfm';
 import type { ArticleSectionFormatOptions } from './types.js';
 import {
 	articleUriFromRelative,
+	workspaceFileUriFromRelative,
 	decodeBuffer,
 	formatChapterOrdinalLabel,
 	formatFrontmatterValue,
@@ -12,7 +13,7 @@ import {
 	getWorkspaceRoot,
 	listStackDefinitionFiles,
 	parseArticleMatter,
-	parseStackDefinitionForSiteBuild,
+	parseMentalStackDefinition,
 	prepareArticleHtmlFragmentForTurndown,
 } from './utils.js';
 
@@ -120,34 +121,50 @@ export async function createMentalStackFullContext(): Promise<void> {
 		return;
 	}
 
-	const { entries: stackEntries, chapterStartIndex } = parseStackDefinitionForSiteBuild(
-		decodeBuffer(stackFileRaw),
-	);
+	const { segments, chapterStartIndex } = parseMentalStackDefinition(decodeBuffer(stackFileRaw));
 
-	if (stackEntries.length === 0) {
-		void vscode.window.showErrorMessage(`MorphArray: Stack file "${selectedName}" has no article paths.`);
+	if (segments.length === 0) {
+		void vscode.window.showErrorMessage(`MorphArray: Stack file "${selectedName}" has no entries.`);
 		return;
 	}
 
-	const chapterCount = Math.max(0, stackEntries.length - 1);
+	const articleCount = segments.filter((s) => s.type === 'article').length;
+	const appendCount = segments.filter((s) => s.type === 'append').length;
+	const chapterCount = Math.max(0, articleCount - 1);
 	const turndownService = createTurndownForStacks();
 
 	let output = `MENTAL STACK (FULL CONTEXT)\n\n`;
 	output += `Stack file: stacks/${selectedName}\n`;
 	output += `Workspace: ${vscode.workspace.workspaceFolders?.[0]?.name || 'Untitled'}\n`;
 	output += `Generated: ${new Date().toISOString()}\n`;
-	output += `Stack paths: ${stackEntries.length}`;
-	if (chapterCount > 0) {
-		output += ` (1 index + ${chapterCount} chapter${chapterCount === 1 ? '' : 's'})`;
-	}
-	output += `\n`;
+	output += `Stack entries in file order: ${segments.length} (${articleCount} article path(s), ${appendCount} text append(s))\n`;
 	output += `CHAPTER_START_INDEX: ${chapterStartIndex} (same as Rebuild Dynamic Story)\n\n`;
 	output += `${'='.repeat(80)}\n\n`;
 
-	for (let i = 0; i < stackEntries.length; i++) {
-		const relativePath = stackEntries[i].path.trim();
-		const stackAttrs = stackEntries[i].attributes;
+	let articleIndex = 0;
+	for (const seg of segments) {
+		if (seg.type === 'append') {
+			const relPath = seg.relPath;
+			const fileUri = workspaceFileUriFromRelative(workspaceRoot, relPath);
+			let fileBytes: Uint8Array;
+			try {
+				fileBytes = await vscode.workspace.fs.readFile(fileUri);
+			} catch {
+				output += `ERROR: Could not read appended file "${relPath}"\n\n`;
+				continue;
+			}
+			const raw = decodeBuffer(fileBytes);
+			output += `APPEND | ${relPath}\n\n`;
+			output += `${raw.trim().length > 0 ? raw.trim() : '(empty file)'}\n\n`;
+			output += `${'-'.repeat(80)}\n\n`;
+			continue;
+		}
+
+		const relativePath = seg.entry.path.trim();
+		const stackAttrs = seg.entry.attributes;
 		const articleUri = articleUriFromRelative(workspaceRoot, relativePath);
+		const i = articleIndex;
+		articleIndex += 1;
 		const isIndexLine = i === 0;
 		const chapterOrdinal = !isIndexLine && chapterCount > 0 ? i - 1 : null;
 
@@ -183,9 +200,9 @@ export async function createMentalStackFullContext(): Promise<void> {
 
 		const sectionLabel =
 			chapterOrdinal === null
-				? `INDEX | ${i + 1} of ${stackEntries.length}`
+				? `INDEX | ${i + 1} of ${articleCount}`
 				: `CHAPTER ${formatChapterOrdinalLabel(chapterStartIndex, chapterOrdinal)} | ${i + 1} of ${
-						stackEntries.length
+						articleCount
 					}`;
 		output += `${sectionLabel} | ${relativePath}\n`;
 		output += `Title: ${title}\n`;

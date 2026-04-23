@@ -17,9 +17,9 @@ There's a full article series that explains the motivation behind this extension
 
 ## Features
 
-- **Initialize Book Workspace** — Scaffolds a new project in the opened folder (`defaults.json`, `stacks/book.mastack`, `articles/book/` starter pages, `templates/base.html` & `base.css`, `.gitignore` + `pasteboard_test.txt` for local paste tests).
-- **Rebuild Dynamic Story** — You pick a `.mastack` file; the first line is the **index / landing** HTML (under `articles/`); remaining lines are **chapters**. Output mirrors paths under `dist/` (e.g. `dist/book/index.html`, chapter pages, and `base.css` beside the module).
-- **Create Mental Stack (Full Context)** — Pick a stack file; the extension loads listed paths (first line = index, rest = chapters), applies the same **`# CHAPTER_START_INDEX`** as Rebuild, respects YAML frontmatter (with a forgiving fallback when titles contain colons), converts body HTML to **GitHub-flavored Markdown** (incl. tables via Turndown + `turndown-plugin-gfm`), and copies the bundle to the clipboard. **`<hr>`** in source becomes a `* * *` thematic break (not `---`) so downstream tools are less likely to treat the next lines as YAML frontmatter.
+- **Initialize Book Workspace** — Scaffolds a new project in the opened folder (`defaults.json`, `stacks/book.mastack`, `articles/index.html` + `articles/intro/intro.html`, `templates/base.html` & `base.css`, `.gitignore` + `pasteboard_test.txt` for local paste tests).
+- **Rebuild Dynamic Story** — You pick a `.mastack` file; the first line is the **index / landing** HTML (under `articles/`); remaining lines are **chapters**. Output mirrors paths under `dist/` (e.g. `dist/index.html`, `dist/intro/intro.html`, and `base.css` beside the module).
+- **Create Mental Stack (Full Context)** — Pick a stack file; the extension walks the `.mastack` in order: HTML article paths (first = index, rest = chapters, relative to `articles/`) plus optional **`# append=path/to/file.txt`** for **plain text** (path relative to the **workspace root**, UTF-8) spliced into the export at that position — so you can keep non-HTML notes outside `articles/`. Same **`# CHAPTER_START_INDEX`** as Rebuild. HTML articles use YAML frontmatter (forgiving when titles contain colons), body → **GitHub-flavored Markdown** (Turndown + `turndown-plugin-gfm`), then the bundle goes to the clipboard. **`<hr>`** in HTML becomes `* * *` (not `---`) so downstream tools are less likely to treat the next lines as YAML. **`append`** lines are **ignored** by **Rebuild Dynamic Story**.
 - **HTML-first workflow** — Write normal HTML (and optional frontmatter); the site builder does not modify `articles/`. Put **`name.jpg`** next to **`name.html`** under `articles/` and **Rebuild** copies it to `dist/` and fills `{{image}}` on that chapter page.
 - **defaults.json** — Optional at the **workspace root** for placeholders such as `{{Author}}`, `{{Year}}`, `{{Byline}}`, `{{siteTitle}}`. If the file is missing, sensible defaults are used.
 
@@ -43,9 +43,9 @@ Shortcut: **Ctrl+Shift+P** (Windows / Linux) or **Cmd+Shift+P** (macOS).
 
 1. Open an empty folder in VS Code.
 2. Run **MorphArray: Initialize Book Workspace**.
-3. Edit **`defaults.json`**, **`stacks/book.mastack`**, and **`articles/book/index.html`** to match your project; add chapters as HTML under `articles/book/` and list them in the `.mastack` **after** the index line.
+3. Edit **`defaults.json`**, **`stacks/book.mastack`**, and **`articles/index.html`** to match your project; add more HTML under `articles/` and list them in the `.mastack` **after** the index line.
 4. Run **MorphArray: Rebuild Dynamic Story** and choose your stack file.
-5. Open generated pages under **`dist/`** (e.g. `dist/book/index.html`).
+5. Open generated pages under **`dist/`** (e.g. `dist/index.html`).
 
 For Mental Stack copy/paste, run **Create Mental Stack (Full Context)** with the same `stacks/*.mastack` lists.
 
@@ -59,7 +59,8 @@ Plain text: one path per line (relative to `articles/`), `#` starts a comment, b
 - **Optional** — `# AUTHOR_NAME="Your Name"` (quotes optional) sets the author for **`{{Author}}`**, **`{{author}}`**, and **`{{Byline}}`** / **`{{byline}}`** when you run **Rebuild Dynamic Story**. If this line exists, it overrides `defaults.json` for that build; use `# AUTHOR_NAME=""` to omit the name from the byline (year only).
 - **Optional** — `# LIBRARY_PATH="../../morpharray_library.html"` (quotes optional) — URL from the **built** index file (`dist/…/index.html`) to your library landing page. **Rebuild** appends a short **All books** link at the bottom of that index.
 - **Optional** — `# ARTICLE_SERIES="Your Series"` (quotes optional) — fills **`{{ArticleSeries}}`** on chapter pages (same value for every chapter in that stack).
-- **Line 1** — Index / landing page template (e.g. `book/index.html`) with a **`div.chapter-list`** where chapter links are injected.
+- **Create Mental Stack only** — `# append=context/notes.txt` (path relative to the **workspace root** — not `articles/` — so you can keep supplementary `.txt` files alongside your book sources) with the same quoting rules as other stack directives. Inserts the **raw text** of that file into the clipboard export at that position, between article paths. **Rebuild** ignores these lines. Empty path after `=` is skipped.
+- **Line 1** — Index / landing page template (e.g. `index.html`) with a **`div.chapter-list`** where chapter links are injected.
 - **Following lines** — Chapter HTML files, in order (navigation Prev/Next follows this order).
 - **Per-line metadata** — After a path, optional `# key=value, key2=value2` (comma-separated, like CSS custom properties). Keys are lowercased and become template tokens: e.g. `{{something_else}}`. **`pub=`** (and **`date=`** if `pub` is absent) set the page date: **`{{date}}`** / **`{{Date}}`** and **`{{PublishDate}}`** / **`{{publishdate}}`** show the same **formatted** date when the value looks like `YYYY-MM-DD` (locale long form, e.g. April 4, 2026). Use **`{{dateIso}}`** for the raw string. The **`{{byline}}`** line uses **author • formatted date** when a date is set, otherwise **author • calendar year**. **Create Mental Stack** uses the same formatting for the exported `Date:` line.
 
@@ -67,9 +68,9 @@ Example:
 
 ```text
 # CHAPTER_START_INDEX=0
-book/index.html # pub=2026-04-01
-book/chapter-01.html # pub=2026-04-04, something_else=draft
-book/chapter-02.html
+index.html # pub=2026-04-01
+intro/intro.html # pub=2026-04-04, something_else=draft
+intro/more.html
 ```
 
 ---
@@ -79,14 +80,14 @@ book/chapter-02.html
 ```text
 .
 ├── articles/              # Source HTML (never overwritten by the builder)
-│   └── book/
-│       ├── index.html     # Landing template (first line of your .mastack)
-│       └── chapter-01.html
+│   ├── index.html         # Landing template (first line of your .mastack)
+│   └── intro/
+│       └── intro.html
 ├── stacks/
 │   └── book.mastack       # Ordered list of article paths
 ├── templates/
 │   ├── base.html          # Chapter page wrapper (from init or your own)
-│   └── base.css           # Styles copied next to output module (e.g. dist/book/base.css)
+│   └── base.css           # Styles copied next to output module (e.g. dist/base.css)
 ├── defaults.json          # Optional workspace root settings
 ├── dist/                  # Generated site (usually gitignored)
 ├── pasteboard_test.txt    # Optional scratch file (gitignored if added by init)

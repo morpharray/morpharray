@@ -4,5 +4,8 @@
 # ARTICLE_SERIES="Orchestration Series"
 
 
-book/index.html
-book/chapter-01.html
+# append=support/inference_summary.txt
+# append=support/pattern_language.txt
+
+index.html
+intro/intro.html # pub=2026-04-23

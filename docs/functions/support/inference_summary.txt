@@ -1,0 +1,399 @@
+INFERENCE SERIES — DETAILED SUMMARY FOR FUNCTIONS SERIES CONTEXT
+=================================================================
+
+This document summarizes the Inference Series and the Crossroads chapter in detail, organized to inform ongoing work on the Functions Series. The Inference Series established the conceptual framework the Functions Series extends. Understanding what the Inference Series established, and how it framed each concept, is essential for writing subsequent Functions Series chapters that cohere with the prior work.
+
+The Inference Series consists of an index page and twelve chapters. The Crossroads chapter follows as the turn between the Inference Series and the two subsequent series (Functions and Orchestration).
+
+================================================================================
+THE SERIES' OVERALL ARC
+================================================================================
+
+The Inference Series teaches how large language model inference actually works mechanically, then progressively reframes those mechanics as instances of a more general architectural pattern. The arc is:
+
+- Early chapters: The mechanics of transformer inference (prefill, decode, the KV substrate, attention).
+- Middle chapters: The nature of meaning in those mechanics (sense and reference, explicit and implicit sense, the role of context).
+- Late chapters: The architectural abstraction (context engineering, preprocessing and compilation, the CxPU, functional generation on sealed compositions, substrate-independence).
+- Crossroads: The turn from understanding to building, naming the Functions and Orchestration Series as the next work.
+
+The series is deliberately beginner-friendly but does not shy away from conceptual depth. It uses intuitive language and concrete examples while building toward substantial architectural claims.
+
+================================================================================
+KEY TERMINOLOGY INTRODUCED ACROSS THE SERIES
+================================================================================
+
+TOKEN: The basic unit an LLM works with — usually a word, part of a word, or punctuation mark. Not invented by the series; the series just uses the term honestly.
+
+PREFILL: The phase during which the entire prompt is processed in parallel. The model converts tokens to embeddings, runs them through transformer layers, and computes Key (K) and Value (V) vectors for every token at every layer. Produces the KV substrate plus an initial hidden state.
+
+DECODE: The autoregressive generation phase that produces tokens one at a time by reading from the KV substrate via attention.
+
+KV SUBSTRATE: The series' term for what most literature calls the "KV cache." The author chose "substrate" rather than "cache" because it emphasizes the structure's real role — not a temporary storage trick for speed, but the foundational, passive medium that holds the model's compiled understanding of the prompt. The same mathematical operations could be performed without caching; what is essential is this underlying structure. The KV substrate is the compiled contextual representation that carries the prompt's intent forward throughout generation.
+
+INTENT SUBSTRATE: Introduced later in the series (Crossroads chapter). The general architectural role that the KV substrate plays in transformer-based systems. The intent substrate is the compiled, computationally active form of the intent a composition carried in. The KV substrate is the specific form the intent substrate currently takes; future architectures will produce intent substrates of different forms. The framework commits to the conceptual role, not to any specific implementation.
+
+INTENT: What the prompt encodes — the purpose behind the prompt, the job it asks the model to do. Every purposeful prompt carries intent. Intent is not a separate thing riding alongside the words; it IS what the words of a purposeful prompt are, rendered in language. When the substrate is built from a prompt, the intent gets compiled into the K and V vectors. The substrate carries intent because the substrate is made of the prompt, and the prompt was made of intent.
+
+DURABLE INTENT: Intent written clearly enough to survive the operation it will drive — specific enough to be acted on, coherent enough not to fight with itself, clear enough that generation can follow it without reconstructing what was meant.
+
+CONTEXT ENGINEERING: The practice of deliberately designing what enters the substrate — choosing what to include, where to place it, how to structure it, what to leave out. Treats the entire composed prompt as an engineering problem. The discipline of controlling substrate outcomes by designing composition.
+
+PREPROCESSING: The stage that happens before the model processes anything. Its job is to assemble the instructions and input material into a composition the model will process. Can be done manually (a person typing into a chat) or automated (an application assembling from templates, retrieved content, etc.).
+
+COMPILATION: The process of converting the composed input into the KV substrate. Prefill is compilation. The KV substrate is the compiled form of the composed input.
+
+CxPU (Context Processing Unit): The computational unit at the heart of LLM inference, specialized for processing composed context. Analogous in naming to GPU, TPU, NPU. A CxPU is not specific hardware; it's a role. Any entity that reads composed input and produces output from it performs the role of a CxPU, regardless of what physical hardware, specific model, or cognitive substrate happens to be doing the work.
+
+FUNCTIONAL GENERATION: What a CxPU performs. Functional because it has a function to do (a specific job shaped by the input), and functional in the stricter sense that the operation works only with what the composed input gives it — nothing carries over from prior operations, nothing is supplied from the side at runtime, nothing is hidden.
+
+SEALED COMPOSITION: The finalized composed input of a CxPU operation. Before the operation begins, the composition reaches closure — no further additions, no modifications. Whatever was committed to the input is what the operation will work with, start to finish, with no appeals and no additions. The sealing property is what makes the craft of composition matter.
+
+EXPLICIT SENSE: The frozen content of a token position's K and V vectors across every layer of the substrate. Once computed, it does not change. Sharp when preceding context was strong, ambiguous when preceding context was weak.
+
+IMPLICIT SENSE: Meaning the model assembles dynamically during decode by attending across multiple positions. Not stored in any single position; reconstructed from the weighted blend of V vectors selected by Q·K matchmaking.
+
+REFERENCE: A token's fixed identity — its vocabulary ID, unchanged by context. "The morning star" and "the evening star" have different references... no wait, same reference (Venus). The reference never changes based on where an expression is used.
+
+SENSE: How a token's reference is presented in a particular context. Sense is context-dependent, computed by the transformer during prefill. The token ID tells you which token it is. The K vector tells you what it means in this particular moment.
+
+================================================================================
+INDEX PAGE AND OPENING FRAME
+================================================================================
+
+The Inference Series introduces itself as a beginner-friendly guide to one of the most practical and fascinating parts of modern AI — what actually happens when you type a prompt into an LLM. The series promises to cover how tokens work, how models generate text one piece at a time, clever engineering tricks for speed and cost, and why settings like temperature, top-p, and context windows matter.
+
+Note: The series ended up covering the core mechanics and the architectural abstraction thoroughly but did NOT cover the practical engineering topics (temperature, top-p, context window mechanics, KV optimizations, etc.) in detail. These are named in the Crossroads chapter as topics that will be addressed after the Functions and Orchestration series provide foundation. This deferral is deliberate — those topics become meaningful when the reader has real systems in which the decisions matter.
+
+================================================================================
+CHAPTER-BY-CHAPTER SUMMARY
+================================================================================
+
+CHAPTER 1: How LLMs Generate Text — The Inference Process
+
+Establishes the two-phase model: prefill and decode. Introduces tokens, explains prefill as parallel processing of the entire prompt that produces the KV substrate plus a final hidden state. Explains decode as the loop that generates tokens one at a time by reading from the substrate, projecting to logits, sampling the next token, and repeating.
+
+Introduces the substrate vs. cache distinction explicitly. Chooses "KV substrate" over "KV cache" because the term captures the structure's real role as foundational medium rather than performance trick. Notes that optimization techniques (SnapKV, quantization) operate on forms of the substrate.
+
+The chapter is mechanical and explanatory. No architectural claims yet — just describing how inference works.
+
+CHAPTER 2: Intent and the Substrate — What Really Drives the Generation
+
+The series' first substantive architectural claim. The substrate is not a storage trick; it is the medium in which the prompt's meaning becomes computationally active. What the prompt's meaning amounts to is intent.
+
+Introduces intent as the purpose behind the prompt. Distinguishes capability (what the weights provide) from purpose (what the prompt determines). Makes the key claim: intent is not a separate thing riding alongside the words; it IS what the words of a purposeful prompt are.
+
+Explains why this framing matters: the attention mechanism drives generation mechanically, but the attention operates on the substrate, and the substrate was shaped by the prompt. Both statements are true: attention drives generation, and intent drives generation through the substrate that attention reads from. The first is the mechanical account; the second is the account that matters for anyone trying to get useful output.
+
+This chapter establishes the thesis the rest of the series builds on: the mechanics serve intent.
+
+CHAPTER 3: Prompt Templates — Shaping the KV Substrate
+
+Introduces prompt templates as the systematic way to shape the KV substrate before generation begins. Gives historical context (templates crystallized in 2021-2022 from few-shot prompting patterns and practical application needs). Explains template mechanics: static structure with placeholders for dynamic content.
+
+Key claim: effective templates create outputs with discrete intent. They narrow the output space by embedding structural signals directly into the KV substrate during prefill, biasing decode toward a specific category of response.
+
+This chapter bridges from general intent framing to specific practical techniques.
+
+CHAPTER 4: Improving Reasoning During Inference — Simple Chain-of-Thought (CoT)
+
+Introduces Chain-of-Thought as instructing the model to externalize its reasoning. Frames CoT as "caveman debugging" — the AI equivalent of rubber-duck debugging.
+
+Honest caveat: the visible reasoning is lossy. Much of the actual "navigation" happens in hidden states in the KV substrate that can't be inspected with true stack-trace granularity. CoT produces a polished post-hoc narrative rather than a faithful record of internal state. Treat the visible chain as a powerful but imperfect signal.
+
+CHAPTER 5: The Two Operations — How the KV Substrate Grows and Compresses
+
+Reframes conversation dynamics as two operations: expansion and reduction. Expansion is what happens every turn (more tokens appended to the substrate). Reduction is what happens when the substrate approaches the context window limit.
+
+Introduces the spectrum of reduction: from crude truncation to intelligent compaction. Starting a new chat session is the most aggressive form of reduction — model substrate goes to zero while your own substrate (your memory of the conversation) is intact.
+
+Makes a significant human-side point: when you start a fresh chat, you are performing reduction — compressing everything you learned from the previous conversation into a compact new prompt. Your lived experience is the rich upstream substrate from which your prompts are generated. The quality of the conversation depends heavily on what you say in the first few messages because early tokens in the substrate have outsized influence.
+
+This chapter begins treating the human and the machine symmetrically — both are performing substrate operations.
+
+CHAPTER 6: Sense and Reference — What the K Vector Actually Encodes
+
+Uses Frege's 1892 sense/reference distinction to explain what happens inside the transformer during prefill. Reference is the token ID (fixed). Sense is the K vector (computed, context-dependent).
+
+Establishes the three-dimensional structure of the substrate:
+- Length (sequence of token positions)
+- Depth (transformer layers)
+- Width (high-dimensional vectors)
+
+When the chapter refers to "the K vector at a position," it means the full column across all layers. Sense exists at multiple degrees of refinement.
+
+Uses the "log" example: the word "log" appearing after "A dry" in a campfire context produces a different K vector than the same word appearing after "the server." Same reference (token ID). Different sense.
+
+Critical observation about order: when a word appears BEFORE any disambiguating context, its K vector is computed with minimal context and remains close to the raw embedding. No later token can reach back to modify it. The K vector at that position is frozen once prefill completes.
+
+Honest note: the general pattern of shallow layers being less refined and deep layers being more refined is an architectural certainty, but what specific facets of meaning emerge at each depth remains an open question in the field.
+
+CHAPTER 7: Explicit and Implicit Sense
+
+Names the two things: explicit sense is the frozen content at each position; implicit sense is assembled dynamically during decode from patterns across the substrate.
+
+Introduces the full attention triad (K, Q, V):
+- K (Key) = the advertisement (what the position carries)
+- Q (Query) = the question (what the currently decoding token needs)
+- V (Value) = the payload (the content that gets delivered)
+
+Explains how the model handles ambiguity: when explicit sense at a position is weak, downstream tokens whose K vectors advertise relevant content get selected by the Query, and their V vectors deliver the resolution. The ambiguity gets resolved through implicit sense assembled across the substrate, not by modifying the weak position itself.
+
+Key claim for prompt design: front-loading context produces strong explicit sense at the position that matters. Relying on downstream context forces the model to reconstruct meaning through implicit sense, which works but is noisier. The words you choose, and the order you place them in, determine not just what the model reads but what it understands.
+
+Makes the honest observation that the Q, K, V mechanism performs the same work in both prefill and decode. What differs is what happens after: during prefill, the pipeline stops once the substrate is built. During decode, it continues to logits, probabilities, and token selection. Every token you force into the substrate during prefill is processed but never questioned.
+
+Cites Elhage et al. 2021 ("A Mathematical Framework for Transformer Circuits") for the QK and OV circuit decomposition — the independence of finding and delivering is architecturally real, not just pedagogical.
+
+CHAPTER 8: Context Engineering — The Mechanics of Substrate Composition
+
+Introduces the composed prompt: what the user sees is a text box; what actually enters the model is a composed sequence assembled from system prompt, retrieved content, tool output, conversation history, and the user's message.
+
+Names context engineering as the discipline. Expands beyond prompt engineering — not just what instructions say, but what sources surround them, how they're selected, where they're positioned, and how their presence shapes the substrate.
+
+Makes the "attention span" analogy: teachers, authors, and speechwriters have always been context engineers. The model's attention mechanism is not human attention, but it operates under a remarkably similar constraint — a finite budget that must be spent wisely. The intuitions that experienced communicators have refined over centuries (ordering, emphasis, the cost of wasted attention) apply directly to prompt composition.
+
+Develops the system prompt as the foundation of the substrate. Its tokens occupy the earliest positions. Every subsequent token is computed having already seen the system prompt. This is the strongest possible position in the substrate.
+
+Critical claim: position within the system prompt matters. Role first, constraints second, format third reads differently from format first, constraints second, role third. The tokens are identical; the substrate is different, because the explicit sense at each position was shaped by a different preceding context.
+
+The system prompt is the one place the developer has full control over signal quality. Every other source (conversation history, retrieved documents, tool output, user messages) is dynamic. This is why the system prompt carries outsized responsibility.
+
+CHAPTER 9: Prefill Composition — Building a Chat Session Prefill
+
+Details the anatomy of a chat session prefill. Explains that modern chat sessions rarely produce responses from a single API call — orchestration behind a turn typically involves multiple LLM calls. This chapter focuses on a single API call.
+
+Walks through the components of a typical composition:
+- The system prompt (foundation)
+- Retrieved content (runtime-selected material)
+- Tool output (runtime-generated material)
+- Conversation history (accumulated record)
+- The active user prompt (the freshest content)
+
+Introduces the launchpad: the active user prompt sits at the end of the composed sequence because decode launches from there. Prefill completes with a final hidden state at the last position, which becomes the seed for the first generated token.
+
+The system prompt is the foundation; the active user prompt is the launchpad. Both exert outsized influence but in different ways — the system prompt shapes the substrate that the launchpad launches from.
+
+CHAPTER 10: Context Processing — Preprocessing, Compilation, and the CxPU
+
+Steps back from mechanics to name three architectural concepts:
+- Preprocessing: the assembly of composed input (can be manual or automated; context engineering is the discipline of doing it well)
+- Compilation: the transformation of composed input into the KV substrate (prefill is compilation)
+- The CxPU: the computational unit that performs both
+
+The CxPU is defined by its role, not its implementation. Any entity reading composed input and producing output from it plays the CxPU role — regardless of what physical hardware, specific model, or cognitive substrate is doing the work.
+
+This chapter is the architectural turn. The series moves from describing mechanics to naming the pattern the mechanics instantiate.
+
+CHAPTER 11: Context Processing — Functional Generation
+
+Names what a CxPU performs as functional generation. Dual meaning of "functional":
+- Functional because it has a function to perform (a specific job shaped by input)
+- Functional in the strict sense that the operation works only with what the composed input gives it
+
+Establishes the sealed composition. Introduces the concept of closure — the composed input reaches closure before the operation begins. Whatever was committed is what the operation will work with, start to finish, with no appeals and no additions.
+
+The natural picture: any written instruction being handed off to be carried out (recipes, punch lists, contracts, specifications). Each is finalized at the moment of handoff; anything the author thinks of afterward cannot reach back in.
+
+Introduces durable intent as the key concept. Intent must survive the operation. Intent that makes it into the composition but falls apart during the operation is intent that failed to be durable. The output is where the user looks to see whether their intent made it through.
+
+Names human language as the medium. Input is human language; output is human language. Because the medium is shared, the output of one CxPU can flow directly into the composed input of another. This is what makes elaborate architectures possible — agents, pipelines, multi-step reasoning, multi-agent orchestration.
+
+Core claim: the craft of composition is a linguistic craft. Writing durable intent in human language and committing it to the composition before it is sealed.
+
+CHAPTER 12: Context Processing — Anything Can Play the Role of Inference
+
+Makes the substrate-independence of the CxPU explicit. The CxPU is defined by its interface, not its implementation. Three categories of CxPUs demonstrated:
+
+REST services as CxPUs: Any REST service using JSON to exchange structured information is playing the CxPU role. The request is a composed input; the response is composed output. Human-readable throughout. LLM inference itself is commonly provided as a REST service.
+
+Local deterministic functions as CxPUs: A function honoring structured input-output in a text-based format is a CxPU. Local, no network involved. The architectural role is defined by the interface, not by whether the operation crosses a network boundary. This dissolves the distinction between "LLM applications" and "conventional code" — both are networks of CxPUs.
+
+Humans as CxPUs: Organizational coordination through language is a network of CxPUs. The manager composing instructions is an orchestrator; the team member is a worker CxPU. The reader of this very series, typing prompts into an LLM, is performing CxPU operations themselves. The human's CxPU operation precedes the model's.
+
+Critical note for the Functions Series: This chapter explicitly states that a non-programmer who understands what a CxPU is can describe the intent of a function they want an LLM to build. It includes the simplest example: a person asking an LLM to write a JavaScript function that adds two numbers. The non-programmer stays above the boundary working at the level of architectural intent. The LLM works below the boundary handling syntax. The collaboration works because both parties honor the CxPU interface.
+
+This is the chapter that sets up the Functions Series. The claim that non-programmers can commission software through CxPU composition is established HERE, not invented in the Functions Series. The Functions Series picks up this thread and makes it concrete.
+
+================================================================================
+THE CROSSROADS CHAPTER (CHAPTER AFTER CHAPTER 12)
+================================================================================
+
+Full title: "Context Processing: Crossroads"
+
+Structure:
+- Opening frame: the series has established what inference is and what CxPUs are; the work now turns from understanding to building
+- Three forward-looking sections (Functions, Orchestration, remaining inference topics)
+- A closing section titled "Where the Framework Leads" that does substantial reframing work
+
+THE FUNCTIONS SECTION (CROSSROADS)
+Summary-level preview of the Functions Series. Key points:
+- A deterministic function can play the CxPU role as cleanly as an LLM
+- Most AI systems start out doing too much with LLMs; operations that could run in milliseconds get handled by model calls taking seconds and real money
+- As patterns emerge — as operations reveal themselves to be well-understood, specifiable, repeatable — they become candidates for promotion from dynamic inference to static
+- The discipline of recognizing when to promote and constructing the function that replaces the LLM call is substantial enough to require its own series
+- What makes the series accessible to non-technical readers is that construction itself is a composition task; a reader who has learned to write durable intent has learned the essential skill
+- WebAssembly is the recommended substrate (portable, sandboxed, fast, language-agnostic on the authoring side)
+
+THE ORCHESTRATION SECTION (CROSSROADS)
+Summary-level preview of the Orchestration Series. Key points:
+- A single CxPU operation is a primitive; real systems are networks
+- Orchestration is a two-part discipline: network design, plus observation and control
+- Telemetry, progress, heartbeat, state are universally understood concepts; the orchestration series develops a standardized protocol baking these into the CxPU contract
+- A network that cannot be observed cannot be trusted
+
+THE REMAINING INFERENCE TOPICS SECTION (CROSSROADS)
+Names topics deferred from the Inference Series:
+- Tokenization
+- Sampling (temperature, top-p, etc.)
+- Context window mechanics
+- KV substrate optimizations (compression, quantization, paged attention, speculative decoding)
+- Reasoning enhancements beyond simple CoT
+These topics become meaningful once the reader has built and orchestrated real CxPU networks.
+
+"WHERE THE FRAMEWORK LEADS" SECTION (CROSSROADS CLOSING)
+This is where substantial reframing happens. Key elements:
+
+The four-stage pattern introduced as a list:
+- Ingest: taking in the input stream
+- Evaluate: making sense of what was taken in
+- Stage: forming the actionable view that execution will operate on
+- Execute: producing the output
+
+Implementation-fusion observation: Both transformer prefill and human reading fuse ingest, evaluation, and staging into a single continuous process. The boundary that actually appears in implementation is between staging and execution.
+
+Staging as the hinge of the pattern — the phase where the framework's claim to describe cognition lands most directly. Staging is the formation of a clear view in which instructions and the material needed to act on them are jointly present, ready to drive execution. The cook with the recipe, the person with the question, the manager with the request — all perform staging before they can execute.
+
+The three architectural properties stated plainly:
+1. Human language is the communication protocol (linguistic interface, not infrastructural)
+2. CxPU composition is fractal (any CxPU may internally be a network of CxPUs honoring the same interface)
+3. The substrate is implementation-independent (KV substrate is current; intent substrate role survives architectural change)
+
+Introduces "intent substrate" as the more general term. The KV substrate is the specific form the intent substrate takes in transformer-based systems.
+
+The six-term taxonomy of inference as a list:
+- Dynamic inference — humans and LLMs. Behavior generated at runtime from the composition.
+- Static inference — deterministic functions. A narrow form of cognition simulated.
+- Artificial inference — compute-bound cognition. The substrate is machine.
+- Biological inference — human cognition. The substrate is living tissue.
+- Local inference — static, dynamic, or hybrid systems run within the calling system's runtime.
+- Remote inference — static, dynamic, or hybrid systems accessed across a transport boundary.
+
+Key closing statements:
+"The role of inference, across whatever architectures come and go, is to approximate cognition well enough to carry durable intent through an operation and produce output that reflects the intent back. That role is stable. The mechanics are not."
+
+"The primitive is in place. The work ahead is to build with it."
+
+================================================================================
+WHAT THE INFERENCE SERIES ESTABLISHED FOR THE FUNCTIONS SERIES
+================================================================================
+
+The Functions Series does not need to establish any of the following — it's all established already:
+
+- What inference is mechanically (prefill/decode, attention, KV substrate)
+- What intent is and how it relates to composition
+- What the KV substrate carries and why composition craft shapes it
+- Why order matters (front-loading context, the primacy effect)
+- What a CxPU is and that any substrate can play the role
+- That non-programmers can commission software through CxPU composition (established in Chapter 12)
+- That human language is the communication protocol across substrates
+- That sealed compositions with durable intent are the unit of productive operation
+- The four-stage pattern (ingest, evaluate, stage, execute)
+- The three architectural properties (linguistic interface, fractal composition, substrate-independence)
+- The six-term taxonomy (including static inference as "a narrow form of cognition simulated")
+- Substrate-independence as the framework's throughline
+
+The Functions Series picks up from the Crossroads and develops:
+- How to actually build static-inference CxPUs
+- The co-authorship loop supported by DDTD
+- The reader's vocabulary as their authoring strength
+- The craft of pseudocode as the authoring language
+- The discipline of function-grade precision
+- The role of the IDE in mediating between the reader and the implementation
+- The safety line as architectural guarantee
+- Eventually: intent documentation in C, version control discipline, commit-before-compile, input string preservation, comprehension of existing code, language independence, static renderer promotion
+
+================================================================================
+TONE AND REGISTER OF THE INFERENCE SERIES
+================================================================================
+
+The Inference Series is written in a measured architectural register. It is:
+
+- Patient: concepts are developed thoroughly with examples before abstractions are named
+- Honest about uncertainty: explicitly acknowledges what remains open in the field (what each transformer depth contributes, what the visible CoT chain actually represents)
+- Intellectually humble: does not claim invention for universal concepts (intent, cognition, substrate, staging) — names them clearly for reasoning rather than claiming discovery
+- Rigorous without being dry: uses concrete examples throughout (the campfire log, the server log, the cook with the recipe, the manager with the request)
+- Aware of the reader: explains what matters for practical use, not just what's mechanically interesting
+
+The voice is third-person and architectural. It does not address the reader directly except at strategic moments. It uses declarative sentences in active voice. It avoids jargon creep — introducing terms only when needed and using them consistently thereafter.
+
+This is the register the Functions Series should match — slightly warmer because the Functions Series teaches a skill rather than explaining mechanics, but essentially the same architectural voice.
+
+================================================================================
+STYLISTIC CONVENTIONS FROM THE INFERENCE SERIES
+================================================================================
+
+- Uses bold sparingly — typically for term introduction or emphasis at structural moments
+- Uses italics for quoted titles or for the rare emphatic word (the "is" in "It is not what inference IS" is italicized)
+- Uses em-dashes liberally for parenthetical clarification and for lists in prose
+- Uses lists (ul/li) when content is genuinely parallel or when analytical scanning helps
+- Uses prose for connected reasoning; doesn't force list structure on continuous argument
+- Footnotes exist but are used sparingly (the Elhage citation in Chapter 7 is notable)
+- Blockquotes introduce the preamble material at the start of chapters in italic format
+- Chapter openings often summarize where the series has been and where this chapter goes
+- Chapters do not (in the refined approach) hint at what the next chapter will bring
+
+Example chapter opening format used consistently in later chapters:
+"The previous chapter described X. That description is accurate, but it leaves a question unanswered: Y. The answer matters because Z."
+
+================================================================================
+THE SUBSTRATE INDEPENDENCE CLAIM — CENTRAL TO EVERYTHING
+================================================================================
+
+The Inference Series builds toward a specific claim that the Functions Series must respect:
+
+A CxPU is defined by its interface — composed input in, composed output out, telemetry emitted throughout — not by its internal mechanics. Any substrate capable of ingesting an input stream, staging an intent substrate, and executing against it can play the role. Dynamic or static, artificial or biological, local or remote. The role is defined by the four-stage pattern, the linguistic interface, and the composable architecture — not by any specific mechanization of those commitments.
+
+The Functions Series extends this claim by teaching readers to build CxPUs of a specific type (static inference, artificial, typically local). But the broader claim — that the framework is substrate-independent — must remain visible. Future chapters should not accidentally suggest that the specific implementation choices of the Functions Series IDE are definitional for what CxPUs are. They are one instance. The framework supports many instances.
+
+================================================================================
+WHAT TO CARRY INTO FUNCTIONS SERIES WRITING
+================================================================================
+
+When writing new Functions Series chapters, assume the reader has:
+
+1. Read at least the relevant parts of the Inference Series and understands the CxPU concept
+2. Understands that their natural-language authoring is a form of composition in the CxPU framework
+3. Accepts that the craft of composition carries across substrates
+4. Has absorbed the three architectural properties (linguistic interface, fractal composition, substrate-independence)
+5. Understands that LLMs and functions are both CxPU substrates playing the same architectural role
+
+The Functions Series should:
+
+- Extend the framework into practical construction of function CxPUs
+- Keep the architectural voice established by the Inference Series
+- Honor the substrate-independence claim even while teaching one specific implementation
+- Stay focused on what the reader experiences (not on IDE internals)
+- Use DDTD, the four-sentence formulation, and the safety line as named components of the framework
+- Avoid forward-looking promises about specific future chapters
+- End each chapter on its own strongest note
+
+The Functions Series should NOT:
+
+- Re-establish concepts the Inference Series already established
+- Treat C as definitionally "the" implementation language (it is one good choice)
+- Treat WebAssembly as the only valid runtime (it is one good choice for the IDE the series teaches)
+- Present DDTD as invented (it is a synthesis of well-known components)
+- Hint at what subsequent chapters will contain
+- Overclaim about the framework's reach
+
+================================================================================
+SUMMARY
+================================================================================
+
+The Inference Series is a twelve-chapter journey that starts with the mechanics of transformer inference and ends with a substrate-independent architectural framework for describing how intent flows through systems that carry it. It introduces the CxPU as the architectural primitive, names human language as the communication protocol, and establishes that a well-composed input with durable intent is the vehicle for productive functional generation.
+
+The Crossroads chapter turns the series from description to construction and names the Functions Series and Orchestration Series as the continuing work.
+
+The Functions Series picks up with the specific task of teaching readers to build static-inference CxPUs through a constrained IDE that implements DDTD — Dynamic Domain Targeted Decompilation — as its central capability. The reader brings domain expertise in their own vocabulary; the IDE produces imperative C implementations; the LLM renders explanations back in the reader's own vocabulary for verification; the reader refines through a co-authorship loop until the function matches their intent.
+
+Everything the Functions Series needs architecturally is established by the Inference Series. The Functions Series extends rather than duplicates.

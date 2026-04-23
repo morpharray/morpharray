@@ -5,14 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MorphArray</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#0d1117; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#0d1117; color:#e2e8f0; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 250px; box-sizing:border-box; }
     .container { max-width:800px; padding:20px; }
     .logo-section { margin-bottom:2rem; }
     .logo-section img { max-width:280px; height:auto; display:block; margin:1rem auto 0; }
-    h1 { font-size:4.5rem; margin:0; }
+    h1 { font-size:2.88rem; margin:0; }
     h1 .morph { color:#1756BF; }
     h1 .array { color:#3fb950; }
     p { font-size:1.6rem; line-height:1.6; }
+    .sidebar { position:fixed; top:0; width:200px; height:100vh; background:#161b22; overflow-y:auto; padding:1rem 1.25rem; box-sizing:border-box; text-align:left; font-size:0.9rem; }
+    .sidebar-right { right:0; border-left:1px solid #30363d; }
+    .sidebar-left { left:0; border-right:1px solid #30363d; }
+    .sidebar h3 { margin:0 0 0.75rem; font-size:1rem; color:#e2e8f0; border-bottom:1px solid #30363d; padding-bottom:0.5rem; }
+    .sidebar ul { list-style:none; padding:0; margin:0; }
+    .sidebar li { padding:0.4rem 0; border-bottom:1px solid #1f242c; line-height:1.35; }
+    .sidebar li a { color:#4ade80; text-decoration:none; word-break:break-word; }
+    .sidebar li a:hover { text-decoration:underline; }
+    @media (max-width:800px) {
+      body { padding:0; }
+      .sidebar { position:static; width:100%; height:auto; max-height:50vh; border:none; border-top:1px solid #30363d; }
+    }
   </style>
 </head>
 <body>
@@ -23,14 +35,27 @@
     </div>
     <p>Turning any stream/array/matrix/cloud into new forms.</p>
     <p style="font-style:italic; opacity:0.9;">
-      <a href="./analogy/analogy.html" style="color:#4ade80;">Analogy</a> is the first live module.
+      <a href="./inference/dist/index.html" style="color:#4ade80;">Inference</a> is the current live module.
     </p>
-    <h2><a href="./morpharray_library.html" style="color:#1756BF;">MorphArray Library</a></h2>
-
     <p style="margin-top:3rem; font-size:1.2rem;">Site hosted via GitHub Pages • morpharray.com</p>
 
     <a style="color:#1756BF;" href="https://github.com/morpharray/morpharray">https://github.com/morpharray/morpharray</a>
 
   </div>
+  <aside class="sidebar sidebar-left">
+    <h3>Navigation</h3>
+    <ul>
+      <li><a href="./morpharray_library.html">Library</a></li>
+    </ul>
+  </aside>
+  <aside class="sidebar sidebar-right">
+    <h3>Recent Articles</h3>
+    <ul id="recent-articles-list"></ul>
+  </aside>
+  <script>
+    fetch('./article-pub-lists/html/main.html')
+      .then(r => r.text())
+      .then(html => { document.getElementById('recent-articles-list').innerHTML = html; });
+  </script>
 </body>
 </html>

@@ -7,9 +7,6 @@ const utf8Decoder = new TextDecoder('utf8');
 
 export const PASTEBOARD_TEST_FILE = 'pasteboard_test.txt';
 
-/** Single book folder under `articles/` — paths in `stacks/book.mastack` match this. */
-export const DEFAULT_BOOK_SLUG = 'book';
-
 async function fileExists(uri: vscode.Uri): Promise<boolean> {
 	try {
 		await vscode.workspace.fs.stat(uri);
@@ -54,13 +51,21 @@ function defaultsJson(): string {
 `;
 }
 
-function stackFileContent(slug: string): string {
-	return `${slug}/index.html
-${slug}/chapter-01.html
+/** Default `stacks/book.mastack`: optional directives, then paths relative to `articles/`. */
+const DEFAULT_BOOK_MASTACK = `# CHAPTER_START_INDEX=1
+# AUTHOR_NAME="Ben Um"
+# LIBRARY_PATH=../../morpharray_library.html
+# ARTICLE_SERIES="SERIES_NAME Series"
+
+index.html
+intro/intro.html
 `;
+
+function stackFileContent(): string {
+	return DEFAULT_BOOK_MASTACK;
 }
 
-function indexHtmlContent(slug: string): string {
+function indexHtmlContent(): string {
 	return `---
 title: My Book
 summary: Short description for LLM stacks and SEO.
@@ -70,26 +75,25 @@ summary: Short description for LLM stacks and SEO.
 
 <p class="byline">{{Author}} • {{Year}}</p>
 
-<p>Replace this intro. Add chapters by creating HTML files under <code>articles/${slug}/</code> and listing them in <code>stacks/book.mastack</code> (after the index line).</p>
+<p>Replace this intro. Add pages under <code>articles/</code> and list them in <code>stacks/book.mastack</code> (after the index line).</p>
 
 <h2>Chapters</h2>
 
 <div class="chapter-list">
     <!-- Chapter links are inserted here when you run Rebuild Dynamic Story -->
 </div>
-
-<nav class="nav-bottom">
-    <span class="nav-disabled">← Previous</span>
-    <a href="index.html">Index</a>
-    <span class="nav-disabled">Next →</span>
-</nav>
 `;
 }
 
-function chapterStubContent(): string {
-	return `<h1>Chapter 1</h1>
+function introHtmlContent(): string {
+	return `---
+title: Intro
+summary: First article after the landing page.
+---
 
-<p>Edit this chapter or add more files and reference them in <code>stacks/book.mastack</code>.</p>
+<h1>Intro</h1>
+
+<p>Edit this page or add more HTML under <code>articles/</code> and list them in <code>stacks/book.mastack</code>.</p>
 `;
 }
 
@@ -98,19 +102,7 @@ function gitignoreIgnoresPasteboardLine(line: string, fileName: string): boolean
 	return t === fileName || t === `/${fileName}` || t.endsWith(`/${fileName}`);
 }
 
-function gitignoreIgnoresDistLine(line: string): boolean {
-	const t = line.trim();
-	return (
-		t === 'dist' ||
-		t === 'dist/' ||
-		t === '/dist' ||
-		t === '/dist/' ||
-		t === '**/dist' ||
-		t === '**/dist/'
-	);
-}
-
-/** Ensure `.gitignore` contains MorphArray rules: `pasteboard_test.txt` and `dist/` (append or create). */
+/** Ensure `.gitignore` contains `pasteboard_test.txt` (append or create). */
 async function ensureMorphArrayGitignore(
 	workspaceRoot: vscode.Uri,
 	created: string[],
@@ -122,24 +114,15 @@ async function ensureMorphArrayGitignore(
 		: [];
 
 	const hasPasteboard = lines.some((l) => gitignoreIgnoresPasteboardLine(l, PASTEBOARD_TEST_FILE));
-	const hasDist = lines.some(gitignoreIgnoresDistLine);
 
-	if (hasPasteboard && hasDist) {
+	if (hasPasteboard) {
 		skipped.push('.gitignore (MorphArray rules already present)');
 		return;
 	}
 
-	const blocks: string[] = [];
-	if (!hasPasteboard) {
-		blocks.push(`# MorphArray: local pasteboard scratch file\n${PASTEBOARD_TEST_FILE}`);
-	}
-	if (!hasDist) {
-		blocks.push('# MorphArray: Rebuild Dynamic Story output\ndist/');
-	}
-
 	const text = lines.join('\n');
 	const sep = text.length > 0 && !text.endsWith('\n') ? '\n' : '';
-	const suffix = blocks.join('\n\n') + '\n';
+	const suffix = `# MorphArray: local pasteboard scratch file\n${PASTEBOARD_TEST_FILE}\n`;
 	await vscode.workspace.fs.writeFile(
 		uri,
 		encoder.encode(text.length > 0 ? `${text}${sep}${suffix}` : suffix),
@@ -190,7 +173,7 @@ async function copyExtensionFileIfMissing(
 
 /**
  * Creates starter layout in the **opened workspace folder** so you mainly customize
- * `defaults.json`, `stacks/book.mastack`, and `articles/book/index.html`.
+ * `defaults.json`, `stacks/book.mastack`, and `articles/index.html`.
  */
 export async function initializeBookWorkspace(context: vscode.ExtensionContext): Promise<void> {
 	const workspaceRoot = getWorkspaceRoot();
@@ -199,15 +182,14 @@ export async function initializeBookWorkspace(context: vscode.ExtensionContext):
 		return;
 	}
 
-	const slug = DEFAULT_BOOK_SLUG;
 	const created: string[] = [];
 	const skipped: string[] = [];
 
 	const tasks: Array<{ rel: string; body: string }> = [
 		{ rel: 'defaults.json', body: defaultsJson() },
-		{ rel: `stacks/book.mastack`, body: stackFileContent(slug) },
-		{ rel: `articles/${slug}/index.html`, body: indexHtmlContent(slug) },
-		{ rel: `articles/${slug}/chapter-01.html`, body: chapterStubContent() },
+		{ rel: `stacks/book.mastack`, body: stackFileContent() },
+		{ rel: 'articles/index.html', body: indexHtmlContent() },
+		{ rel: 'articles/intro/intro.html', body: introHtmlContent() },
 	];
 
 	for (const { rel, body } of tasks) {
@@ -247,7 +229,7 @@ export async function initializeBookWorkspace(context: vscode.ExtensionContext):
 		return;
 	}
 
-	const msg = `MorphArray: Book workspace ready. Created or updated ${created.length} path(s). Edit defaults.json, stacks/book.mastack, and articles/${slug}/index.html.`;
+	const msg = `MorphArray: Book workspace ready. Created or updated ${created.length} path(s). Edit defaults.json, stacks/book.mastack, and articles/index.html.`;
 	void vscode.window.showInformationMessage(msg);
 
 	if (skipped.length > 0) {

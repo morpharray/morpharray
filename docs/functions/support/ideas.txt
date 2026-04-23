@@ -1,0 +1,364 @@
+CONTEXT FOR CONTINUING WORK ON THE FUNCTIONS SERIES
+====================================================
+
+This document summarizes an extended collaborative conversation about an AI inference book series. The author has produced an Inference Series and a Crossroads chapter that bridges to two upcoming series: a Functions Series and an Orchestration Series. The first chapter of the Functions Series has been drafted and is ready to publish as "Functions: Pseudocode in Practice." This summary captures the architectural framework, design decisions, and conceptual vocabulary that the Functions Series rests on, so a fresh chat session can continue developing the series with full context.
+
+================================================================================
+THE BROADER FRAMEWORK (FROM THE INFERENCE SERIES AND CROSSROADS CHAPTER)
+================================================================================
+
+The author's framework is grounded in a few foundational concepts established across the Inference Series:
+
+* CxPU (Context Processing Unit): The architectural primitive of the framework. A CxPU is defined by its interface — composed input in, composed output out, telemetry emitted throughout — not by its internal mechanics. Any substrate that honors the interface plays the CxPU role.
+
+* Sealed composition: A CxPU operation receives a finalized composed input that cannot be modified once the operation begins. The composition is the vehicle for intent.
+
+* Durable intent: The intent written into a composition must be specific, coherent, and clear enough to survive the operation it will drive.
+
+* Functional generation: A CxPU's operation is functional in the strict sense — it works only with what the composed input gives it. Nothing carries over between operations.
+
+* Intent substrate: The compiled, computationally active form of the intent the composition carried in. The KV substrate in current LLM inference is the specific form the intent substrate takes in transformer-based systems. The framework commits to the conceptual role; specific implementations may vary.
+
+* The four-stage pattern: Ingest, Evaluate, Stage, Execute. Both transformer prefill and human reading fuse the first three into a continuous process. The boundary that actually appears in implementation is between staging and execution.
+
+* Three architectural properties of the framework:
+  1. Human language is the communication protocol (linguistic interface, not infrastructural).
+  2. CxPU composition is fractal (any CxPU's internal operation may itself be a CxPU network honoring the same interface).
+  3. The substrate is implementation-independent (the KV substrate is current; the intent substrate role survives architectural change).
+
+* Six-term taxonomy of inference (along three axes):
+  - Dynamic inference: humans and LLMs, behavior generated at runtime.
+  - Static inference: deterministic functions, a narrow form of cognition simulated.
+  - Artificial inference: compute-bound cognition. The substrate is machine.
+  - Biological inference: human cognition. The substrate is living tissue.
+  - Local inference: static, dynamic, or hybrid systems run within the calling system's runtime.
+  - Remote inference: static, dynamic, or hybrid systems accessed across a transport boundary.
+
+* The role of inference, across whatever architectures come and go, is to approximate cognition well enough to carry durable intent through an operation and produce output that reflects the intent back. That role is stable. The mechanics are not.
+
+* Static inference is captured cognition. The cognition was performed somewhere upstream (by an LLM, by a researcher, by a team) and is now replayed faithfully every time the function runs. The substrate executing the function isn't doing cognition in real time; it's faithfully simulating cognition that was performed in advance and captured in executable form.
+
+================================================================================
+THE FUNCTIONS SERIES — ARCHITECTURAL DESIGN
+================================================================================
+
+The Functions Series is a hands-on journey teaching non-technical readers to build static-inference CxPUs through a constrained IDE. The core architectural commitments:
+
+THE IDE (NOT YET IMPLEMENTED, IMPLEMENTATION DETAILS OUT OF SCOPE FOR THE SERIES)
+The IDE is a constrained environment that:
+- Lets users describe functions in their own vocabulary (in any language they speak)
+- Uses an LLM to translate descriptions into imperative C source
+- Compiles the C to WebAssembly for safe sandboxed execution
+- Restricts the C to limited headers and safe operations
+- Generates explanations of the C back to the user in their own vocabulary
+- Manages version history automatically
+
+The implementation details of the IDE itself are NOT part of the Functions Series content. The series teaches readers how to use such an environment, not how to build it.
+
+THE SOURCE OF TRUTH IS IMPERATIVE C
+- The C code is the source of truth. What runs in production is the C compiled to WASM.
+- C is chosen because it is low-level enough to be predictable (no hidden runtime), high-level enough to be clear, lightweight enough to be cheap, neutral enough to host any domain, mature enough to be trustworthy, and structurally aligned with procedural specifications.
+- The deeper requirement is that the source of truth must be IMPERATIVE because the user's authoring is procedural, the user's mental model is procedural, the user's verification is procedural, and the user's refinement is procedural.
+- Note: declarative languages like SQL, regex, Prolog, and configuration languages can encode intent more directly than imperative languages for certain domains. The framework's paradigm choice (imperative) is about fit between authoring mode and source form for the specific scope of this series. Future IDEs built on DDTD principles could use declarative sources of truth for readers whose natural authoring mode is declarative. The framework is paradigm-flexible in principle.
+- Modern languages often support both imperative and declarative styles (Swift with SwiftUI, JavaScript with React, Python with frameworks). Paradigm is a style of expression supported by frameworks on top of a language foundation, not a rigid categorization of languages.
+- Adding a declarative intermediate layer between human language and imperative source would introduce additional translation boundaries that lose intent fidelity. The minimal layering is: user's declarative intent → imperative source of truth → mechanical compilation → execution.
+
+DDTD: DYNAMIC DOMAIN TARGETED DECOMPILATION
+The IDE's central capability has been named DDTD. Each letter:
+- Dynamic: the rendering is generated on demand, not stored statically. Different requests produce different renderings.
+- Domain: the vocabulary used in the rendering is drawn from the user's domain expertise.
+- Targeted: the rendering is produced for a specific reader, not for a generic audience.
+- Decompilation: the output is a higher-level human-readable representation of the imperative source.
+
+DDTD is a synthesis claim, not an invention claim. None of the components is new (decompilation is decades old, code summarization is widely deployed, personalized explanation is what LLMs routinely do, audience-targeted communication is older than computing). What's new is the specific combination, packaged as the architectural commitment of an authoring environment that uses personalized natural-language renderings as the verification surface in a co-authorship loop with the imperative source as the authoritative artifact.
+
+DDTD "vocabulary" is broad. It includes:
+- The conceptual vocabulary of the reader's expertise (accounting terms for an accountant, musical terms for a musician, clinical terms for a nurse).
+- The human language the reader naturally writes in (French, Mandarin, Spanish, English, etc.).
+The system adapts to whatever language and whatever domain the reader brings. This is inherited from the LLM substrate — frontier LLMs handle many human languages from the same weights, as a general capability rather than a per-language feature.
+
+DDTD is substrate-independent. LLMs are the current convenient implementation of the renderer because they can dynamically map vocabularies. But static renderers can be promoted from accumulated patterns once a domain's vocabulary stabilizes — exactly the same maturation arc that the framework describes for any operation. The IDE itself can become more efficient over time as common renderings are promoted from LLM-based to function-based.
+
+THE FOUR-SENTENCE FORMULATION
+The collaboration between user and system is captured in four sentences:
+1. The implementation is the source of truth.
+2. The user described it.
+3. The system explains the implementation in the user's vocabulary.
+4. Co-authorship proceeds productively.
+
+This is the architectural sentence the entire series rests on.
+
+THE SAFETY LINE
+A user-invokable mechanism for escalating from a degraded interaction back to a more capable substrate. If a static renderer doesn't have the vocabulary to express what the user means, or if the LLM is misinterpreting intent in ways the refinement loop isn't resolving, the safety line escalates to whatever more capable substrate is available, with full context preserved. The safety line is what makes static promotions safe to perform aggressively. It also produces data about where static substrates need improvement.
+
+THE USER'S VOCABULARY IS THEIR AUTHORING STRENGTH
+A profound implication of DDTD: the user's domain expertise lives in their vocabulary. An accountant's precision about debits and credits is encoded in accounting vocabulary. The user authoring functions in their own vocabulary is more precise about their domain than they would be authoring in any foreign vocabulary. The IDE never asks them to translate. They author in their natural conceptual frame, the LLM produces faithful imperative implementation, the rendering returns to them in the same vocabulary. Nothing gets lost in translation.
+
+This dissolves a separation that has structured software development since its inception: domain experts had to translate requirements into something programmers could work with; programmers had to translate implementations into something domain experts could verify. The new model removes the translation entirely.
+
+LANGUAGE INDEPENDENCE (KEY INSIGHT)
+A French speaker can use the IDE without any localization work. So can a Mandarin speaker, a Spanish speaker, any language the LLM handles well. The architecture supports this natively because:
+- There is one frontier LLM model, not separate models per language. Everyone worldwide uses the same model weights.
+- The LLM's multilingual capability is emergent from training on many languages simultaneously. Internal representations are largely language-independent; language is a property of token patterns that the attention mechanism reads and matches.
+- DDTD doesn't translate between languages — there is no translation step. The attention mechanism processes meaning at a layer that is in some sense pre-linguistic, and the output language emerges from whichever tokens are statistically appropriate given the conversational context.
+- No system prompt or language switch is needed. The user writes in their language; the model produces output that matches.
+- Internationalization, which is typically a major engineering effort, emerges for free from the DDTD pattern.
+
+================================================================================
+REFINEMENTS AND ADDITIONAL ARCHITECTURAL COMMITMENTS
+================================================================================
+
+INTENT DOCUMENTATION EMBEDDED IN THE C SOURCE
+The C source should carry its own declarative intent as embedded documentation. Not just comments in the casual sense, but structured documentation that captures:
+- The function's purpose
+- The domain vocabulary that was used
+- The edge cases the user addressed
+- The reasoning behind specific implementation choices
+
+The C becomes a dual artifact: imperative implementation on the bottom, declarative intent documentation on top, both in the same file, both generated by the LLM from the authoring conversation. Benefits:
+- The C becomes self-explaining; a later reader without access to the authoring conversation can understand intent from the documentation.
+- DDTD renderings become more faithful; the LLM reading the C has access to original intent in addition to mechanical behavior.
+- Comprehension of existing code becomes easier.
+- Refinement becomes more reliable; users returning to a function weeks later are reminded of its original intent.
+- Corpus accumulation for static renderers gets richer.
+- The C serves multiple audiences simultaneously.
+
+Structure possibilities: structured comment blocks at function level, inline intent markers for specific constructs, appendix-style block preserving authoring history, or combinations.
+
+VERSION CONTROL AS STRUCTURED CHAT HISTORY
+Version control of the C file captures the authoring journey in a form that's more structured than raw chat logs. Each commit is a point where the function reached a stable state the user accepted. Diffs show what changed. LLM-generated commit messages describe why in the user's vocabulary.
+
+Properties version control gives you that raw chat history doesn't:
+- Organized by meaningful units (commits are coherent accepted changes).
+- Diffable at the content level.
+- Searchable by what changed, not just by keyword.
+- Recoverable (revert to any previous state).
+- Shareable (version-controlled functions travel with their history).
+
+Commit messages preserve the reasoning in the user's vocabulary. Reading commits in order shows the user's learning about their own function.
+
+Git is the obvious implementation. Users don't need to understand git; the IDE handles it transparently. Functions become standard git repositories that can be hosted on GitHub/GitLab/etc., integrated with existing software development ecosystems despite being produced through a fundamentally different authoring paradigm.
+
+COMMIT-BEFORE-COMPILE DISCIPLINE
+Every commit represents a state in which the source code and the specification are synchronized. The C source at commit time is the C source the specification said should exist at that moment. Before any compile attempt, a commit is taken. The commit captures what the user declared they wanted implemented.
+
+Properties:
+- The commit represents a declarative moment. The user has said "this is what the function should be right now."
+- Compile failures don't pollute the history. The commit stands; compilation is a separate evaluation.
+- Test failures are similarly separated. The commit represents the specified state.
+- The history becomes an audit trail of specifications, not of working code.
+- The commit is the atomic unit of the authoring process. Compilation and testing test commits; they're not part of creating commits.
+- The user's approval of the rendering is what triggers the commit (explicit or implicit through requesting compile/test).
+
+Compile or test failures after a commit lead to new refinement cycles that produce new commits, not corrections to previous ones.
+
+INPUT STRING PRESERVATION IN COMMITS
+The input string the user provided that led the LLM to produce the committed C should be recorded in the commit. For any commit, a reader can see:
+- What the user said, in their own words, that produced this state.
+- What the LLM produced in response (the C with implementation and intent documentation).
+- Why the change is described as it is (the commit message).
+- How the specification evolved (the diff from the previous commit).
+
+This provides complete traceability. The input string preserves the user's authentic voice (not just the system's summary). It enables reconstruction, replay, learning from drift, and corpus accumulation.
+
+Implementation options: embed as a structured comment in the C file, store in the commit message alongside the human-readable summary, store as a separate adjacent file in the commit, or use git metadata. Both the input string and an LLM-generated commit message should coexist.
+
+Privacy consideration: input strings can preserve sensitive content permanently in git history. The IDE should support modes where input strings are preserved locally but optionally excluded from pushed commits.
+
+THE COMPREHENSION USE CASE
+DDTD works as a comprehension tool for existing code the user didn't write, not just for co-authored code. The authoring direction and the comprehension direction share the same architectural pattern — both involve the LLM taking imperative source and rendering a higher-level human-readable representation in the reader's vocabulary.
+
+Differences from authoring:
+- The user must explicitly provide their domain context (vocabulary, purpose, analogies) rather than having it captured through conversation.
+- The source of truth is whatever existing code they bring, not code they authored.
+- Accuracy depends more on providing good context, and the user has no independent source of intent to verify against.
+
+Use cases:
+- Domain experts inheriting legacy code in their field.
+- Junior developers understanding unfamiliar codebases at their current level.
+- Non-technical stakeholders reviewing code that affects their work.
+- Security researchers requesting security-focused renderings.
+- Students getting renderings scaled to their learning level.
+
+This comprehension use case is well-served when the source code carries embedded intent documentation (as described above), because the LLM has richer material to work with.
+
+CORPUS ACCUMULATION AND SELF-IMPROVEMENT
+Every co-authoring session produces evidence about what vocabulary and syntactic conventions work for users in specific domains. This evidence can be mined to generate static renderers, which reduce cost and latency of future renderings in those domains.
+
+The IDE has two learning loops:
+- Local/immediate: each user's co-authoring session improves their specific function.
+- Global/gradual: aggregate co-authoring sessions across many users produce data for domain-specific static renderers.
+
+Static renderers can be promoted from accumulated patterns (same maturation arc the framework describes for any operation). Common rendering paths get static implementations; the LLM is only invoked for novel vocabularies or unusual renderings. Safety line catches cases static renderers can't handle.
+
+Privacy considerations: recorded interactions need consent; sensitive content must be handled carefully.
+
+Byproduct: the corpus is a record of how non-technical users actually describe procedures in their domains. This could become a research resource, teaching tool, or source of insights into domain epistemology.
+
+================================================================================
+PSEUDOCODE AS THE AUTHORING LANGUAGE (FROM FIRST CHAPTER)
+================================================================================
+
+Pseudocode is older than programming languages. Every recipe, every assembly instruction sheet, every set of directions is pseudocode. Programming languages were the constrained subset that mid-century compilers could parse. LLMs collapse the constraint: natural-language procedural description can now be parsed and translated into machine-executable form.
+
+Well-formed precise pseudocode can be as articulate as any compiled programming language. With the LLM serving as a pseudocode compiler, pseudocode becomes a first-class authoring language.
+
+STRUCTURAL PRIMITIVES
+Six elements suffice for any function:
+- Sequence (do this, then this, then this)
+- Conditional (if X, do Y; otherwise Z)
+- Repetition (multiple natural forms — see below)
+- Comparison (equals, exceeds, contains, etc.)
+- Assignment (call the result the corrected total)
+- Return (the answer is...)
+
+REPETITION FORMS (all equally accessible):
+- Goto-style step references: "Step 5: if condition, go back to Step 3" — the programmer cringe reflex against goto comes from Dijkstra's 1968 argument about unconstrained production code; the argument doesn't apply to bounded pseudocode. The series can use "goto" or plainer phrases.
+- Repeat-until: "Keep stirring until smooth" — natural because human procedural language often expresses loops in terms of when to STOP. "Until" has solid pedigree (Pascal, Ruby, Perl, COBOL, Bash, Lua, Eiffel) but is unfamiliar to programmers from the C family because C excluded it.
+- For-each: "For each customer, send an email" — natural for operations on collections.
+
+The pseudocode language should support all natural human ways of describing iteration. The LLM picks whichever form best matches the procedure being described.
+
+VOCABULARY IS THE READER'S OWN
+Structural primitives are universal. Vocabulary that fills them comes from the reader's domain and language. A bookkeeper writes in accounting vocabulary in their native language; the LLM uses the same vocabulary in renderings back.
+
+THE SHIFT FROM INFORMAL TO PRECISE
+Everyday pseudocode is loose; the reader fills gaps with judgment. Function-grade pseudocode must commit to behavior at every edge. The discipline is to notice edges (empty input, maximum input, unexpected input, ambiguous input) and address them deliberately. This discipline is familiar from legal language, medical protocols, aviation checklists.
+
+================================================================================
+DESIGN DECISIONS FOR THE SERIES
+================================================================================
+
+* First chapter title: "Functions: Pseudocode in Practice" (drafted and ready to publish)
+* Tone: measured architectural register, slightly warmer than the Inference Series
+* The first chapter does NOT include a concrete worked example; that's left for later chapters
+* Implementation details (how the IDE works internally) are out of scope
+* WebAssembly is mentioned in the Crossroads chapter as the recommended substrate but is not central to teaching in the Functions Series
+* Chapters should NOT hint at what future chapters will contain — no forward-looking promises. Each chapter ends on its own strongest note.
+* The first chapter ends with "You are the author." — a strong, present-tense final statement
+* No hardcoded chapter counts or numbers anywhere (the book is a work in progress)
+
+The first chapter establishes:
+1. Pseudocode is older than programming languages
+2. LLMs collapse the historical constraint that forced programming languages to be foreign
+3. The four-sentence formulation describes the entire collaboration
+4. Six structural primitives suffice for any function
+5. The vocabulary stays the user's own (DDTD named with language-independence explicit)
+6. The shift from informal to function-grade pseudocode is the central craft
+7. The co-authorship loop is described concretely, with the safety line available
+8. The reader brings everything they need
+
+================================================================================
+TWO SETTLED LISTS (FOR CONSISTENCY ACROSS CHAPTERS)
+================================================================================
+
+FOUR-STAGE PATTERN (with implementation-fusion observation):
+- Ingest: taking in the input stream
+- Evaluate: making sense of what was taken in
+- Stage: forming the actionable view that execution will operate on
+- Execute: producing the output
+(Both transformer prefill and human reading fuse the first three into a continuous process.)
+
+SIX-TERM INFERENCE TAXONOMY:
+- Dynamic inference — humans and LLMs. Behavior generated at runtime.
+- Static inference — deterministic functions. A narrow form of cognition simulated.
+- Artificial inference — compute-bound cognition. The substrate is machine.
+- Biological inference — human cognition. The substrate is living tissue.
+- Local inference — static, dynamic, or hybrid systems run within the calling system's runtime.
+- Remote inference — static, dynamic, or hybrid systems accessed across a transport boundary.
+
+================================================================================
+THE ORCHESTRATION SERIES — WHAT'S COMING NEXT
+================================================================================
+
+Settled design points for the orchestration series:
+
+* Two-part discipline: network design AND observation/control, with roughly half the series devoted to observation/control because the case for treating it that way is structural.
+
+* A standardized telemetry protocol bakes three universally understood concepts into the CxPU contract: heartbeat, state, progress. The protocol is substrate-independent.
+
+* The "function with feedback" pattern (output channel separated from telemetry channel) synthesizes prior art (sd_notify, Temporal heartbeats, OpenTelemetry, ReactiveX, actor model) into a substrate-independent contract.
+
+* Telemetry includes a standardized state enum and a progress float (with explicit "unknown" support for honest reporting).
+
+* CxPU networks span wide latency ranges (microseconds to hours for machine inference; seconds to weeks for biological). Multi-hour LLM reasoning loops are increasingly common and must be treated as primary cases.
+
+* Chat applications (Telegram, Slack, email) are valid CxPU transports — the CxPU interface is linguistic rather than infrastructural. Performance is comparable to HTTP; the auditability benefit of human-readable persistent traces is a side benefit.
+
+* DDTD applies at the orchestration layer too. Operators of CxPU networks can request renderings of any CxPU's behavior in their own vocabulary.
+
+* The safety line generalizes beyond the Functions Series IDE. Any static substrate in a CxPU network can have a safety line back to a more capable dynamic substrate.
+
+================================================================================
+THE COMPOUND COHERENCE OF THE FRAMEWORK
+================================================================================
+
+The framework's properties compound from one foundational commitment: a linguistic interface bridged by a sufficiently capable translator (currently LLMs).
+
+Everything else falls out:
+- Substrate independence (the linguistic interface doesn't care what's on either side).
+- Domain independence (language carries domain vocabulary natively).
+- Language independence (the LLM handles many human languages from the same weights).
+- Co-authorship (the LLM can translate bidirectionally through the linguistic bridge).
+- Fractal composition (any CxPU honoring the interface composes with any other).
+- Static promotion (crystallized cognition can be captured in code honoring the same interface).
+- The maturation arc (static substrates can replace dynamic ones while preserving the interface).
+- The safety line (escalation routes through the linguistic interface to more capable handlers).
+- Corpus self-improvement (every linguistic interaction is recordable and analyzable).
+- DDTD (the LLM renders imperative source back through the linguistic interface).
+
+These are not separate features. They are consequences of the foundational choice.
+
+================================================================================
+INTELLECTUAL POSTURE
+================================================================================
+
+The author is consistently NOT claiming invention. The framework refines and clarifies patterns that already exist:
+- The CxPU role has been played by REST services, deterministic functions, humans on email, chat bots, and every other form of language-mediated coordination for decades.
+- The four-stage cognitive pattern is older than computing.
+- DDTD components all have prior art (decompilation, code summarization, audience-targeted explanation, dynamic LLM generation).
+- Telemetry, progress, heartbeat, state are universally understood concepts.
+- Pseudocode has existed since the 1950s as a design and teaching tool.
+
+What the framework contributes is naming these patterns clearly enough that they can be reasoned about as a coherent set. Vocabulary becomes infrastructure for thought. People will use the terms because they're useful, not because they credit the source.
+
+The framework's substrate-independence is its consistent throughline. CxPUs are substrate-independent. The intent substrate is substrate-independent. DDTD renderers are substrate-independent. The orchestration telemetry protocol is substrate-independent. Anything honoring the relevant interface plays the role.
+
+================================================================================
+HOW TO CONTINUE
+================================================================================
+
+This summary should give a fresh chat session enough context to continue developing the Functions Series.
+
+Suggested usage:
+Paste this document into a new chat session as the first message, with a note like "I'm continuing work on the Functions Series of my AI book. Here is the full context from prior collaboration. I'd like to discuss [specific topic / draft a chapter / refine some specific aspect]."
+
+Author preferences:
+- Plain HTML for chapter drafts, no styles
+- Files placed in /mnt/user-data/outputs and presented via present_files
+- No hardcoded chapter counts or numbers (the book is a work in progress)
+- No forward-looking promises about future chapter content
+- Lists used analytically when content is genuinely list-shaped; prose for connected reasoning
+- Measured architectural tone matching the Inference Series register
+- Honest claiming — refine and clarify rather than invent
+- Substrate-independence emphasized throughout
+- Focus on what the reader experiences, not implementation details of the IDE
+- Chapters end on their own strongest note, without looking ahead
+
+The author values rigorous architectural thinking that builds coherently from foundations rather than reaching for novelty. Trace each question or observation to its implications before responding. The framework's structural integrity should support every direction the discussion goes.
+
+POTENTIAL CHAPTERS FOR THE FUNCTIONS SERIES (UNCOMMITTED, NOT PROMISED):
+The first chapter is published. Possible directions for subsequent chapters:
+- A chapter introducing the co-authorship loop through a concrete worked example
+- A chapter on the shape of artifacts the IDE produces (C with intent documentation, version history, input strings in commits)
+- A chapter on the commit-before-compile discipline and version control as the authoring record
+- A chapter on the safety line and when to invoke it
+- A chapter on substrate maturation (static renderer promotion)
+- A chapter on multiple readers consuming the same function in different vocabularies
+- A chapter on comprehension of existing code using DDTD
+- A chapter on language independence (French/Mandarin/other speakers using the IDE)
+- A closing chapter that transitions to the Orchestration Series
+
+The author has not committed to any specific chapter sequence. The first chapter was written to avoid promising specific future content, preserving flexibility.
+
+The Functions Series is in good hands as long as the framework's foundations are respected, the reader's experience stays central, and chapters end on their own strongest note without forward-looking commitments.

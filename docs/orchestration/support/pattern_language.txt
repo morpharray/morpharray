@@ -1,0 +1,37 @@
+Orchestration is governance. The composition of heterogeneous work into coherent networks — some of it machine, some of it human, some of it hybrid — is the same discipline that built environments, organizations, and distributed systems have always practiced under other names. Mature governance disciplines are built on named configurations that practitioners can cite, compare, and argue about, and the two works that follow are the foundational statements of that idea in adjacent fields. They are listed here because the Orchestration Series inherits their central commitment: that a discipline becomes workable when its recurring configurations have names.
+
+
+A Pattern Language by Christopher Alexander
+
+Design Patterns: Elements of Reusable Object-Oriented Software by Erich Gamma, Richard Helm, Ralph Johnson and John Vlissides
+
+
+
+Scope Note
+
+This series addresses the mechanics of agent orchestration: how CxPUs are composed into networks, how intent is carried across handoffs, how telemetry enables observation and control, and how governance of a running network is structured at the engineering layer. Human operators appear throughout as CxPUs participating in these networks — as nodes with particular latency characteristics and telemetry signatures, coordinated through the same interface as any other substrate.
+Concerns that attach to humans specifically — ethical treatment of human operators, privacy of information published on telemetry channels, consent to participation in a network, retention policies for human-originated traces, labor conditions, and related matters — are out of scope. These are substantive concerns and they belong to their own literature. They are not addressed here, not because they lack importance, but because conflating them with the mechanical discipline would weaken both.
+Readers applying these patterns in production systems that include human participants should consult that separate literature for those concerns. This series will not signal where such consultation is warranted; the scope line is drawn at the mechanical layer throughout.
+
+
+
+Top 5 orchestration approaches, in rough order of production prevalence (mainly from SOA and microservices mappings):
+
+Orchestrator-Worker (supervisor / hierarchical) — A capable coordinator agent decomposes a task, delegates subtasks to specialist workers, and assembles results. Tree-shaped. Common cost pattern: expensive model at the top, cheap models at the leaves. Wells Fargo reportedly uses this pattern to give 35,000 bankers access to 1,700 procedures in 30 seconds, down from 10 minutes Beam AI. This is the closest to your top-down tree.
+Graph-based / state-machine workflows — Explicit nodes and edges, state object flowing through, conditional transitions, cycles allowed. LangGraph is the canonical implementation; Microsoft Agent Framework's workflow layer is the other. This is your event-driven hierarchical FSM, and it's the approach that's absorbing most of the serious production traffic in 2026.
+Sequential pipeline (chain) — Linear stages, each agent's output feeds the next. Simple, predictable, widely used for contract generation, document processing, content workflows. Main known weakness: errors in early stages cascade downstream with no backtracking.
+Parallel fan-out / fan-in — Dispatcher sends work to multiple agents running simultaneously on the same input or independent subtasks; a collector aggregates with voting, weighted merging, or LLM synthesis. Used for multi-perspective analysis (e.g., parallel fundamental/technical/sentiment analysts on the same asset).
+Handoff / decentralized (choreography) — No central coordinator. Agents assess the task and transfer control to a more appropriate specialist based on runtime context. Agents coordinate through events and a message bus, each autonomous and loosely coupled StartupHub.ai. Most common failure mode is infinite handoff loops between agents that all want to delegate.
+
+
+SOA stands for Service-Oriented Architecture — a style of building software where a system is composed of distinct services that communicate with each other over a network, each owning a specific business capability. It became popular in enterprise IT in the early-to-mid 2000s, typically built on heavyweight standards like SOAP, XML, and enterprise service buses (ESBs).
+Microservices is the follow-on style that emerged around 2011–2014, most associated with Netflix, Amazon, and the writings of Martin Fowler and Sam Newman. Same core idea as SOA — decompose a system into independent services — but with lighter-weight assumptions: services are smaller, communicate over simple HTTP/REST (or later gRPC), are independently deployable, and are typically owned by small teams end-to-end. Where SOA leaned toward central governance and shared infrastructure, microservices leaned toward decentralization.
+The reason that world matters for agent orchestration: it spent roughly two decades working through the exact problems that are now resurfacing in agent systems — how do independent services coordinate, how do you handle failures across a network of them, how do you trace a request through many hops, how do you prevent cascading failures. Much of the vocabulary and most of the patterns have been imported directly:
+
+
+Orchestration vs. choreography — this distinction was formalized in SOA literature. Orchestration = a central process engine (like BPEL) tells each service what to do. Choreography = services react to events on a message bus without a central conductor. The agent world uses the terms in exactly the same sense.
+Circuit breaker pattern — from Michael Nygard's 2007 book Release It!, now showing up in multi-agent failure handling.
+Saga pattern — from a 1987 database paper, revived for microservices, now applied to multi-step agent workflows that need compensating actions on failure.
+Service mesh, API gateway, event bus, pub/sub — all microservices infrastructure terms now being repurposed for agent networks.
+Distributed tracing (OpenTelemetry) — built for microservices, now the obvious candidate for agent observability.
+

@@ -3,6 +3,7 @@
 # LIBRARY_PATH=../../morpharray_library.html
 # ARTICLE_SERIES="Functions Series"
 
+# append=support/inference_summary.txt
 
 index.html
-intro/intro.html
+intro/intro.html # pub=2026-04-22

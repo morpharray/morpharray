@@ -113,6 +113,9 @@ const LIBRARY_PATH_DIRECTIVE = /^\s*#\s*LIBRARY_PATH\s*=\s*(.*)$/i;
 /** First matching line wins: `# ARTICLE_SERIES="…"` — fills `{{ArticleSeries}}` / `{{articleseries}}` on chapter pages. */
 const ARTICLE_SERIES_DIRECTIVE = /^\s*#\s*ARTICLE_SERIES\s*=\s*(.*)$/i;
 
+/** `# append=path/to/file.txt` — plain text, path relative to **workspace root**; **Create Mental Stack** only; **Rebuild** ignores. */
+const APPEND_DIRECTIVE = /^\s*#\s*append\s*=\s*(.*)$/i;
+
 function parseStackDirectiveStringValue(raw: string): string {
 	let v = raw.trim();
 	if (!v) {
@@ -360,6 +363,81 @@ export function parseStackDefinitionForSiteBuild(text: string): {
 	return { entries, chapterStartIndex, authorName, libraryPath, articleSeries };
 }
 
+/** One line in a `.mastack` for **Create Mental Stack**: HTML article path or plain-text append. */
+export type MentalStackSegment =
+	| { type: 'article'; entry: MastackPathLine }
+	| { type: 'append'; relPath: string };
+
+/**
+ * Parses a `.mastack` for **Create Mental Stack (Full Context)**. Same directives and path rules as
+ * {@link parseStackDefinitionForSiteBuild}, plus `# append=path/to/file.txt` (path relative to the **workspace root**,
+ * UTF-8 text), interleaved in **file order** with article lines. **Rebuild Dynamic Story** ignores `append` lines (unknown `#` line).
+ */
+export function parseMentalStackDefinition(text: string): {
+	segments: MentalStackSegment[];
+	chapterStartIndex: number;
+} {
+	const DEFAULT_START = 1;
+	let chapterStartIndex = DEFAULT_START;
+	let chapterIndexLocked = false;
+	let authorNameLocked = false;
+	let libraryPathLocked = false;
+	let articleSeriesLocked = false;
+	const segments: MentalStackSegment[] = [];
+
+	for (const line of stripUtf8Bom(text).split(/\r?\n/)) {
+		const trimmed = line.trim();
+		if (!trimmed) {
+			continue;
+		}
+		const authorMatch = trimmed.match(AUTHOR_NAME_DIRECTIVE);
+		if (authorMatch) {
+			if (!authorNameLocked) {
+				authorNameLocked = true;
+			}
+			continue;
+		}
+		const libraryMatch = trimmed.match(LIBRARY_PATH_DIRECTIVE);
+		if (libraryMatch) {
+			if (!libraryPathLocked) {
+				libraryPathLocked = true;
+			}
+			continue;
+		}
+		const articleSeriesMatch = trimmed.match(ARTICLE_SERIES_DIRECTIVE);
+		if (articleSeriesMatch) {
+			if (!articleSeriesLocked) {
+				articleSeriesLocked = true;
+			}
+			continue;
+		}
+		const dirMatch = trimmed.match(CHAPTER_START_INDEX_DIRECTIVE);
+		if (dirMatch) {
+			if (!chapterIndexLocked) {
+				const n = Number.parseInt(dirMatch[1], 10);
+				if (Number.isFinite(n)) {
+					chapterStartIndex = Math.max(0, n);
+					chapterIndexLocked = true;
+				}
+			}
+			continue;
+		}
+		const appendMatch = trimmed.match(APPEND_DIRECTIVE);
+		if (appendMatch) {
+			const relPath = parseStackDirectiveStringValue(appendMatch[1] ?? '').trim();
+			if (relPath) {
+				segments.push({ type: 'append', relPath });
+			}
+			continue;
+		}
+		if (trimmed.startsWith('#')) {
+			continue;
+		}
+		segments.push({ type: 'article', entry: splitMastackPathLine(trimmed) });
+	}
+	return { segments, chapterStartIndex };
+}
+
 /**
  * Chapter ordinal for display (plain decimal, no zero-padding). `ordinalInStack` is 0 for the first chapter
  * after the index.
@@ -372,6 +450,13 @@ export function articleUriFromRelative(workspaceRoot: vscode.Uri, relativeArticl
 	const normalized = relativeArticlePath.replace(/\\/g, '/').trim();
 	const segments = normalized.split('/').filter((s) => s.length > 0);
 	return vscode.Uri.joinPath(workspaceRoot, 'articles', ...segments);
+}
+
+/** Resolves a path relative to the workspace root (e.g. `# append=` text files — keep them outside `articles/`). */
+export function workspaceFileUriFromRelative(workspaceRoot: vscode.Uri, relativePath: string): vscode.Uri {
+	const normalized = relativePath.replace(/\\/g, '/').trim();
+	const segments = normalized.split('/').filter((s) => s.length > 0);
+	return vscode.Uri.joinPath(workspaceRoot, ...segments);
 }
 
 export function formatFrontmatterValue(value: unknown): string {
