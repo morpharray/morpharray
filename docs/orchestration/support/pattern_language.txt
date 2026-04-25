@@ -35,3 +35,25 @@ Saga pattern — from a 1987 database paper, revived for microservices, now appl
 Service mesh, API gateway, event bus, pub/sub — all microservices infrastructure terms now being repurposed for agent networks.
 Distributed tracing (OpenTelemetry) — built for microservices, now the obvious candidate for agent observability.
 
+
+Style Guide: Orchestration Series
+
+Voice
+Third-person architectural. The subject of sentences is the thing being discussed, not the reader. Don't say "the reader knows" — describe the phenomenon directly and let recognition happen.
+Don't narrate the chapter's own moves. No "what this section will show," no "having established X, we now turn to Y." Do the work; don't announce it.
+Register
+Measured and declarative. Active voice by default. Em-dashes liberally. Confidence without hedging where the argument is sound.
+Avoid rhetorical flourishes — "the foundation is laid, the craft is what follows" and similar padding come out.
+Vocabulary
+Reclaimed ordinary words (script, actor, story, brief, mission, role, performance) carry their full pre-technical meaning without being defined as terms.
+Coined framework terms (CxPU, substrate, sealed composition, generative scripting) are used precisely and consistently.
+User-facing terms and mechanical terms don't substitute for each other. Prompt/response pair is what a user sees; cycle is what the loop does. Keep them distinct.
+Patience
+Build the concept through description and examples, then attach the name. Reverse the usual technical-writing order.
+Length
+Cut amplification, flourishes, meta-narration, and redundant examples before cutting argument, definition, or concrete illustration.
+References
+Reference earlier chapters freely. Don't reference later chapters by number or title — chapter order is not fixed. Forward pointing uses language that survives reordering. Chapters end on their own strongest note, not on a preview of what comes next.
+.
+Posture
+Describe the architecture; don't persuade. Name prior art honestly. Acknowledge what remains open. Don't claim invention for universal concepts.

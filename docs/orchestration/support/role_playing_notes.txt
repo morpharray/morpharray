@@ -1,0 +1,39 @@
+MENTAL NOTE — METAPHOR BALANCE FOR ORCHESTRATION SERIES
+
+THE INTENDED READER
+
+The Orchestration Series is written for anyone who has led a team toward a shared goal. That scope is deliberately broad. A team leader, for the purposes of this series, is anyone who has been responsible for coordinating work across multiple people toward a mission or goal held in common — a manager in a company, a coordinator at a nonprofit, a coach running a sports team through a season, a director leading a theater production, a scoutmaster running a troop, a volunteer lead running a fundraiser, a teacher running a classroom, a committee chair, a small business owner with employees, a parent managing a household, a dungeon master running a campaign. The structural pattern that matters — authoring briefs, handing them off, watching work through reports coming back, intervening when things go sideways, holding a mission above individual tasks, improvising when plans meet reality — is present in all of these cases. The vocabulary the series uses applies cleanly to every one of them.
+
+This reader arrives knowing how coordinated work actually feels from the inside. They have received bad briefs and good ones. They have handed off work well and badly. They have watched a team member struggle and had to decide whether to let it continue, redirect, or reassign. They have stopped work that was going wrong, escalated what had exceeded the current worker's capacity, and run retrospectives that turned lessons from one cycle into better scripts for the next. They have improvised when a plan hit reality and the plan no longer served the goal. The series treats that lived experience as sufficient training for everything it teaches.
+
+This reader does not arrive needing the vocabulary of services architecture, control theory, or CS systems design. When the series needs to import from those traditions — to credit prior art honestly or to draw a useful parallel — the imports are translated into the reader's working register rather than left in their native technical form. The reader should finish the series with a framework they can use, not with a reading list of adjacent disciplines they need to study first.
+
+The series is now trying to help this reader understand what it looks like to extend the coordination they already know to include AI systems as participants. The mechanical claims are architectural; the register is the register of team leadership everywhere it happens.
+
+The metaphor balance below is in service of this reader. The question is always which frame makes the phenomenon most legible to someone whose training is leading a team.
+
+THE TWO FRAMES
+
+The intro chapter recovered the vocabulary of storytelling (script, story, act, actor, director, ensemble) from its flattened CS usage. Two domains carry this vocabulary in its full pre-technical sense: theatrical performance and team coordination toward a shared goal. Both are forms of cooperative role-playing in service of a shared story. Both position the reader as a participant — actor, director, stage manager, stagehand in theater; contributor, leader, specialist, coordinator in team settings. Neither frame casts the reader as a spectator.
+
+The two frames are the same metaphor operating at different scales, not competing metaphors. They should be used according to what each does best for the intended reader.
+
+WHEN TO REACH FOR THEATER
+
+Theater excels at compact, single-performance framing. The story is bounded by the performance — a few hours, a defined cast, a set stage, a scope fixed in advance. This compactness makes theater especially good for making sealing vivid ("once the curtain rises, the script is what it is"), for showing how specialized roles interlock tightly around a single shared story, and for the moments where the series needs the reader to feel why a reclaimed word like "actor" or "script" means more than CS flattened it into.
+
+Use theater sparingly and where its compact vividness pays off: vocabulary recovery moments, illustrations that benefit from a bounded and easily-visualized scene, or arguments where a single unified performance makes the point more cleanly than a large-scale example would.
+
+WHEN TO REACH FOR TEAM COORDINATION
+
+Team coordination is the default working frame for the series, because it matches what the intended reader already knows and what orchestration actually describes at full scale. Any team coordinated toward a shared goal — whether it operates inside a company, a nonprofit, a household, a classroom, a sports season, a theater production, a volunteer effort, or a campaign table — carries the same cooperative-role-playing structure across a canvas that matches the phenomena the series teaches: work that spans many scales of duration, nested coordination (sub-groups within larger groups), standing roles that outlive any single effort, ongoing mission context that frames many concurrent stories, onboarding of new participants into already-running work, retrospectives feeding into the next cycle's scripts, progress reports surfacing in-flight performance, improvisation as routine practice, and heterogeneous participants (people, software, processes) coordinated through the same interface.
+
+Use team coordination framing for network design, role and handoff definition, telemetry and progress reporting, recovery, governance over time, nested orchestration, and anything involving duration, scale, or substrate mix. This is most of the series' practical teaching. The intended reader recognizes these phenomena from their own experience leading a team; the series names what they already know in architecturally precise terms.
+
+When illustrating in this frame, draw on the full range of team-coordination settings rather than defaulting to a single context. A brief could be a coach's game plan, a manager's task assignment, a director's scene notes, a teacher's lesson plan, a volunteer coordinator's shift instructions. The architectural claim is the same across all of them; varying the illustrations keeps the frame wide and signals to the reader that the framework applies wherever they lead.
+
+HOW TO MOVE BETWEEN THEM
+
+Do not treat the frames as alternatives the reader must choose between. Move between them as the teaching requires, trusting that they are continuous. A reader who has absorbed the intro can hear "actor" and "story" and "director" accurately in either domain, and the series benefits from letting both do their work.
+
+The test when choosing a frame: which one makes this particular phenomenon most legible to a reader whose training is leading a team? If theater makes a specific claim land with compact force, use theater for that claim. Everywhere else, the team-coordination frame is the working default, because that is where the intended reader lives.

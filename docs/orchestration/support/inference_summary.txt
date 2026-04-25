@@ -470,8 +470,8 @@ STYLISTIC CONVENTIONS FROM THE INFERENCE SERIES
 - Prose for connected reasoning
 - Footnotes used sparingly
 - Blockquotes (italic) for chapter-opening preamble material
-- Chapter openings summarize where the series has been
-- Chapters should NOT hint at what the next chapter will bring (refined rule)
+- Chapter openings may reference earlier chapters freely; their order is fixed once written
+- Forward pointing uses language that survives reordering. Chapters end on their own strongest note, not on a preview of what comes next
 - No hardcoded chapter counts or numbers (the book is a work in progress)
 
 ================================================================================

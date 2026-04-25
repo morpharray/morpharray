@@ -25,6 +25,11 @@
 
 <blockquote><em>The Inference Series established what a CxPU is. The Functions Series established that CxPUs exist beyond the LLM substrate. The primitive is in place. What remains is the work of composing it into networks that carry intent through real work, and of governing those networks while they run. Before that work can begin, there is a single reframing to settle. The Inference Series described a CxPU operation from the inside — prefill, decode, the substrate, the sealed composition. Networks are composed of operations viewed from the outside. The outside view needs its own vocabulary, and the vocabulary it needs already exists. It was borrowed into computer science decades ago and flattened in the borrowing. This chapter recovers it.</em></blockquote>
 
+<h2>A Note on Technical Vocabulary</h2>
+
+<p>Several terms in this chapter carry over from the Inference Series — LLM, CxPU, substrate, composition, sealed composition, and durable intent — and readers wanting their full treatment should consult that series. Agent (or agentic) and tool call are terms the field uses to describe a simple form of software automation that pairs AI reasoning with external action; the ReAct pattern, whose name contracts "Reason + Act," is the canonical formulation. Orchestration is the discipline this series develops: the coordination of multiple agents into networks that together accomplish a goal larger than any individual operation. Telemetry is the observation channel through which the orchestrator watches the network run, carrying progress signals an agent (or any CxPU) emits about its work, addressed to the orchestrator rather than to the next operation in the network.</p>
+
+
 <h2>The Outside View of an Operation</h2>
 
 <p>A CxPU operation, seen from inside, is a sealed composition compiled into a substrate and extended through functional generation. That description is mechanically correct and does the work the Inference Series needed it to do. But when operations start being composed into networks — when the output of one feeds the composition of another, when orchestrators direct ensembles of operations toward goals the individual operations cannot see — the inside-view vocabulary becomes insufficient. What a network coordinates is not compilations and generations. It is units of purposeful activity, each with a seeded starting point and a trajectory that extends during execution. The network needs a word for that unit as a thing happening in the world.</p>
@@ -114,7 +119,7 @@
     <nav class="nav-bottom">
         <span class="nav-disabled">← Previous</span>
         <a href="../index.html">Index</a>
-        <span class="nav-disabled">Next →</span>
+        <a href="../input-scripts/input-scripts.html">Next →</a>
     </nav>
 
     <footer>

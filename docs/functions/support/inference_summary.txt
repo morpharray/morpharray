@@ -339,8 +339,8 @@ STYLISTIC CONVENTIONS FROM THE INFERENCE SERIES
 - Uses prose for connected reasoning; doesn't force list structure on continuous argument
 - Footnotes exist but are used sparingly (the Elhage citation in Chapter 7 is notable)
 - Blockquotes introduce the preamble material at the start of chapters in italic format
-- Chapter openings often summarize where the series has been and where this chapter goes
-- Chapters do not (in the refined approach) hint at what the next chapter will bring
+- Chapter openings may reference earlier chapters freely; their order is fixed once written
+- Forward-pointing language should survive any reordering of later chapters without edit
 
 Example chapter opening format used consistently in later chapters:
 "The previous chapter described X. That description is accurate, but it leaves a question unanswered: Y. The answer matters because Z."
