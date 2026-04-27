@@ -9,7 +9,8 @@
 # append=support/role_playing_notes.txt
 
 index.html
-intro/intro.html # pub=2026-04-23
-input-scripts/input-scripts.html # pub=2026-04-25
+intro/intro.html # pub=2026-04-27
+input-scripts/input-scripts.html # pub=2026-04-27
+mutual-understanding/mutual-understanding.html # pub=2026-04-27
 
 
