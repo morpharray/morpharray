@@ -4,7 +4,6 @@
 # ARTICLE_SERIES="Orchestration Series"
 
 
-# append=support/inference_summary.txt
 # append=support/pattern_language.txt
 # append=support/role_playing_notes.txt
 
@@ -12,5 +11,6 @@ index.html
 intro/intro.html # pub=2026-04-27
 input-scripts/input-scripts.html # pub=2026-04-27
 mutual-understanding/mutual-understanding.html # pub=2026-04-27
-
+portability/portability.html # pub=2026-04-28
+durable-message/durable-message.html # pub=2026-04-28
 

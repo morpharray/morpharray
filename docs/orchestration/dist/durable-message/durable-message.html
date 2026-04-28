@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Durable Message Role: Carrying Durable Intent in Compact Messages</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="durable-message.jpg" alt="The Durable Message Role: Carrying Durable Intent in Compact Messages" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">The Durable Message Role: Carrying Durable Intent in Compact Messages</span>
+        
+    </h1>
+
+    Ben Um • April 28, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+
+
+<blockquote>
+<p><em>Earlier chapters established what an input script is, the boundary it crosses when handed off, and the discipline that lets a script travel beyond the orchestrator who authored it. This chapter establishes a specific role an input script can take on: the role of carrying a message.</em></p>
+
+<p><em>The chapter uses routing in its working sense — what a postal worker does with a package, what a dispatcher does with a call, what a receptionist does with a visitor, what a clerk does with an incoming form. Routing information is what makes that work possible.</em></p>
+</blockquote>
+
+<h2>The Two Components</h2>
+
+<p>Every message in the durable message role has two components. One is routing information — what the message needs to be moved from sender to recipient. The other is content — what the sender wanted to communicate. The two components are distinct and do not overlap. Each does work the other cannot do.</p>
+
+<h2>Routing Information</h2>
+
+<p>Routing information has four pieces — the sender's name and address, and the recipient's name and address. Names identify the participants the message is between; addresses tell how to reach them. Both are needed; neither substitutes for the other.</p>
+
+<p>The address may take any form sufficient for the message to reach the participant — a phone number, a postal address, an email address, a radio frequency, a channel identifier. The name may take any form sufficient to identify the participant — a full name, a role title, a call sign, a participant identifier. The framework does not commit to any particular form. What constitutes a valid address or sufficient name depends on what the participants operate on.</p>
+
+<p>Routing information must be in place before sending begins. This is the input boundary the boundary-conditions chapter named, applied to the message-passing operation. Without it, nobody handling the message can know who the recipient is or how to reach them, and whatever happens next is rejection, holding for clarification, or guessing. Guessing is what produces the failures the discipline is meant to prevent.</p>
+
+<h2>Content</h2>
+
+<p>Content takes one of two forms, fixed content and open-ended content.</p>
+
+<p>Fixed content is complete at the moment of sending — a letter sealed in its envelope, a package handed to the carrier, a voicemail left at the tone, an email or text composed and sent. The sender finishes composing, sending happens, and what arrives is what was finished. The content has a definite end built in at the moment the message was sent.</p>
+
+<p>Open-ended content flows through the operation for its duration. A phone call carries conversation turn by turn for as long as the participants speak. A radio channel carries traffic for as long as the channel is held open. A chat session carries turns until the session ends. The content has no end built in at the moment of sending; it ends when the operation ends.</p>
+
+<h2>Working Communication Has Always Carried Routing Information and Content</h2>
+
+<p>Every culture of working communication has independently developed the same discipline. Routing information and content appear together, distinctly, in the working forms each domain has settled on.</p>
+
+<p>A mailed letter goes in an envelope addressed to the recipient with the sender's return address; the envelope is routing information, the letter inside is content.</p>
+
+<p>A voicemail opens with the sender introducing themselves: <em>this is Sam Reed calling from Northgate Logistics, my number is 555-0142</em>. The opening seconds are routing information; the substance that follows is content.</p>
+
+<p>A radio call begins with both call signs — <em>Base, this is Team Three, over</em> — identifying both ends before the substance starts, because the transmission is otherwise ambiguous about who is speaking to whom.</p>
+
+<p>A package shipping label has the recipient's name and address on the front and the sender's name and address as the return information; the label is routing information, what the package contains is content.</p>
+
+<p>The pattern is universal. Every domain that has practiced communication at scale has independently arrived at the same two-component structure. The structure is not a convention any single tradition invented; it is what messages in the durable message role require, recognized again and again wherever the requirement was forced by the work.</p>
+
+<h2>What the Role Produces</h2>
+
+<p>Messages in the durable message role are acted on by two further roles, each established in a chapter of its own. The message handler role receives a message and decides how to dispatch it. The messenger role carries the message along the channel the handler chose.</p>
+
+
+
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../portability/portability.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Orchestration Series • April 28, 2026</p>
+    </footer>
+
+
+
+</body></html>

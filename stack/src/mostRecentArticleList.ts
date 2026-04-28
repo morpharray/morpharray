@@ -2,10 +2,12 @@ import * as vscode from 'vscode';
 import * as cheerio from 'cheerio';
 import { getWorkspaceRoot } from './utils.js';
 import { TextDecoder } from 'node:util';
+import { isStackDefinitionFile, parseStackDefinitionLines } from './utils.js';
 
 const ARTICLE_PUB_LISTS_DIR = 'article-pub-lists';
 const MAPUB_EXTENSION = '.mapub';
 const OUTPUT_DIR = 'html';
+const MAX_STACK_LOOKUP_PARENT_LEVELS = 2;
 const utf8Decoder = new TextDecoder('utf8');
 const MONTH_DAY_YEAR_REGEX =
 	/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+([1-9]|[12][0-9]|3[01]),\s+(\d{4})\b/;
@@ -16,6 +18,7 @@ interface PublishedArticle {
 	title: string;
 	dateText: string;
 	dateValue: Date;
+	stackOrderRank?: number;
 }
 
 function normalizeRelativePath(value: string): string {
@@ -75,6 +78,123 @@ function renderAnchorListHtml(selectedMapubName: string, items: PublishedArticle
 		.join('\n');
 
 	return rows ? `${rows}\n` : '';
+}
+
+function getCandidateStacksDirRelativePaths(relativePath: string): string[] {
+	const segments = normalizeRelativePath(relativePath)
+		.split('/')
+		.filter((s) => s.length > 0);
+	if (segments.length < 2) {
+		return ['stacks'];
+	}
+	const directorySegments = segments.slice(0, -1);
+	const candidates: string[] = [];
+	const minIndex = Math.max(0, directorySegments.length - MAX_STACK_LOOKUP_PARENT_LEVELS);
+	for (let i = directorySegments.length; i >= minIndex; i -= 1) {
+		candidates.push([...directorySegments.slice(0, i), 'stacks'].join('/'));
+	}
+	return candidates;
+}
+
+function getFileNameLower(relativePath: string): string {
+	const normalized = normalizeRelativePath(relativePath).toLowerCase();
+	const segments = normalized.split('/').filter((s) => s.length > 0);
+	return segments.length > 0 ? segments[segments.length - 1] : '';
+}
+
+function getFileStemLower(relativePath: string): string {
+	const fileName = getFileNameLower(relativePath);
+	if (!fileName) {
+		return '';
+	}
+	const lastDot = fileName.lastIndexOf('.');
+	if (lastDot <= 0) {
+		return fileName;
+	}
+	return fileName.slice(0, lastDot);
+}
+
+async function readStackOrderMap(stacksDirUri: vscode.Uri): Promise<Map<string, number>> {
+	let entries: [string, vscode.FileType][];
+	try {
+		entries = await vscode.workspace.fs.readDirectory(stacksDirUri);
+	} catch {
+		return new Map();
+	}
+
+	const stackNames = entries
+		.filter(([, type]) => type === vscode.FileType.File)
+		.map(([name]) => name)
+		.filter(isStackDefinitionFile)
+		.sort((a, b) => a.localeCompare(b));
+
+	const orderByFileName = new Map<string, number>();
+	let order = 0;
+	for (const stackName of stackNames) {
+		try {
+			const stackUri = vscode.Uri.joinPath(stacksDirUri, stackName);
+			const raw = await vscode.workspace.fs.readFile(stackUri);
+			const lines = parseStackDefinitionLines(utf8Decoder.decode(raw));
+			for (const line of lines) {
+				const fileName = getFileNameLower(line);
+				if (!fileName) {
+					continue;
+				}
+				const fileStem = getFileStemLower(line);
+				const keys = new Set<string>([fileName]);
+				if (fileStem) {
+					keys.add(fileStem);
+				}
+				let isNew = false;
+				for (const key of keys) {
+					if (orderByFileName.has(key)) {
+						continue;
+					}
+					orderByFileName.set(key, order);
+					isNew = true;
+				}
+				if (isNew) {
+					order += 1;
+				}
+			}
+		} catch {
+			// Ignore unreadable stack files and continue.
+		}
+	}
+
+	return orderByFileName;
+}
+
+async function applyStackTieBreaker(
+	workspaceRoot: vscode.Uri,
+	articles: PublishedArticle[],
+): Promise<void> {
+	const stackOrderCache = new Map<string, Promise<Map<string, number>>>();
+	const rankPromises = articles.map(async (article) => {
+		const fileName = getFileNameLower(article.relativePath);
+		const fileStem = getFileStemLower(article.relativePath);
+		if (!fileName && !fileStem) {
+			return;
+		}
+		for (const stacksDirRelativePath of getCandidateStacksDirRelativePaths(article.relativePath)) {
+			const stacksDirUri = vscode.Uri.joinPath(workspaceRoot, ...stacksDirRelativePath.split('/'));
+			const cacheKey = stacksDirUri.toString();
+			let orderMapPromise = stackOrderCache.get(cacheKey);
+			if (!orderMapPromise) {
+				orderMapPromise = readStackOrderMap(stacksDirUri);
+				stackOrderCache.set(cacheKey, orderMapPromise);
+			}
+			const orderMap = await orderMapPromise;
+			const rank =
+				(fileName ? orderMap.get(fileName) : undefined) ??
+				(fileStem ? orderMap.get(fileStem) : undefined);
+			if (rank !== undefined) {
+				article.stackOrderRank = rank;
+				return;
+			}
+		}
+	});
+	await Promise.all(rankPromises);
 }
 
 export async function createMostRecentArticleList(): Promise<void> {
@@ -178,7 +298,20 @@ export async function createMostRecentArticleList(): Promise<void> {
 			}
 		}
 
-		foundArticles.sort((a, b) => b.dateValue.getTime() - a.dateValue.getTime());
+		await applyStackTieBreaker(workspaceRoot, foundArticles);
+		foundArticles.sort((a, b) => {
+			const dateDiff = b.dateValue.getTime() - a.dateValue.getTime();
+			if (dateDiff !== 0) {
+				return dateDiff;
+			}
+			const aRank = a.stackOrderRank ?? Number.POSITIVE_INFINITY;
+			const bRank = b.stackOrderRank ?? Number.POSITIVE_INFINITY;
+			if (aRank !== bRank) {
+				// Later entries in stack files are treated as newer chapters.
+				return bRank - aRank;
+			}
+			return a.relativePath.localeCompare(b.relativePath);
+		});
 
 		const outputDirUri = vscode.Uri.joinPath(listsDir, OUTPUT_DIR);
 		await vscode.workspace.fs.createDirectory(outputDirUri);
