@@ -37,3 +37,10 @@ HOW TO MOVE BETWEEN THEM
 Do not treat the frames as alternatives the reader must choose between. Move between them as the teaching requires, trusting that they are continuous. A reader who has absorbed the intro can hear "actor" and "story" and "director" accurately in either domain, and the series benefits from letting both do their work.
 
 The test when choosing a frame: which one makes this particular phenomenon most legible to a reader whose training is leading a team? If theater makes a specific claim land with compact force, use theater for that claim. Everywhere else, the team-coordination frame is the working default, because that is where the intended reader lives.
+
+AI SANITY CHECK
+
+After drafting any chapter or section, run a silent check: can AI participants honor its architectural commitments using current implementation patterns? If yes, the chapter stands and the check is never mentioned. If no, surface the gap as discussion.
+
+The check's vocabulary never enters the chapter. AI terminology stays out of the series. The check is a private question; the chapter sees only working vocabulary at the architectural level.
+If during drafting a commitment is about to be made that AI participants cannot honor, pause and surface the issue rather than working around it silently.
