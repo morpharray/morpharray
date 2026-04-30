@@ -1,0 +1,86 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unique Identifiers: Names That Work at Scale</title>
+    <link rel="stylesheet" href="../base.css">
+    
+    <!-- Optional: Add any extra head content here if needed later -->
+</head>
+<body>
+
+    <!-- Optional hero image (only include if image exists) -->
+    <figure class="hero-image"><img src="unique-id.jpg" alt="Unique Identifiers: Names That Work at Scale" loading="lazy" decoding="async"></figure>
+
+
+    <h1>
+        <span class="title-main">Unique Identifiers: Names That Work at Scale</span>
+        
+    </h1>
+
+    Ben Um • April 30, 2026
+
+    <!-- Main article content (this is where the cleaned body from Turndown goes) -->
+    <div class="article-content">
+        
+
+<blockquote>
+<p><em>This chapter establishes the architectural property that lets messages travel reliably when coordination scales beyond the point where everyone knows everyone by sight. Earlier chapters established input scripts, the boundary they cross when handed off, the baseline of mutual understanding the orchestrator owes the participants, and the discipline that lets a script travel beyond the orchestrator who authored it. The durable-message chapter named the four pieces of routing information every message carries — sender's name and address, recipient's name and address. The chapters that followed built the operational foundation those messages run on. This chapter establishes what the routing information and the message itself need to function at scale.</em></p>
+</blockquote>
+
+<h2>Who, What, Where, When</h2>
+
+<p>A shipping label carries four distinct kinds of identification, each doing different architectural work. The sender's name and the recipient's name are "who" identifiers — they identify the participants in the communication. The return address and the destination address are "where" identifiers — they identify the endpoints the message travels between. The tracking number is a "what" identifier — it identifies the message itself, distinguishable from every other package the carrier has ever handled. The timestamps stamped at every scan are "when" identifiers — they identify the moments at which events occurred along the journey. Who, what, where, and when — four types of identifier, each carrying information the other three cannot carry. A given message may include one identifier of a type or several, depending on what the work requires. Coordinated work at scale depends on all four types. The four sections that follow establish what fills each role in working life. The rest of the chapter examines what makes any of these identifiers strong enough to do their work, and what fails when they are not.</p>
+
+<h2>Who: The Participants</h2>
+
+<p>The "who" identifier picks out a participant in the communication. Each "who" identifier in a message designates a specific participant — the sender, a recipient, a group, a participant the message concerns. A given message structure may include one "who" identifier or several, depending on what the work requires. In the smallest cases, names alone are enough: a household with one Maria, a small team where every name is distinct. As the scope grows, names alone become insufficient. Some "who" identifiers replace the name entirely with something stronger: an employee number, a patient ID, a citizen registration number, a participant ID assigned by the orchestration. The role is the same in every case — to identify each participant unambiguously enough that the system carrying the message can act on the identification correctly.</p>
+
+<h2>What: The Message Itself</h2>
+
+<p>The "what" identifier picks out the specific message, distinguishable from every other message the system has ever handled. Tracking numbers do this for packages. Reference numbers do it for customer service tickets. Order numbers do it for purchases. Message identifiers do it for emails and pub/sub messages. Confirmation codes do it for travel reservations. The "what" identifier is what makes recovery work possible — when something has gone wrong, the orchestrator or the affected party can refer to the specific message that failed without ambiguity, and the system can pull up exactly the right record. The orchestrator's first move when a customer calls about a problem is to ask for the order number, the tracking number, the reference number — the "what" identifier that makes the rest of the conversation possible.</p>
+
+<h2>Where: The Endpoints</h2>
+
+<p>The "where" identifier picks out a specific endpoint at which a participant is reached. Each "where" identifier in a message designates a specific endpoint — the source the message comes from, the destination the message goes to, the location the message concerns. A given message structure may include one "where" identifier or several, depending on what the work requires. Phone numbers do this for voice and text. Email addresses do it for electronic mail. Channel identifiers do it for pub/sub services. Radio frequencies do it for broadcast and two-way radio. Slack user IDs, Discord channel IDs, mailing list addresses — all are "where" identifiers, each picking out an endpoint at which a participant can be reached through some medium. The role is the same in every case: to specify the endpoint each identifier designates, so the messenger knows where to act.</p>
+
+<h2>When: The Moment the Event Occurred</h2>
+
+<p>The "when" identifier locates an event on a timeline. Timestamps do this most directly — the date and time recorded when something happened. Ticket numbers from take-a-number systems do it implicitly, with each new number coming after the previous one in the day's sequence. Receipt numbers, order numbers, docket numbers, and similar monotonic counters carry "when" information through their position in the issuing sequence. Postmarks do it on physical mail. Scan times do it at every handoff in a logistics network. Most working systems pair their "what" identifiers with "when" identifiers explicitly — every order has an order number and an order date, every receipt has a transaction ID and a transaction time, every admission has an admission record and an admission timestamp — because the system needs both to operate. The "what" identifier picks out which item is being referred to; the "when" identifier locates the item in the system's timeline.</p>
+
+<h2>Identifiers Strong and Weak</h2>
+
+<p>Identifiers vary in strength. A weak identifier may be confused with another; a strong identifier picks out exactly one thing within the scope of its use. Strength is rarely a binary — most identifiers fall on a gradient that the orchestrator calibrates by adding qualifying information until the identifier is strong enough for the work being done.</p>
+
+<p>Only a first name is a weak "who" identifier. A first name with a last name is better, and a full name with a department is better still. A month-day-year is a weak "when" identifier. Adding the time of day is better, and adding microseconds is better still. A standard postal address is a reasonable "where" identifier. Adding a department is better, and adding a "care of" line is better still. The pattern is the same in each case: the orchestrator composes the identifier with qualifying information until the composition picks out exactly one thing within the relevant scope. Whether the qualifier is filed with the original identifier or treated as a separate field is an implementation choice — both treatments work as long as the composition produces an unambiguous landing point.</p>
+
+<p>At the strongest end of the gradient in common usage today sit the tracking numbers issued by UPS, FedEx, and USPS. Each carrier's prefix keeps its numbers in a separate namespace, and within each namespace the carrier mints numbers under tight issuing discipline that prevents collision across billions of packages handled annually. The reader who has used a tracking number has used the strongest identifier in everyday circulation.</p>
+
+<p>The phrase the framework uses for an identifier engineered to be unambiguous within the scope of its use is "unique identifier" — used here in its precise architectural sense, which any document depending on the precision should signal somehow when the term appears.</p>
+
+<h2>What Is at Stake</h2>
+
+<p>Unique identifiers are different from most concepts in the series because the cost of getting them wrong can be measured in lives. Two patients sharing a name in a hospital records system, with one allergic to penicillin: the wrong chart pulled up, the wrong medication given, anaphylactic shock. Two aircraft with similar-sounding call signs in the same air traffic control sector: the wrong instruction acted on, aircraft converging — Tenerife in 1977 killed 583 people partly through this failure mode. Two patients with similar names in a pharmacy system: the wrong prescription dispensed, calibrated for someone else's condition. A tracking number lost on a temperature-sensitive medication shipment: spoiled medicine reaching the patients who needed it. The same architectural failure occurs when message information is incomplete rather than ambiguous: a medication order with the patient and the dose but no timestamp, leaving the nurse unable to tell whether the dose has already been given; an emergency dispatch with the address but no callback number, leaving responders unable to reach the caller when they encounter complications. Weak identifiers produce confusion; missing message information produces undeliverable messages or messages that arrive without enough context to be acted on. Both are failures of the precision the chapter teaches. These are not edge cases; they are the failure modes that working orchestrations confront whenever the precision is not invested in. The orchestrator authoring scripts that coordinate work where errors can hurt people is responsible for investing in the precision; the investment is not optional, and its cost is paid by people who did not author the script and have no way to protect themselves from the orchestrator's choices.</p>
+
+<h2>Where Unique Identifiers Live in Coordinated Work</h2>
+
+<p>Working systems carry unique identifiers across all four types — who, what, where, when — though each system carries them in whatever combination its work requires. The shipping label illustrates the pattern in compact form: "who" identifiers for the sender and recipient, "where" identifiers for the source and destination addresses, a "what" identifier in the tracking number, and "when" identifiers stamped at every handoff. The same pattern shows up across other working systems — deli counter slips, DMV tickets, restaurant orders, retail receipts, hospital admission records — each instantiating the four types in whatever shape its operation requires. The variation across systems is not a deviation from the architecture; it is the architecture in action. The pattern is so universal across working systems that most readers have stopped noticing it.</p>
+
+<h2>Precision Is a Tool, Not a Requirement</h2>
+
+<p>Not every orchestration document needs unique identifiers. A grocery list does not need them. A logistics network handling millions of packages a day needs them at every layer. Most orchestration documents fall between these extremes — some handoff points in the coordination need unique identifiers, others do not, and the orchestrator's craft is recognizing which is which. Precision is a tool the orchestrator reaches for when the work calls for it and sets aside when the work does not. The framework gives the orchestrator the vocabulary and discipline to use precision well when they choose to use it; what the framework does not do is mandate that every orchestration document operate at maximum precision regardless of what the work requires. The reader who has finished this chapter has the four types of unique identifier (who, what, where, when), the strong/weak gradient that strength sits on, the qualifier pattern that strengthens identifiers when names alone are insufficient, the recognition that the cost of imprecision can be measured in lives, and the calibration discipline of recognizing which handoff points in coordination need unique identifiers and which do not. Working orchestrators have always made these judgments. The framework names what they have always known, in language that travels.</p>
+    </div>
+
+    <!-- Bottom navigation (Previous | Index | Next) -->
+    <nav class="nav-bottom">
+        <a href="../messenger/messenger.html">← Previous</a>
+        <a href="../index.html">Index</a>
+        <span class="nav-disabled">Next →</span>
+    </nav>
+
+    <footer>
+        <p>Orchestration Series • April 30, 2026</p>
+    </footer>
+
+
+
+</body></html>
