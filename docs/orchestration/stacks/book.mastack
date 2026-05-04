@@ -18,3 +18,5 @@ message-handler/message-handler.html # pub=2026-04-29
 messenger/messenger.html # pub=2026-04-29
 unique-id/unique-id.html # pub=2026-04-30
 responsive-loop/responsive-loop.html # pub=2026-05-01
+# the-orchestrator-role/the-orchestrator-role.html # pub=2026-05-02
+composer-orchestrator-pair/composer-orchestrator-pair.html # pub=2026-05-04
