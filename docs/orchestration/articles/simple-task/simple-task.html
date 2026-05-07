@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Worked Example: A Drill Press Repair</title>
+</head>
+<body>
+
+<h1>A Worked Example: A Drill Press Repair</h1>
+
+<p><em>The chapters of the series so far have established the framework's primitives: input scripts and the boundary they cross, mutual understanding, the durable message and its supporting roles, unique identifiers, the responsive loop, the composer/orchestrator pair, and the orchestrator's two modes of handling work. This chapter introduces nothing new. It walks through a single small incident in operation, calling out the primitives as they appear. The point is to show the architecture working on a recognizable piece of work.</em></p>
+
+<h2>The Setting</h2>
+
+<p>The shop is a small custom fabrication operation. The owner runs the business; a foreman runs the floor; a handful of workers run the machines. When a tool stops working, the work that depends on it stops.</p>
+
+<p>The foreman is new to the shop, hired three weeks ago. He brings years of experience from other shops — he has run floors before and fixed plenty of broken tools — but this shop's crew, suppliers, accounts, and procedures are new to him. The owner told him to consult the standing shop procedures whenever uncertain, not because he could not figure things out himself, but because the procedures carry the shop's accumulated way of doing things.</p>
+
+<p>The shop owner authored the standing maintenance procedure years ago. It specifies what the work is for: when a shop tool stops working, restore it with minimum disruption to active jobs. It lays out the typical sequence — diagnose, source parts if needed, acquire and install, test. It delegates: the foreman is the orchestrator of any maintenance incident, with latitude to use any worker and make sourcing decisions up to five hundred dollars without consulting the owner. Above that, or for incidents that will pull a tool down more than a day, the procedure says call.</p>
+
+<p>The procedure is the founding script for any incident it covers. Today's incident is the drill press.</p>
+
+<h2>The Incident Begins</h2>
+
+<p>Sam is running a job on the drill press. The machine will not start. Sam goes to find the foreman.</p>
+
+<p>Sam tells him the drill press is dead. The foreman stops what he’s doing, walks to the shop binder, and pulls the machine repair procedure. The foreman now inhabits the maintenance orchestrator role for this incident, holding it until the press is back in service or the incident is escalated. The role's responsive loop starts running underneath.</p>
+
+<p>He already has a good idea of what to check, but the owner's instruction was to consult the procedure when uncertain. He is still new enough to this shop to want the procedure in front of him.</p>
+
+<p>The procedure starts with diagnosis. The foreman runs through the likely causes from experience: tripped breaker, bad switch, bad motor, bad cord. The procedure's checklist names the same possibilities in roughly the same order. The first two are quick to check in parallel; the latter two require more involved testing. He decides to start with the breaker and the switch.</p>
+
+<p>The procedure is not telling him anything he does not already know, but it keeps the process grounded in how this shop expects maintenance incidents to be handled. His experience and the procedure point toward the same next step.</p>
+
+<h2>Stage 1: Diagnosis</h2>
+
+<p>The foreman composes two sub-scripts. One for Sam: check the electrical panel for a tripped breaker. One for Jess: open the switch box and check continuity through the switch. He calls them over and gives them their assignments verbally — a sentence each. Sam and Jess know their work; he does not need to explain what a tripped breaker is or how to test a switch.</p>
+
+<p>The assignments are short because the crew already shares the same operational baseline. The foreman does not need to explain how to check a breaker or test a switch; he only needs to specify who is handling what.</p>
+
+<p>Sam heads to the electrical panel. Jess gets her tools and goes to the press. The foreman returns to his bench and picks up the work he had been doing, but the maintenance role is still being held. He is in held-readiness — the responsive loop running, observation active for whatever Sam or Jess reports back, evaluation ready to operate on what comes back.</p>
+
+<p>Sam comes back first: breaker is fine. Jess comes back about five minutes later: the switch is bad. Line voltage at the input, nothing at the output, and no continuity through the switch with power off. The switch is the failure point.</p>
+
+<p>Evaluation produces a straightforward conclusion: only the switch is bad, and the next stage is sourcing a replacement.</p>
+
+<h2>Stage 2: Sourcing</h2>
+
+<p>The foreman thinks through how to source the switch. The procedure's sourcing section lists the local parts suppliers the owner prefers — including the industrial supply house twenty minutes from the shop, with an account already established. It also names the routes the shop uses for OEM parts. The procedure tells the foreman something he could not have known on his own: which suppliers are preferred and which relationships are already in place. The two routes have different tradeoffs: OEM is cheaper but slower; aftermarket is faster but slightly more expensive. He does not know which is the right call yet. The right move is to put both inquiries in flight and decide once both responses come back.</p>
+
+<p>The foreman decides the fastest way to get a good answer is to check both sourcing paths at the same time.</p>
+
+<p>The foreman tells Sam to contact the manufacturer's parts department and get availability and pricing for the switch. Sam decides email is the best fit. The OEM website says the parts desk usually replies within an hour during business hours, and Sam writes requests like this regularly. The foreman gives him the machine information he will need: model number, serial number, part description, and the shop's callback information.</p>
+
+<p>Jess is going to call the local industrial supply house. The foreman gives her the model number and tells her to ask about a compatible aftermarket switch — stock, price, pickup timing. Jess knows the parts clerk from previous orders.</p>
+
+<p>Sam goes to the office computer. Jess goes to the office phone. Two parallel sub-scripts, two different communication modes, architecturally identical work.</p>
+
+<p>The email Sam composes carries all four kinds of unique identifier the unique-identifier chapter named. The recipient address is a "where" identifier routing to the manufacturer's parts inbox. The shop's email is the sender and callback. The model number narrows the catalog to this product line. The serial number narrows further to this specific machine. The part description combined with model and serial is unambiguous within the manufacturer's records. The email gets a message ID and timestamp automatically — "what" and "when" identifiers useful if a follow-up is needed. Four kinds of identifier in a single email, all doing real work, none visible to Sam as identifiers.</p>
+
+<p>The phone call carries the same categories in different packaging. The supply house's phone number is the "where" identifier; the shop's phone number is the return path. Jess gives the model number aloud; the clerk types it into their system; the system returns a stock number — a "what" identifier picking out the part within the supply house's namespace. Same architectural pattern, completely different surface.</p>
+
+<p>The foreman is in held-readiness while both inquiries are in flight. Jess comes back first: the supply house has the aftermarket switch in stock, twenty dollars, available now, stock number on a slip. The email reply comes twenty minutes later: OEM switch, fifteen dollars, two-day delivery, order by three to ship today.</p>
+
+<p>The foreman now has two real options, both within his procurement authority.</p>
+
+<p>Jess adds one more piece of information before heading back to the floor: the old industrial supply house listed in the procedure closed a few months ago. The account had been transferred to a newer supplier across town. Jess has worked with them once before, but the foreman has not.</p>
+
+<p>The procedure did not predict this exact situation. The preferred supplier relationship still exists in principle, but one of the concrete details inside the procedure is now out of date.</p>
+
+<p>The foreman decides to call the owner before spending company money through an unfamiliar supplier relationship. The owner picks up. The foreman explains the situation: the listed supplier is gone, the replacement supplier has the part in stock, and the total cost is still within authority limits.</p>
+
+<p>The owner thinks about it for a few seconds and tells him to go ahead with the replacement supplier for today's repair. He also tells the foreman to write down how the experience goes so the standing procedure can be updated later if the new supplier works out.</p>
+
+<p>The supplier changed, but the process for handling the repair did not. The foreman still had clear authority limits, a clear objective, and a clear escalation path when something fell outside the written procedure.</p>
+
+<h2>Stage 3: Procurement</h2>
+
+<p>The foreman weighs them. OEM: fifteen dollars, two days. Aftermarket: twenty dollars, within an hour. Difference is five dollars and two days.</p>
+
+<p>The decision depends on context the procedure did not pre-specify. The press is critical to the current job, which has a delivery target this week. Two days down would push it late. Five dollars is insignificant compared to a late delivery. The aftermarket option fits the procedure's specification — minimum disruption to active jobs — better than the OEM option does. The foreman checks the authority section: twenty dollars is well within his five-hundred-dollar threshold, and the press will be back up within the hour. The decision is his to make.</p>
+
+<p>The OEM inquiry was not wasted effort. It gave the foreman a real comparison point before deciding which option best fit the shop's immediate needs.</p>
+
+<p>The foreman composes the procurement sub-script: Sam drives the shop truck to the supply house, presents the stock number, charges the part to the shop account, and returns with the part. Specification, planning, delegation — composed in seconds.</p>
+
+<p>Sam goes. The foreman returns to held-readiness. About an hour later, Sam returns with the switch and the receipt.</p>
+
+<h2>Stage 4: The Repair</h2>
+
+<p>The final stage is install and test. The foreman handles this himself — replacing a switch is within direct performance for someone with his training. No further sub-composition is needed.</p>
+
+<p>He locks out power, removes the broken switch while noting wire positions, installs the new one, restores power, and runs a brief on-off test. The switch behaves correctly. The press is back in service.</p>
+
+<p>He checks each step as he goes: wires on the correct terminals, cover seated properly, press starting normally, press stopping normally. If something had been wrong, he would have caught it before moving to the next step.</p>
+
+<p>The maintenance role's work is done. The foreman releases the role. The procedure goes back in the binder.</p>
+
+<h2>What the Example Showed</h2>
+
+<p>The incident took roughly two hours start to finish. From the outside, a tool broke and the foreman handled it. From the architectural angle, the same incident shows the framework's primitives operating together.</p>
+
+<p>The standing procedure became the input script when the foreman took on the maintenance role. The role was held continuously, with the responsive loop running underneath the whole time. Sub-composition fired three times — twice for parallel fan-out (diagnosis, sourcing) and once for sequential delegation (procurement). Direct performance handled the final stage and the held-readiness stretches between stages. Evaluation produced different conclusions at different moments: a diagnostic conclusion, a deliberate choice about how to source the replacement, and a deliberate choice between the sourcing options.</p>
+
+<p>Communication ran on durable messages in multiple modes — verbal dispatches to Sam and Jess, email to the manufacturer, phone call to the supply house. The four kinds of unique identifier showed up densely in the manufacturer email and the supply house call. The mutual-understanding baseline varied across participants — high with Sam and Jess, lower with the external suppliers who needed model and serial numbers to act on the requests.</p>
+
+<p>The chain ran from shop owner to foreman to workers. The manufacturer and supply house participated as external nodes — communicated with through the same durable-message machinery, but not subordinates in the foreman's command structure. The script hierarchy is visible inside the chain; the graph relationships outside it are equally real.</p>
+
+<p>What the example does not show: long-running orchestration, escalation past the foreman's authority, choreography without a coordinator, governance across days or weeks. What it does show is the framework operating coherently on a recognizable small incident — the kind every shop, kitchen, classroom, field site, and office handles routinely. The coordination was there the whole time. The framework's contribution is to make it visible.</p>
+
+</body>
+</html>
