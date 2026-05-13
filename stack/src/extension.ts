@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { createMentalStackFullContext } from './mentalStack.js';
+import { exportMarkdownBook } from './markdownExport.js';
 import { createMostRecentArticleList } from './mostRecentArticleList.js';
 import { rebuildDynamicStory } from './siteBuilder.js';
 import { initializeBookWorkspace } from './workspaceInit.js';
@@ -13,6 +14,7 @@ export function activate(context: vscode.ExtensionContext): void {
 			'morpharray.createMostRecentArticleList',
 			createMostRecentArticleList,
 		),
+		vscode.commands.registerCommand('morpharray.exportMarkdownBook', exportMarkdownBook),
 	);
 }
 

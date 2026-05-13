@@ -41,7 +41,8 @@ export function formatArticleSection(options: ArticleSectionFormatOptions): stri
 	return lines.join('\n');
 }
 
-function createTurndownForStacks(): TurndownService {
+/** Shared HTML→Markdown rules for Mental Stack clipboard and Markdown file export. */
+export function createTurndownForStacks(): TurndownService {
 	const turndownService = new TurndownService({
 		headingStyle: 'atx',
 		codeBlockStyle: 'fenced',

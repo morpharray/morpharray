@@ -3,7 +3,7 @@
   "displayName": "MorphArray Stack",
   "description": "VS Code extension to manage a Mental Stack for LLM context creation",
   "publisher": "morpharray",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/morpharray/morpharray.git",
@@ -20,7 +20,8 @@
     "onCommand:morpharray.rebuildDynamicStory",
     "onCommand:morpharray.createMentalStackFullContext",
     "onCommand:morpharray.initializeBookWorkspace",
-    "onCommand:morpharray.createMostRecentArticleList"
+    "onCommand:morpharray.createMostRecentArticleList",
+    "onCommand:morpharray.exportMarkdownBook"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -43,6 +44,11 @@
       {
         "command": "morpharray.createMostRecentArticleList",
         "title": "Create Most Recent Article List",
+        "category": "MorphArray"
+      },
+      {
+        "command": "morpharray.exportMarkdownBook",
+        "title": "Markdown Export",
         "category": "MorphArray"
       }
     ]
