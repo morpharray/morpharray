@@ -1,5 +1,7 @@
 Orchestration is governance. The composition of heterogeneous work into coherent networks — some of it machine, some of it human, some of it hybrid — is the same discipline that built environments, organizations, and distributed systems have always practiced under other names. Mature governance disciplines are built on named configurations that practitioners can cite, compare, and argue about, and the two works that follow are the foundational statements of that idea in adjacent fields. They are listed here because the Orchestration Series inherits their central commitment: that a discipline becomes workable when its recurring configurations have names.
 
+The series does not attempt to invent orchestration. It attempts to discover and name the primitive design patterns that make orchestration possible. Its contribution is recognition: identifying recurring operational patterns that coordinated work has always depended on, then naming them clearly enough that they can be composed deliberately.
+
 
 A Pattern Language by Christopher Alexander
 
